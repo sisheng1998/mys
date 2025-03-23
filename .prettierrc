@@ -20,6 +20,8 @@
     "^@/app/(.*)$",
     "^@/(.*)$",
     "",
+    "^@cvx/(.*)$",
+    "",
     "^[./]"
   ],
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
