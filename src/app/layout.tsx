@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Noto_Sans_SC as FontSans } from "next/font/google"
 
 import { cn } from "@/lib/utils"
+import Providers from "@/app/providers"
 
 import "@/app/globals.css"
 
@@ -23,14 +24,14 @@ const RootLayout = ({
 }: Readonly<{
   children: React.ReactNode
 }>) => (
-  <html lang="en">
+  <html lang="en" suppressHydrationWarning>
     <body
       className={cn(
         "relative flex min-h-svh flex-col overflow-x-hidden overscroll-y-none font-sans antialiased",
         fontSans.variable
       )}
     >
-      {children}
+      <Providers>{children}</Providers>
     </body>
   </html>
 )
