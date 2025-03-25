@@ -1,8 +1,9 @@
 "use client"
 
 import React from "react"
-import { useRouter } from "next/navigation"
 import { useAuthActions } from "@convex-dev/auth/react"
+
+import { useRouter } from "@/hooks/useRouter"
 
 const Home = () => {
   const { push } = useRouter()
