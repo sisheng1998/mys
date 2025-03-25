@@ -1,4 +1,4 @@
-const config = {
+const authConfig = {
   providers: [
     {
       domain: process.env.CONVEX_SITE_URL,
@@ -7,4 +7,4 @@ const config = {
   ],
 }
 
-export default config
+export default authConfig
