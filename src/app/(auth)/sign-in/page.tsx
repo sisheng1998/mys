@@ -3,7 +3,7 @@
 import React from "react"
 import { useAuthActions } from "@convex-dev/auth/react"
 
-const Login = () => {
+const SignIn = () => {
   const { signIn } = useAuthActions()
 
   return (
@@ -11,4 +11,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default SignIn
