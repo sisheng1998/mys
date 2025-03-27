@@ -5,8 +5,10 @@ import TopLoader from "nextjs-toploader"
 import ConvexClientProvider from "@/components/Providers/ConvexClientProvider"
 import ThemeProvider from "@/components/Providers/ThemeProvider"
 
+export const CONVEX_AUTH_API_ROUTE = "/api/convex-auth"
+
 const Providers = ({ children }: { children: React.ReactNode }) => (
-  <ConvexAuthNextjsServerProvider>
+  <ConvexAuthNextjsServerProvider apiRoute={CONVEX_AUTH_API_ROUTE}>
     <ConvexClientProvider>
       <ThemeProvider
         attribute="class"
