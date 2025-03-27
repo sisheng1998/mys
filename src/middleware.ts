@@ -8,7 +8,11 @@ import {
 import { CONVEX_AUTH_API_ROUTE } from "@/app/providers"
 import { env } from "@/env"
 
-const publicRoutes = createRouteMatcher(["/login"])
+const isSignInPage = createRouteMatcher(["/sign-in"])
+const isPublicRoute = createRouteMatcher([
+  "/terms-of-service",
+  "/privacy-policy",
+])
 
 export const middleware = async (req: NextRequest, event: NextFetchEvent) => {
   if (req.nextUrl.pathname.startsWith("/api/auth"))
@@ -18,16 +22,13 @@ export const middleware = async (req: NextRequest, event: NextFetchEvent) => {
 
   return convexAuthNextjsMiddleware(
     async (request, { convexAuth }) => {
-      const isPublicRoute = publicRoutes(request)
       const isAuthenticated = await convexAuth.isAuthenticated()
 
-      if (isPublicRoute && isAuthenticated) {
+      if (isSignInPage(request) && isAuthenticated)
         return nextjsMiddlewareRedirect(request, "/")
-      }
 
-      if (!isPublicRoute && !isAuthenticated) {
-        return nextjsMiddlewareRedirect(request, "/login")
-      }
+      if (!isSignInPage(request) && !isPublicRoute(request) && !isAuthenticated)
+        return nextjsMiddlewareRedirect(request, "/sign-in")
     },
     {
       apiRoute: CONVEX_AUTH_API_ROUTE,
