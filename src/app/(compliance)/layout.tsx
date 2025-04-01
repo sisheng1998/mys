@@ -1,24 +1,34 @@
 import React from "react"
 import Link from "next/link"
 
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import BackgroundPattern from "@/components/Layouts/BackgroundPattern"
 import Logo from "@/icons/Logo"
 
 export const dynamic = "force-static"
 
 const Layout = ({ children }: { children: React.ReactNode }) => (
-  <main className="container my-12 max-w-prose space-y-12">
-    <Link href="/" className="inline-flex">
-      <Logo className="size-12" />
-    </Link>
+  <>
+    <BackgroundPattern />
 
-    <article className="prose prose-neutral">{children}</article>
+    <main className="container my-12 flex max-w-screen-sm flex-col items-center justify-center gap-6">
+      <Card className="w-full">
+        <CardHeader>
+          <Link href="/" className="my-2 inline-flex">
+            <Logo className="size-10 text-primary" />
+          </Link>
+        </CardHeader>
 
-    <hr className="bg-border" />
+        <CardContent>
+          <article className="prose prose-neutral">{children}</article>
+        </CardContent>
+      </Card>
 
-    <p className="text-sm text-muted-foreground">
-      Copyright © {new Date().getFullYear()} - 妙音寺
-    </p>
-  </main>
+      <p className="text-center text-sm text-muted-foreground">
+        Copyright © {new Date().getFullYear()} - 妙音寺
+      </p>
+    </main>
+  </>
 )
 
 export default Layout
