@@ -1,7 +1,6 @@
 import { fileURLToPath } from "node:url"
 import createMDX from "@next/mdx"
 import createJiti from "jiti"
-import remarkGfm from "remark-gfm"
 
 const jiti = createJiti(fileURLToPath(import.meta.url))
 
@@ -14,7 +13,7 @@ const nextConfig = {
 
 const withMDX = createMDX({
   options: {
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [["remark-gfm", { strict: true, throwOnError: true }]],
   },
 })
 
