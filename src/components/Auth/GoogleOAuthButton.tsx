@@ -2,11 +2,10 @@
 
 import React, { useState } from "react"
 import { useAuthActions } from "@convex-dev/auth/react"
+import { toast } from "sonner"
 
 import { LoaderButton } from "@/components/ui/loader-button"
 import Google from "@/icons/Google"
-
-// TODO: Add toast notification
 
 const GoogleOAuthButton = () => {
   const { signIn } = useAuthActions()
@@ -17,7 +16,7 @@ const GoogleOAuthButton = () => {
       setIsLoading(true)
       await signIn("google")
     } catch (error) {
-      console.error(error)
+      toast.error(String(error))
       setIsLoading(false)
     }
   }
