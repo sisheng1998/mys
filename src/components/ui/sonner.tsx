@@ -8,11 +8,7 @@ import {
   TriangleAlert,
 } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Toaster as Sonner } from "sonner"
-
-import { cn } from "@/lib/utils"
-
-type ToasterProps = React.ComponentProps<typeof Sonner>
+import { Toaster as Sonner, ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
@@ -20,7 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      className="font-sans!"
+      className="toaster group font-sans!"
       icons={{
         info: <Info />,
         success: <CheckCircle />,
@@ -30,10 +26,17 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       toastOptions={{
         classNames: {
-          icon: cn("[&_svg]:size-4"),
+          icon: "[&_svg]:size-4",
         },
       }}
       richColors
+      style={
+        {
+          "--normal-bg": "var(--popover)",
+          "--normal-text": "var(--popover-foreground)",
+          "--normal-border": "var(--border)",
+        } as React.CSSProperties
+      }
       {...props}
     />
   )

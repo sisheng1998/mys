@@ -1,9 +1,9 @@
 import React, { ElementType } from "react"
 import { Loader2, LucideIcon } from "lucide-react"
 
-import { Button, ButtonProps } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 
-type LoaderButtonProps = ButtonProps & {
+type LoaderButtonProps = React.ComponentProps<typeof Button> & {
   icon?: LucideIcon | ElementType
   isLoading?: boolean
 }
@@ -24,5 +24,3 @@ export const LoaderButton = ({
     {children}
   </Button>
 )
-
-LoaderButton.displayName = "LoaderButton"
