@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
   <>
     <BackgroundPattern />
 
-    <main className="container mx-auto my-12 flex max-w-(--breakpoint-sm) flex-col items-center justify-center gap-6">
+    <main className="container mx-auto my-12 flex w-auto flex-col items-center justify-center gap-6">
       <Card className="w-full">
         <CardHeader>
           <Link href="/" className="my-2 inline-flex">
@@ -20,7 +20,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
         </CardHeader>
 
         <CardContent>
-          <article className="prose prose-neutral">{children}</article>
+          <article className="prose prose-neutral prose-sm">{children}</article>
         </CardContent>
       </Card>
 

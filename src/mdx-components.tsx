@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 
 export const useMDXComponents = (components: MDXComponents): MDXComponents => ({
   a: ({ href, children }) => (
-    <Button variant="link" className="not-prose h-auto p-0 text-base" asChild>
+    <Button variant="link" className="not-prose h-auto p-0" asChild>
       <Link href={href || "/"} target="_blank">
         {children}
       </Link>
