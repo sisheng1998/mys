@@ -9,7 +9,7 @@ const Logo = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
     viewBox="0 0 25 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={cn("flex-shrink-0", className)}
+    className={cn("shrink-0", className)}
     {...props}
   >
     <path

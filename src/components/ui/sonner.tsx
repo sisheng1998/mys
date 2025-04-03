@@ -20,7 +20,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      className="!font-sans"
+      className="font-sans!"
       icons={{
         info: <Info />,
         success: <CheckCircle />,

@@ -9,7 +9,7 @@ const Google = ({ className }: { className?: string }) => (
     viewBox="0 0 24 25"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={cn("flex-shrink-0", className)}
+    className={cn("shrink-0", className)}
   >
     <path
       fillRule="evenodd"

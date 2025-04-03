@@ -11,11 +11,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
   <>
     <BackgroundPattern />
 
-    <main className="container my-12 flex max-w-screen-sm flex-col items-center justify-center gap-6">
+    <main className="container mx-auto my-12 flex max-w-(--breakpoint-sm) flex-col items-center justify-center gap-6">
       <Card className="w-full">
         <CardHeader>
           <Link href="/" className="my-2 inline-flex">
-            <Logo className="size-10 text-primary" />
+            <Logo className="text-primary size-10" />
           </Link>
         </CardHeader>
 
@@ -24,7 +24,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
         </CardContent>
       </Card>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-center text-sm">
         Copyright © {new Date().getFullYear()} - 妙音寺
       </p>
     </main>

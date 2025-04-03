@@ -21,7 +21,7 @@ const SignIn = () => (
   <Card className="w-full max-w-sm">
     <CardHeader className="text-center">
       <div className="mb-3 flex items-center justify-center">
-        <Logo className="size-10 text-primary" />
+        <Logo className="text-primary size-10" />
       </div>
 
       <CardTitle>Welcome Back</CardTitle>
@@ -33,12 +33,12 @@ const SignIn = () => (
     </CardContent>
 
     <CardFooter className="justify-center">
-      <p className="text-center text-xs leading-normal text-muted-foreground">
+      <p className="text-muted-foreground text-center text-xs leading-normal">
         By continuing, you agree to our <br />
         <Button
           size="sm"
           variant="link"
-          className="h-auto p-0 text-foreground"
+          className="text-foreground h-auto p-0"
           asChild
         >
           <Link href="/terms-of-service" target="_blank">
@@ -49,7 +49,7 @@ const SignIn = () => (
         <Button
           size="sm"
           variant="link"
-          className="h-auto p-0 text-foreground"
+          className="text-foreground h-auto p-0"
           asChild
         >
           <Link href="/privacy-policy" target="_blank">
