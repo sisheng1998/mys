@@ -19,7 +19,7 @@ const Icon = () =>
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "rgb(225, 29, 72)", // primary
+          backgroundColor: "rgb(255, 32, 86)", // primary
           borderRadius: 40,
         }}
       >
