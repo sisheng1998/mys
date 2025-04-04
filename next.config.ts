@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url"
+import type { NextConfig } from "next"
 import createMDX from "@next/mdx"
 import createJiti from "jiti"
 
@@ -6,15 +7,10 @@ const jiti = createJiti(fileURLToPath(import.meta.url))
 
 jiti("./src/env")
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 }
 
-const withMDX = createMDX({
-  options: {
-    remarkPlugins: [["remark-gfm", { strict: true, throwOnError: true }]],
-  },
-})
+const withMDX = createMDX()
 
 export default withMDX(nextConfig)

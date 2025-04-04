@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
   <>
     <BackgroundPattern />
 
-    <main className="container mx-auto my-12 flex w-auto flex-col items-center justify-center gap-6">
+    <main className="container mx-auto my-8 flex w-auto flex-col items-center justify-center gap-6 p-4">
       <Card className="w-full">
         <CardHeader>
           <Link href="/" className="my-2 inline-flex">
