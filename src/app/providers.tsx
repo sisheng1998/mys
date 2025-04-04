@@ -17,7 +17,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => (
         enableSystem
         disableTransitionOnChange
       >
-        <TopLoader height={2} color="hsl(var(--primary))" showSpinner={false} />
+        <TopLoader height={2} color="var(--primary)" showSpinner={false} />
 
         {children}
 
