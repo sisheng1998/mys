@@ -4,6 +4,7 @@ import TopLoader from "nextjs-toploader"
 
 import { Toaster } from "@/components/ui/sonner"
 import BackgroundPattern from "@/components/layouts/BackgroundPattern"
+import Preloader from "@/components/layouts/Preloader"
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider"
 import ThemeProvider from "@/components/providers/ThemeProvider"
 
@@ -18,6 +19,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => (
         enableSystem
         disableTransitionOnChange
       >
+        <Preloader />
+
         <BackgroundPattern />
 
         <TopLoader
