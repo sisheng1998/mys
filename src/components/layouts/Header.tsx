@@ -2,6 +2,7 @@ import React from "react"
 
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import AppBreadcrumb from "@/components/layouts/AppBreadcrumb"
 import AvatarDropdown from "@/components/layouts/AvatarDropdown"
 
 const Header = () => (
@@ -9,6 +10,8 @@ const Header = () => (
     <SidebarTrigger className="-ml-1" />
 
     <Separator orientation="vertical" className="mr-2 h-6!" />
+
+    <AppBreadcrumb />
 
     <div className="flex-1" />
 

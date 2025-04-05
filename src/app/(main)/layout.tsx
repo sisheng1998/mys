@@ -8,6 +8,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import AppSidebar from "@/components/layouts/AppSidebar"
 import Header from "@/components/layouts/Header"
 import { AuthProvider } from "@/contexts/auth"
+import { BreadcrumbProvider } from "@/contexts/breadcrumb"
 
 import { api } from "@cvx/_generated/api"
 
@@ -24,7 +25,9 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthProvider user={user}>
-      <SidebarLayout>{children}</SidebarLayout>
+      <BreadcrumbProvider>
+        <SidebarLayout>{children}</SidebarLayout>
+      </BreadcrumbProvider>
     </AuthProvider>
   )
 }

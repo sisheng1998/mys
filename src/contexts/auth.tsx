@@ -8,21 +8,18 @@ import { api } from "@cvx/_generated/api"
 
 type User = NonNullable<FunctionReturnType<typeof api.auth.currentUser>>
 
-interface AuthType {
+type AuthContextType = {
   user: User
 }
 
-const Auth = createContext<AuthType | undefined>(undefined)
+const Auth = createContext<AuthContextType | undefined>(undefined)
 
-interface AuthProviderProps {
+type AuthProviderProps = {
   user: User
   children: ReactNode
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({
-  user,
-  children,
-}) => {
+export const AuthProvider = ({ user, children }: AuthProviderProps) => {
   const currentUser = useQuery(api.auth.currentUser) ?? user
 
   return (
@@ -36,7 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   )
 }
 
-export const useAuth = (): AuthType => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(Auth)
 
   if (!context) {
