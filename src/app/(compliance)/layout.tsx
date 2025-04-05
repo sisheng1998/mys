@@ -2,7 +2,7 @@ import React from "react"
 import Link from "next/link"
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import BackgroundPattern from "@/components/layouts-/BackgroundPattern"
+import BackgroundPattern from "@/components/layouts/BackgroundPattern"
 import Logo from "@/icons/Logo"
 
 export const dynamic = "force-static"

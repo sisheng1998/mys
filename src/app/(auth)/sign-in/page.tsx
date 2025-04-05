@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import GoogleOAuthButton from "@/components/auth-/GoogleOAuthButton"
+import GoogleOAuthButton from "@/components/auth/GoogleOAuthButton"
 import Logo from "@/icons/Logo"
 
 export const metadata = {
