@@ -3,8 +3,8 @@ import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server"
 import TopLoader from "nextjs-toploader"
 
 import { Toaster } from "@/components/ui/sonner"
-import ConvexClientProvider from "@/components/Providers/ConvexClientProvider"
-import ThemeProvider from "@/components/Providers/ThemeProvider"
+import ConvexClientProvider from "@/components/providers-/ConvexClientProvider"
+import ThemeProvider from "@/components/providers-/ThemeProvider"
 
 export const CONVEX_AUTH_API_ROUTE = "/api/convex-auth"
 
