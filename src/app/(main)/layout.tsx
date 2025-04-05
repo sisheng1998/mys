@@ -33,10 +33,11 @@ export default Layout
 
 const SidebarLayout = async ({ children }: { children: React.ReactNode }) => {
   const cookie = await cookies()
-  const closed = cookie.get("sidebar_state")?.value === "false"
+  const sidebarState = cookie.get("sidebar_state")?.value ?? "true"
+  const defaultOpen = sidebarState === "true"
 
   return (
-    <SidebarProvider defaultOpen={!closed}>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
 
       <SidebarInset>
