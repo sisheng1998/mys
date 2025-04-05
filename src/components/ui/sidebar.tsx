@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, VariantProps } from "class-variance-authority"
-import { PanelLeftIcon } from "lucide-react"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -258,24 +258,33 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { open, openMobile, isMobile, toggleSidebar } = useSidebar()
+
+  const isOpen = isMobile ? openMobile : open
+  const text = `${isOpen ? "Collapse" : "Expand"} Sidebar`
 
   return (
-    <Button
-      data-sidebar="trigger"
-      data-slot="sidebar-trigger"
-      variant="ghost"
-      size="icon"
-      className={cn("size-7", className)}
-      onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
-      }}
-      {...props}
-    >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          data-sidebar="trigger"
+          data-slot="sidebar-trigger"
+          variant="ghost"
+          size="icon"
+          className={cn("size-7", className)}
+          onClick={(event) => {
+            onClick?.(event)
+            toggleSidebar()
+          }}
+          {...props}
+        >
+          {isOpen ? <PanelLeftClose /> : <PanelLeftOpen />}
+          <span className="sr-only">{text}</span>
+        </Button>
+      </TooltipTrigger>
+
+      {!isMobile && <TooltipContent side="right">{text}</TooltipContent>}
+    </Tooltip>
   )
 }
 
