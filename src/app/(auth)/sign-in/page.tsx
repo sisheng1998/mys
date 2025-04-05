@@ -20,7 +20,7 @@ export const metadata = {
 const SignIn = () => (
   <Card className="w-full max-w-sm">
     <CardHeader className="text-center">
-      <div className="mb-3 flex items-center justify-center">
+      <div className="mb-2 flex items-center justify-center">
         <Logo className="text-primary size-10" />
       </div>
 
