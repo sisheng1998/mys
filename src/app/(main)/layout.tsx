@@ -43,7 +43,7 @@ const SidebarLayout = async ({ children }: { children: React.ReactNode }) => {
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
 
-      <SidebarInset>
+      <SidebarInset className="bg-transparent">
         <Header />
         {children}
       </SidebarInset>

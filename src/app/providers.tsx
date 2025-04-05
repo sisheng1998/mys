@@ -3,6 +3,7 @@ import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server"
 import TopLoader from "nextjs-toploader"
 
 import { Toaster } from "@/components/ui/sonner"
+import BackgroundPattern from "@/components/layouts/BackgroundPattern"
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider"
 import ThemeProvider from "@/components/providers/ThemeProvider"
 
@@ -17,6 +18,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => (
         enableSystem
         disableTransitionOnChange
       >
+        <BackgroundPattern />
+
         <TopLoader
           height={2}
           color="var(--primary)"
