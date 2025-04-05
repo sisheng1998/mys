@@ -178,3 +178,9 @@
     cursor: pointer;
   }
 }
+
+@layer components {
+  #nprogress {
+    @apply z-50;
+  }
+}
