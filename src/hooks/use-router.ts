@@ -1,3 +1,3 @@
-import { useRouter } from "nextjs-toploader/app"
+import { useRouter as useTopLoaderRouter } from "nextjs-toploader/app"
 
-export { useRouter }
+export const useRouter = () => useTopLoaderRouter()

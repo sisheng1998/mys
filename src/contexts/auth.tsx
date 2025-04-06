@@ -6,7 +6,7 @@ import { FunctionReturnType } from "convex/server"
 
 import { api } from "@cvx/_generated/api"
 
-type User = NonNullable<FunctionReturnType<typeof api.auth.currentUser>>
+type User = NonNullable<FunctionReturnType<typeof api.users.getCurrentUser>>
 
 type AuthContextType = {
   user: User
@@ -20,7 +20,7 @@ type AuthProviderProps = {
 }
 
 export const AuthProvider = ({ user, children }: AuthProviderProps) => {
-  const currentUser = useQuery(api.auth.currentUser) ?? user
+  const currentUser = useQuery(api.users.getCurrentUser) ?? user
 
   return (
     <Auth.Provider

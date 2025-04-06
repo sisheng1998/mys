@@ -17,9 +17,9 @@ export const LoaderButton = ({
 }: LoaderButtonProps) => (
   <Button disabled={disabled || isLoading} {...props}>
     {isLoading ? (
-      <Loader2 className="mr-2 size-4 animate-spin" />
+      <Loader2 className="size-4 animate-spin" />
     ) : Icon ? (
-      <Icon className="mr-2 size-4" />
+      <Icon className="size-4" />
     ) : null}
     {children}
   </Button>

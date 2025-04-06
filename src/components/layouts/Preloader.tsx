@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
-import BackgroundPattern from "@/components/layouts/BackgroundPattern"
 import Logo from "@/icons/Logo"
 
 const Preloader = () => {
@@ -21,8 +20,6 @@ const Preloader = () => {
         isAnimated && "pointer-events-none opacity-0"
       )}
     >
-      <BackgroundPattern />
-
       <Logo className="text-primary size-20 animate-spin" />
     </div>
   )
