@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 const PAGES = [
@@ -29,6 +30,7 @@ const PAGES = [
 
 const NavMain = () => {
   const pathname = usePathname()
+  const { setOpenMobile } = useSidebar()
 
   return (
     <SidebarGroup>
@@ -41,6 +43,7 @@ const NavMain = () => {
               <SidebarMenuButton
                 tooltip={page.title}
                 isActive={pathname === page.url}
+                onClick={() => setOpenMobile(false)}
                 asChild
               >
                 <Link href={page.url}>

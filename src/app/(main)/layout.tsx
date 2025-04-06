@@ -6,6 +6,7 @@ import { fetchQuery } from "convex/nextjs"
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import AppSidebar from "@/components/layouts/AppSidebar"
+import Footer from "@/components/layouts/Footer"
 import Header from "@/components/layouts/Header"
 import RequireAuthorization from "@/components/layouts/RequireAuthorization"
 import { AuthProvider } from "@/contexts/auth"
@@ -37,7 +38,12 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
 
             <SidebarInset className="bg-transparent">
               <Header />
-              {children}
+
+              <div className="relative flex flex-1 flex-col p-2">
+                {children}
+              </div>
+
+              <Footer />
             </SidebarInset>
           </SidebarProvider>
         </BreadcrumbProvider>
