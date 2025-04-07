@@ -4,7 +4,15 @@ import { convexAuth } from "@convex-dev/auth/server"
 import { MutationCtx } from "@cvx/_generated/server"
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [Google],
+  providers: [
+    Google({
+      authorization: {
+        params: {
+          prompt: "consent",
+        },
+      },
+    }),
+  ],
   callbacks: {
     createOrUpdateUser: async (ctx: MutationCtx, args) => {
       const profile = {
