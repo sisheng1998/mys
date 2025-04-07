@@ -2,12 +2,12 @@
 
 import React, { useState } from "react"
 import { useAuthActions } from "@convex-dev/auth/react"
-import { LogOut, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 
 import { useRouter } from "@/hooks/use-router"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { LoaderButton } from "@/components/ui/loader-button"
+import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth"
 
 const RequireAuthorization = ({ children }: { children: React.ReactNode }) => {
@@ -36,22 +36,27 @@ const Unauthorized = () => {
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center p-4">
-      <Alert className="w-full max-w-sm">
+      <Alert className="w-full max-w-sm gap-y-2">
         <TriangleAlert />
 
-        <AlertTitle>Unauthorized</AlertTitle>
+        <AlertTitle>Unauthorized Access</AlertTitle>
 
-        <AlertDescription className="gap-3">
-          <p>You are not authorized to access this application.</p>
+        <AlertDescription className="gap-2 text-xs">
+          <p>{`It looks like you don't have access to this application.`}</p>
 
-          <LoaderButton
+          <p>
+            Try signing in with a different account, or contact admin if you
+            think this is a mistake.
+          </p>
+
+          <Button
             size="sm"
+            className="mt-1"
             onClick={handleClick}
-            isLoading={isLoading}
-            icon={LogOut}
+            disabled={isLoading}
           >
-            Sign Out
-          </LoaderButton>
+            Okay
+          </Button>
         </AlertDescription>
       </Alert>
     </main>
