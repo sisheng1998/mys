@@ -11,14 +11,6 @@ export const getCurrentUser = query({
     const user = await ctx.db.get(userId)
     if (!user) return null
 
-    // TODO: Implement authorization logic
-
-    return {
-      id: user._id,
-      email: user.email || "",
-      name: user.name || "",
-      image: user.image,
-      isAuthorized: true,
-    }
+    return user
   },
 })
