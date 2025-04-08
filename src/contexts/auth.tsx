@@ -4,6 +4,8 @@ import React, { createContext, ReactNode, useContext } from "react"
 import { useQuery } from "convex/react"
 import { FunctionReturnType } from "convex/server"
 
+import RedirectToSignIn from "@/components/layouts/RedirectToSignIn"
+
 import { api } from "@cvx/_generated/api"
 
 type User = NonNullable<FunctionReturnType<typeof api.users.getCurrentUser>>
@@ -20,12 +22,14 @@ type AuthProviderProps = {
 }
 
 export const AuthProvider = ({ user, children }: AuthProviderProps) => {
-  const currentUser = useQuery(api.users.getCurrentUser) ?? user
+  const currentUser = useQuery(api.users.getCurrentUser)
+
+  if (currentUser === null) return <RedirectToSignIn />
 
   return (
     <Auth.Provider
       value={{
-        user: currentUser,
+        user: currentUser ?? user,
       }}
     >
       {children}

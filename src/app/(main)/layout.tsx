@@ -1,6 +1,5 @@
 import React from "react"
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
 import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server"
 import { fetchQuery } from "convex/nextjs"
 
@@ -8,6 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import AppSidebar from "@/components/layouts/AppSidebar"
 import Footer from "@/components/layouts/Footer"
 import Header from "@/components/layouts/Header"
+import RedirectToSignIn from "@/components/layouts/RedirectToSignIn"
 import RequireAuthorization from "@/components/layouts/RequireAuthorization"
 import { AuthProvider } from "@/contexts/auth"
 import { BreadcrumbProvider } from "@/contexts/breadcrumb"
@@ -23,10 +23,10 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
     }
   )
 
-  if (!user) redirect("/sign-in")
+  if (!user) return <RedirectToSignIn />
 
-  const cookie = await cookies()
-  const sidebarState = cookie.get("sidebar_state")?.value ?? "true"
+  const cookieStore = await cookies()
+  const sidebarState = cookieStore.get("sidebar_state")?.value ?? "true"
   const defaultOpen = sidebarState === "true"
 
   return (
