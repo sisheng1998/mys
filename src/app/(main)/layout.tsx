@@ -36,7 +36,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
             <SidebarInset className="bg-transparent">
               <Header />
 
-              <div className="relative flex flex-1 flex-col p-2">
+              <div className="relative flex flex-1 flex-col gap-4 p-2">
                 {children}
               </div>
 
