@@ -1,7 +1,7 @@
 "use client"
 
 import React, { createContext, ReactNode, useContext } from "react"
-import { useQuery } from "convex/react"
+import { Preloaded, usePreloadedQuery } from "convex/react"
 import { FunctionReturnType } from "convex/server"
 
 import RedirectToSignIn from "@/components/layouts/RedirectToSignIn"
@@ -17,19 +17,22 @@ type AuthContextType = {
 const Auth = createContext<AuthContextType | undefined>(undefined)
 
 type AuthProviderProps = {
-  user: User
+  preloadedUser: Preloaded<typeof api.users.getCurrentUser>
   children: ReactNode
 }
 
-export const AuthProvider = ({ user, children }: AuthProviderProps) => {
-  const currentUser = useQuery(api.users.getCurrentUser)
+export const AuthProvider = ({
+  preloadedUser,
+  children,
+}: AuthProviderProps) => {
+  const user = usePreloadedQuery(preloadedUser)
 
-  if (currentUser === null) return <RedirectToSignIn />
+  if (!user) return <RedirectToSignIn />
 
   return (
     <Auth.Provider
       value={{
-        user: currentUser ?? user,
+        user,
       }}
     >
       {children}
