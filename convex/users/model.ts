@@ -1,7 +1,7 @@
 import { defineTable } from "convex/server"
 import { v } from "convex/values"
 
-export const userTables = {
+const userTables = {
   users: defineTable({
     name: v.string(),
     email: v.string(),
@@ -9,3 +9,5 @@ export const userTables = {
     isAuthorized: v.boolean(),
   }).index("email", ["email"]),
 }
+
+export default userTables

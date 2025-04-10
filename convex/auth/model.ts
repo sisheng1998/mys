@@ -1,7 +1,7 @@
 import { defineTable } from "convex/server"
 import { v } from "convex/values"
 
-export const authTables = {
+const authTables = {
   authSessions: defineTable({
     userId: v.id("users"),
     expirationTime: v.number(),
@@ -38,3 +38,5 @@ export const authTables = {
     signature: v.optional(v.string()),
   }).index("signature", ["signature"]),
 }
+
+export default authTables

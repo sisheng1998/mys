@@ -8,7 +8,9 @@ import RedirectToSignIn from "@/components/layouts/RedirectToSignIn"
 
 import { api } from "@cvx/_generated/api"
 
-type User = NonNullable<FunctionReturnType<typeof api.users.getCurrentUser>>
+type User = NonNullable<
+  FunctionReturnType<typeof api.users.queries.getCurrentUser>
+>
 
 type AuthContextType = {
   user: User
@@ -17,7 +19,7 @@ type AuthContextType = {
 const Auth = createContext<AuthContextType | undefined>(undefined)
 
 type AuthProviderProps = {
-  preloadedUser: Preloaded<typeof api.users.getCurrentUser>
+  preloadedUser: Preloaded<typeof api.users.queries.getCurrentUser>
   children: ReactNode
 }
 

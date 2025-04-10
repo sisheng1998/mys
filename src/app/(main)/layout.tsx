@@ -15,7 +15,7 @@ import { api } from "@cvx/_generated/api"
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const preloadedUser = await preloadQuery(
-    api.users.getCurrentUser,
+    api.users.queries.getCurrentUser,
     {},
     {
       token: await convexAuthNextjsToken(),
