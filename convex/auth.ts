@@ -2,6 +2,7 @@ import Google from "@auth/core/providers/google"
 import { convexAuth } from "@convex-dev/auth/server"
 
 import { MutationCtx } from "@cvx/_generated/server"
+import { userSchema } from "@cvx/users/schemas"
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [
@@ -15,14 +16,11 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   ],
   callbacks: {
     createOrUpdateUser: async (ctx: MutationCtx, args) => {
-      const profile = {
-        name: typeof args.profile.name === "string" ? args.profile.name : "",
-        email: args.profile.email || "",
-        image:
-          typeof args.profile.image === "string"
-            ? args.profile.image
-            : undefined,
-      }
+      const profile = userSchema.omit({ isAuthorized: true }).parse({
+        name: args.profile.name,
+        email: args.profile.email,
+        image: args.profile.image,
+      })
 
       if (args.existingUserId) {
         await ctx.db.patch(args.existingUserId, profile)
@@ -39,10 +37,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         return existingUser._id
       }
 
-      return ctx.db.insert("users", {
-        ...profile,
-        isAuthorized: false,
-      })
+      return ctx.db.insert("users", { ...profile, isAuthorized: false })
     },
   },
 })
