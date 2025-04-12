@@ -1,5 +1,6 @@
 import React from "react"
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server"
+import { ConvexQueryCacheProvider } from "convex-helpers/react/cache/provider"
 import TopLoader from "nextjs-toploader"
 
 import { Toaster } from "@/components/ui/sonner"
@@ -13,28 +14,30 @@ export const CONVEX_AUTH_API_ROUTE = "/api/convex-auth"
 const Providers = ({ children }: { children: React.ReactNode }) => (
   <ConvexAuthNextjsServerProvider apiRoute={CONVEX_AUTH_API_ROUTE}>
     <ConvexClientProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <Preloader />
+      <ConvexQueryCacheProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Preloader />
 
-        <BackgroundPattern />
+          <BackgroundPattern />
 
-        <TopLoader
-          height={2}
-          color="var(--primary)"
-          shadow={false}
-          showSpinner={false}
-          showForHashAnchor={false}
-        />
+          <TopLoader
+            height={2}
+            color="var(--primary)"
+            shadow={false}
+            showSpinner={false}
+            showForHashAnchor={false}
+          />
 
-        {children}
+          {children}
 
-        <Toaster />
-      </ThemeProvider>
+          <Toaster />
+        </ThemeProvider>
+      </ConvexQueryCacheProvider>
     </ConvexClientProvider>
   </ConvexAuthNextjsServerProvider>
 )
