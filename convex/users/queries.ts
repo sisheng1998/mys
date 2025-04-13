@@ -1,17 +1,5 @@
-import { getAuthUserId } from "@convex-dev/auth/server"
-
-import { query, QueryCtx } from "@cvx/_generated/server"
-import { authQuery } from "@cvx/utils"
-
-export const getAuthUser = async (ctx: QueryCtx) => {
-  const userId = await getAuthUserId(ctx)
-  if (!userId) return null
-
-  const user = await ctx.db.get(userId)
-  if (!user) return null
-
-  return user
-}
+import { query } from "@cvx/_generated/server"
+import { authQuery, getAuthUser } from "@cvx/utils/function"
 
 export const getCurrentUser = query({
   args: {},

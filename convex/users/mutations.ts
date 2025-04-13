@@ -1,7 +1,7 @@
 import { ConvexError } from "convex/values"
 
 import { userSchema } from "@cvx/users/schemas"
-import { authMutation } from "@cvx/utils"
+import { authMutation } from "@cvx/utils/function"
 
 export const createUserSchema = userSchema.pick({
   email: true,

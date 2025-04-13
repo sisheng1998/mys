@@ -19,7 +19,7 @@ import type * as http from "../http.js";
 import type * as users_mutations from "../users/mutations.js";
 import type * as users_queries from "../users/queries.js";
 import type * as users_schemas from "../users/schemas.js";
-import type * as utils from "../utils.js";
+import type * as utils_function from "../utils/function.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -36,7 +36,7 @@ declare const fullApi: ApiFromModules<{
   "users/mutations": typeof users_mutations;
   "users/queries": typeof users_queries;
   "users/schemas": typeof users_schemas;
-  utils: typeof utils;
+  "utils/function": typeof utils_function;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
