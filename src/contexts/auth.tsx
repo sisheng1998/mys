@@ -2,15 +2,11 @@
 
 import React, { createContext, ReactNode, useContext } from "react"
 import { Preloaded, usePreloadedQuery } from "convex/react"
-import { FunctionReturnType } from "convex/server"
 
+import { User } from "@/types/user"
 import RedirectToSignIn from "@/components/layouts/RedirectToSignIn"
 
 import { api } from "@cvx/_generated/api"
-
-type User = NonNullable<
-  FunctionReturnType<typeof api.users.queries.getCurrentUser>
->
 
 type AuthContextType = {
   user: User

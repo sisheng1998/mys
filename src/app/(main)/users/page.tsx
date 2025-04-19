@@ -28,7 +28,9 @@ const Users = () => (
 
         <AddNewUser />
       </CardHeader>
+    </Card>
 
+    <Card>
       <CardContent>
         <UserTable />
       </CardContent>
