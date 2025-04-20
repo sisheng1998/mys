@@ -42,7 +42,7 @@ const Pagination = <TData,>({ table }: PaginationProps<TData>) => (
 
     <div className="flex flex-wrap items-center gap-4">
       <div className="flex items-center gap-2">
-        <p className="text-sm">Rows per page</p>
+        <p className="text-sm">Rows / Page</p>
 
         <Select
           value={`${table.getState().pagination.pageSize}`}

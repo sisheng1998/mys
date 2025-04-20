@@ -5,9 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
 import { Plus } from "lucide-react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
-import { handleFormError } from "@/lib/form"
+import { handleFormError } from "@/lib/error"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -50,6 +51,7 @@ const AddNewUser = () => {
   const onSubmit = async (values: formSchema) => {
     try {
       await createUser(values)
+      toast.success("New user created")
       setOpen(false)
     } catch (error) {
       handleFormError(error, form.setError)

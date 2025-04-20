@@ -17,6 +17,7 @@ import {
   useSearchParams,
   useSortingParams,
 } from "@/hooks/use-data-table"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -33,11 +34,13 @@ import Search from "@/components/data-table/Search"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  isLoading?: boolean
 }
 
 const DataTable = <TData, TValue>({
   columns,
   data,
+  isLoading,
 }: DataTableProps<TData, TValue>) => {
   const [pagination, setPagination] = usePaginationParams()
   const [search, setSearch] = useSearchParams()
@@ -63,7 +66,7 @@ const DataTable = <TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
   })
 
-  return (
+  return !isLoading ? (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <ColumnToggle table={table} />
@@ -127,6 +130,8 @@ const DataTable = <TData, TValue>({
 
       <Pagination table={table} />
     </div>
+  ) : (
+    <Skeleton className="h-[30.5rem]" />
   )
 }
 

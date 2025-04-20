@@ -27,3 +27,19 @@ export const handleFormError = <TFieldValues extends Record<string, unknown>>(
     toast.error(String(error))
   }
 }
+
+export const handleMutationError = (error: unknown) => {
+  if (error instanceof ConvexError) {
+    const data = error.data
+
+    if (typeof data === "object" && "ZodError" in data) {
+      const zodError = data.ZodError as ZodIssue[]
+      const errorMessage = zodError.map((err) => err.message).join(", ")
+      toast.error(errorMessage)
+    } else {
+      toast.error(String(data))
+    }
+  } else {
+    toast.error(String(error))
+  }
+}
