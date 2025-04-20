@@ -4,11 +4,11 @@ import React from "react"
 import { ColumnDef } from "@tanstack/react-table"
 
 import { User } from "@/types/user"
+import { getRowNumber } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
-import DataTable from "@/components/data-table"
 import ColumnHeader from "@/components/data-table/ColumnHeader"
-import { getRowNumber } from "@/components/data-table/utils"
+import DataTable from "@/components/data-table/DataTable"
 
 import { api } from "@cvx/_generated/api"
 

@@ -3,17 +3,20 @@
 import { useState } from "react"
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
 
+import {
+  usePaginationParams,
+  useSearchParams,
+  useSortingParams,
+} from "@/hooks/use-data-table"
 import {
   Table,
   TableBody,
@@ -36,33 +39,28 @@ const DataTable = <TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) => {
-  const [search, setSearch] = useState<string>("")
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [pagination, setPagination] = usePaginationParams()
+  const [search, setSearch] = useSearchParams()
+  const [sorting, setSorting] = useSortingParams()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const table = useReactTable({
     data,
     columns,
-    initialState: {
-      pagination: {
-        pageSize: 100,
-      },
+    state: {
+      pagination,
+      globalFilter: search,
+      sorting,
+      columnVisibility,
     },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      globalFilter: search,
-    },
+    onPaginationChange: setPagination,
     onGlobalFilterChange: setSearch,
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
   })
 
   return (
@@ -85,12 +83,11 @@ const DataTable = <TData, TValue>({
                     key={header.id}
                     className={header.column.columnDef.meta?.headerClassName}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                    {!header.isPlaceholder &&
+                      flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
