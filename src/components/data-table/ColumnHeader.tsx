@@ -32,7 +32,7 @@ const ColumnHeader = <TData, TValue>({
         } else if (currentSort === "asc") {
           column.toggleSorting(true)
         } else if (currentSort === "desc") {
-          column.toggleSorting()
+          column.clearSorting()
         }
       }}
     >

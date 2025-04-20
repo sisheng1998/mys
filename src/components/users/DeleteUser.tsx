@@ -27,7 +27,7 @@ import {
 
 import { api } from "@cvx/_generated/api"
 
-const DeleteUser = ({ user }: { user: User }) => {
+const DeleteUser = ({ user, disabled }: { user: User; disabled?: boolean }) => {
   const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -52,7 +52,7 @@ const DeleteUser = ({ user }: { user: User }) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
-            <Button size="icon" variant="ghost">
+            <Button size="icon" variant="ghost" disabled={disabled}>
               <Trash className="text-destructive" />
             </Button>
           </AlertDialogTrigger>

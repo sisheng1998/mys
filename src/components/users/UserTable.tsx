@@ -10,6 +10,7 @@ import { useQuery } from "@/hooks/use-query"
 import ColumnHeader from "@/components/data-table/ColumnHeader"
 import DataTable from "@/components/data-table/DataTable"
 import DeleteUser from "@/components/users/DeleteUser"
+import UpdateStatus from "@/components/users/UpdateStatus"
 import { useAuth } from "@/contexts/auth"
 
 import { api } from "@cvx/_generated/api"
@@ -42,14 +43,25 @@ const UserTable = () => {
       cell: (info) => info.getValue() || "-",
     },
     {
+      id: "status",
+      accessorKey: "isAuthorized",
+      header: ({ column }) => <ColumnHeader column={column} title="Status" />,
+      cell: (info) => (
+        <UpdateStatus
+          user={info.row.original}
+          isAuthorized={info.getValue() as boolean}
+          disabled={info.row.original._id === user._id}
+        />
+      ),
+    },
+    {
       id: "actions",
-      cell: ({ row }) => {
-        const selectedUser = row.original
-
-        if (selectedUser._id === user._id) return null
-
-        return <DeleteUser user={selectedUser} />
-      },
+      cell: ({ row }) => (
+        <DeleteUser
+          user={row.original}
+          disabled={row.original._id === user._id}
+        />
+      ),
       enableHiding: false,
       meta: {
         headerClassName: cn("w-20"),

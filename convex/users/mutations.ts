@@ -29,6 +29,25 @@ export const createUser = authMutation({
   },
 })
 
+const updateUserSchema = userSchema.partial().extend({
+  userId: zid("users"),
+})
+
+export const updateUser = authMutation({
+  args: updateUserSchema.shape,
+  handler: async (ctx, args) => {
+    const { userId, ...fields } = args
+
+    const user = await ctx.db.get(userId)
+    if (!user) throw new ConvexError("User not found")
+
+    if (Object.keys(fields).length === 0)
+      throw new ConvexError("No fields to update")
+
+    return ctx.db.patch(userId, fields)
+  },
+})
+
 export const deleteUser = authMutation({
   args: {
     userId: zid("users"),
