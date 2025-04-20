@@ -12,11 +12,16 @@ const userFields = {
 
 export const userSchema = z.object({
   ...convexToZodFields(userFields),
-  name: z.string().default(""),
-  email: z.string().email(),
+  name: z.string().trim().default(""),
+  email: z
+    .string()
+    .email()
+    .transform((e) => e.toLowerCase()),
   isAuthorized: z.boolean().default(false),
 })
 
 export const userTables = {
-  users: defineTable(userFields).index("email", ["email"]),
+  users: defineTable(userFields)
+    .index("by_name", ["name"])
+    .index("by_email", ["email"]),
 }

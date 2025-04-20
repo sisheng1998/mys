@@ -14,7 +14,7 @@ export const createUser = authMutation({
 
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", email))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .unique()
 
     if (existingUser) throw new ConvexError("User already exists")

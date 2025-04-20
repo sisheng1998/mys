@@ -8,11 +8,6 @@ export const getCurrentUser = query({
 
 export const list = authQuery({
   args: {},
-  handler: async (ctx) => {
-    const users = (await ctx.db.query("users").collect()).sort((a, b) =>
-      a.name.localeCompare(b.name)
-    )
-
-    return users
-  },
+  handler: (ctx) =>
+    ctx.db.query("users").withIndex("by_name").order("asc").collect(),
 })

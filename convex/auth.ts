@@ -29,7 +29,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 
       const existingUser = await ctx.db
         .query("users")
-        .withIndex("email", (q) => q.eq("email", profile.email))
+        .withIndex("by_email", (q) => q.eq("email", profile.email))
         .unique()
 
       if (existingUser) {
