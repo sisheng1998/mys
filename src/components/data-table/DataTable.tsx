@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -42,6 +42,8 @@ const DataTable = <TData, TValue>({
   data,
   isLoading,
 }: DataTableProps<TData, TValue>) => {
+  const ref = useRef<HTMLDivElement>(null)
+
   const [pagination, setPagination] = usePaginationParams()
   const [search, setSearch] = useSearchParams()
   const [sorting, setSorting] = useSortingParams()
@@ -66,6 +68,12 @@ const DataTable = <TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
   })
 
+  useEffect(() => {
+    if (!ref.current) return
+
+    ref.current.scrollTop = 0
+  }, [pagination.pageIndex])
+
   return !isLoading ? (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
@@ -76,7 +84,7 @@ const DataTable = <TData, TValue>({
         <Search search={search} setSearch={setSearch} />
       </div>
 
-      <TableContainer className="max-h-96 rounded-md border">
+      <TableContainer ref={ref} className="h-96 rounded-md border">
         <Table className="table-fixed">
           <TableHeader className="bg-accent sticky top-0 z-10 shadow-[inset_0_-1px_0_0_var(--color-border)] [&_tr]:border-b-0">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -97,7 +105,7 @@ const DataTable = <TData, TValue>({
             ))}
           </TableHeader>
 
-          <TableBody>
+          <TableBody className="[&_tr:last-child]:border-b">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
@@ -131,7 +139,11 @@ const DataTable = <TData, TValue>({
       <Pagination table={table} />
     </div>
   ) : (
-    <Skeleton className="h-[30.5rem]" />
+    <div className="flex flex-col gap-4">
+      <Skeleton className="h-9" />
+      <Skeleton className="h-96" />
+      <Skeleton className="h-9" />
+    </div>
   )
 }
 
