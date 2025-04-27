@@ -33,7 +33,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
 
-            <SidebarInset className="bg-transparent">
+            <SidebarInset className="min-w-0 bg-transparent">
               <Header />
 
               <div className="relative flex flex-1 flex-col gap-4 p-2">

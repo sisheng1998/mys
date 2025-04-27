@@ -7,9 +7,12 @@ import { User } from "@/types/user"
 import { getRowNumber } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
-import ColumnHeader from "@/components/data-table/ColumnHeader"
+import ColumnHeader, {
+  multiSelectFilter,
+} from "@/components/data-table/ColumnHeader"
 import DataTable from "@/components/data-table/DataTable"
 import DeleteUser from "@/components/users/DeleteUser"
+import StatusFilter from "@/components/users/StatusFilter"
 import UpdateStatus from "@/components/users/UpdateStatus"
 import { useAuth } from "@/contexts/auth"
 
@@ -45,6 +48,7 @@ const UserTable = () => {
     {
       id: "status",
       accessorKey: "isAuthorized",
+      filterFn: multiSelectFilter,
       header: ({ column }) => <ColumnHeader column={column} title="Status" />,
       cell: (info) => (
         <UpdateStatus
@@ -71,7 +75,12 @@ const UserTable = () => {
   ]
 
   return (
-    <DataTable columns={columns} data={data} isLoading={status === "pending"} />
+    <DataTable
+      columns={columns}
+      data={data}
+      filters={<StatusFilter />}
+      isLoading={status === "pending"}
+    />
   )
 }
 

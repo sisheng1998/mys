@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -13,6 +13,7 @@ import {
 } from "@tanstack/react-table"
 
 import {
+  useFilterParams,
   usePaginationParams,
   useSearchParams,
   useSortingParams,
@@ -34,12 +35,14 @@ import Search from "@/components/data-table/Search"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  filters?: React.ReactNode
   isLoading?: boolean
 }
 
 const DataTable = <TData, TValue>({
   columns,
   data,
+  filters,
   isLoading,
 }: DataTableProps<TData, TValue>) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -47,6 +50,7 @@ const DataTable = <TData, TValue>({
   const [pagination, setPagination] = usePaginationParams()
   const [search, setSearch] = useSearchParams()
   const [sorting, setSorting] = useSortingParams()
+  const [columnFilters, setColumnFilters] = useFilterParams()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const table = useReactTable({
@@ -56,6 +60,7 @@ const DataTable = <TData, TValue>({
       pagination,
       globalFilter: search,
       sorting,
+      columnFilters,
       columnVisibility,
     },
     getCoreRowModel: getCoreRowModel(),
@@ -65,6 +70,7 @@ const DataTable = <TData, TValue>({
     onPaginationChange: setPagination,
     onGlobalFilterChange: setSearch,
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
   })
 
@@ -76,8 +82,10 @@ const DataTable = <TData, TValue>({
 
   return !isLoading ? (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 gap-y-4">
         <ColumnToggle table={table} />
+
+        {filters}
 
         <div className="flex-1" />
 
@@ -85,7 +93,7 @@ const DataTable = <TData, TValue>({
       </div>
 
       <TableContainer ref={ref} className="h-96 rounded-md border">
-        <Table className="table-fixed">
+        <Table>
           <TableHeader className="bg-accent sticky top-0 z-10 shadow-[inset_0_-1px_0_0_var(--color-border)] [&_tr]:border-b-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

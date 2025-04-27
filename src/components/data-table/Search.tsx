@@ -10,21 +10,18 @@ interface SearchProps {
   setSearch: React.Dispatch<React.SetStateAction<string>>
 }
 
-const Search = ({ search, setSearch }: SearchProps) => {
-  // TODO: Implement debounce search
-  return (
-    <InputRoot className="w-full max-w-none md:max-w-sm">
-      <InputIcon>
-        <SearchIcon />
-      </InputIcon>
+const Search = ({ search, setSearch }: SearchProps) => (
+  <InputRoot className="w-full max-w-none md:max-w-sm">
+    <InputIcon>
+      <SearchIcon />
+    </InputIcon>
 
-      <Input
-        placeholder="Search"
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-      />
-    </InputRoot>
-  )
-}
+    <Input
+      placeholder="Search"
+      value={search}
+      onChange={(event) => setSearch(event.target.value)}
+    />
+  </InputRoot>
+)
 
 export default Search

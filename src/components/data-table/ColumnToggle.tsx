@@ -1,65 +1,84 @@
 "use client"
 
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
+import React from "react"
 import { Table } from "@tanstack/react-table"
-import { Columns2 } from "lucide-react"
+import { Columns2, RotateCcw } from "lucide-react"
 
-import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 interface ColumnToggleProps<TData> {
   table: Table<TData>
 }
 
-const ColumnToggle = <TData,>({ table }: ColumnToggleProps<TData>) => {
-  const isMobile = useIsMobile()
+const ColumnToggle = <TData,>({ table }: ColumnToggleProps<TData>) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button variant="outline">
+        <Columns2 />
+        Columns
+      </Button>
+    </PopoverTrigger>
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {isMobile ? (
-          <Button variant="outline" size="icon">
-            <Columns2 />
-          </Button>
-        ) : (
-          <Button variant="outline">
-            <Columns2 />
-            Columns
-          </Button>
-        )}
-      </DropdownMenuTrigger>
+    <PopoverContent className="w-48 p-0" align="start">
+      <Command>
+        <CommandInput placeholder="Search" />
 
-      <DropdownMenuContent align="start">
-        {isMobile && (
-          <>
-            <DropdownMenuLabel>Columns</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-          </>
-        )}
+        <CommandList className="max-h-full">
+          <CommandEmpty>No results found</CommandEmpty>
 
-        {table
-          .getAllColumns()
-          .filter((column) => column.getCanHide())
-          .map((column) => (
-            <DropdownMenuCheckboxItem
-              key={column.id}
-              className="capitalize"
-              checked={column.getIsVisible()}
-              onCheckedChange={(value) => column.toggleVisibility(!!value)}
-            >
-              {column.id}
-            </DropdownMenuCheckboxItem>
-          ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
+          <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => (
+                <CommandItem
+                  key={column.id}
+                  className="capitalize"
+                  onSelect={() => column.toggleVisibility()}
+                >
+                  <Checkbox
+                    className="pointer-events-none"
+                    checked={column.getIsVisible()}
+                  />
+                  <span>{column.id}</span>
+                </CommandItem>
+              ))}
+          </CommandGroup>
+
+          {!table.getIsAllColumnsVisible() && (
+            <>
+              <CommandSeparator alwaysRender />
+
+              <CommandGroup forceMount>
+                <CommandItem
+                  onSelect={() => table.toggleAllColumnsVisible()}
+                  className="text-muted-foreground"
+                >
+                  <RotateCcw />
+                  Reset
+                </CommandItem>
+              </CommandGroup>
+            </>
+          )}
+        </CommandList>
+      </Command>
+    </PopoverContent>
+  </Popover>
+)
 
 export default ColumnToggle

@@ -1,6 +1,7 @@
 "use client"
 
-import { Column } from "@tanstack/react-table"
+import React from "react"
+import { Column, Row } from "@tanstack/react-table"
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -49,3 +50,13 @@ const ColumnHeader = <TData, TValue>({
 }
 
 export default ColumnHeader
+
+export const multiSelectFilter = <TData extends object>(
+  row: Row<TData>,
+  columnId: string,
+  filterValue: unknown[]
+) => {
+  if (!filterValue.length) return true
+  const value = row.getValue(columnId)
+  return filterValue.includes(value)
+}
