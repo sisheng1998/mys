@@ -30,8 +30,8 @@ const Users = () => (
       </CardHeader>
     </Card>
 
-    <Card>
-      <CardContent>
+    <Card className="flex-1">
+      <CardContent className="flex flex-1 flex-col">
         <UserTable />
       </CardContent>
     </Card>

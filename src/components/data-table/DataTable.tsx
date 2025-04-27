@@ -81,7 +81,7 @@ const DataTable = <TData, TValue>({
   }, [pagination.pageIndex])
 
   return !isLoading ? (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2 gap-y-4">
         <ColumnToggle table={table} />
 
@@ -92,7 +92,10 @@ const DataTable = <TData, TValue>({
         <Search search={search} setSearch={setSearch} />
       </div>
 
-      <TableContainer ref={ref} className="h-96 rounded-md border">
+      <TableContainer
+        ref={ref}
+        className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
+      >
         <Table>
           <TableHeader className="bg-accent sticky top-0 z-10 shadow-[inset_0_-1px_0_0_var(--color-border)] [&_tr]:border-b-0">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -147,9 +150,9 @@ const DataTable = <TData, TValue>({
       <Pagination table={table} />
     </div>
   ) : (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-4">
       <Skeleton className="h-9" />
-      <Skeleton className="h-96" />
+      <Skeleton className="min-h-96 flex-1" />
       <Skeleton className="h-9" />
     </div>
   )
