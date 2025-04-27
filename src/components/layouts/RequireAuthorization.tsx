@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useAuthActions } from "@convex-dev/auth/react"
 import { LogOut, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
@@ -19,15 +19,27 @@ export default RequireAuthorization
 
 const Unauthorized = () => {
   const { push } = useRouter()
-  const { signOut } = useAuthActions()
 
+  useEffect(() => {
+    document.title = "Unauthorized | 妙音寺"
+
+    const link: HTMLLinkElement =
+      document.querySelector("link[rel~='icon']") ||
+      document.createElement("link")
+    link.rel = "icon"
+    link.href = "/icon"
+
+    document.getElementsByTagName("head")[0].appendChild(link)
+  }, [])
+
+  const { signOut } = useAuthActions()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handleClick = async () => {
     try {
       setIsLoading(true)
       await signOut()
-      push("/login")
+      push("/sign-in")
     } catch (error) {
       toast.error(String(error))
       setIsLoading(false)
