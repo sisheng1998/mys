@@ -62,6 +62,7 @@ const parseAsFilters = createParser<ColumnFilter[]>({
           let value: unknown = raw
 
           value = raw.split(",").map((item) => {
+            if (item === "") return undefined
             if (item === "true") return true
             if (item === "false") return false
             if (!isNaN(Number(item))) return Number(item)

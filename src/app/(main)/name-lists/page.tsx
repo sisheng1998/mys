@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import AddNewRecord from "@/components/name-lists/AddNewRecord"
+import AddNewNameListRecord from "@/components/name-lists/AddNewNameListRecord"
 import NameListTable from "@/components/name-lists/NameListTable"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
@@ -26,7 +26,7 @@ const NameLists = () => (
           <CardDescription>Create and manage name lists</CardDescription>
         </div>
 
-        <AddNewRecord />
+        <AddNewNameListRecord />
       </CardHeader>
     </Card>
 

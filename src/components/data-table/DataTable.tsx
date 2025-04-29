@@ -139,7 +139,9 @@ const DataTable = <TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center">
-                  No results
+                  <p className="flex h-9 items-center justify-center">
+                    No results
+                  </p>
                 </TableCell>
               </TableRow>
             )}
