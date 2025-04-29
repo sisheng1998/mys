@@ -51,7 +51,7 @@ const AddNewUser = () => {
   const onSubmit = async (values: formSchema) => {
     try {
       await createUser(values)
-      toast.success("New user created")
+      toast.success("New user added")
       setOpen(false)
     } catch (error) {
       handleFormError(error, form.setError)
@@ -77,7 +77,7 @@ const AddNewUser = () => {
             <DialogHeader>
               <DialogTitle>New User</DialogTitle>
               <DialogDescription>
-                New user will be added to the user list.
+                New user will be added to the list.
               </DialogDescription>
             </DialogHeader>
 
@@ -107,7 +107,7 @@ const AddNewUser = () => {
                   !form.formState.isValid || form.formState.isSubmitting
                 }
               >
-                Create
+                Add User
               </LoaderButton>
             </DialogFooter>
           </form>
