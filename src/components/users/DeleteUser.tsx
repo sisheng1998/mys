@@ -37,7 +37,7 @@ const DeleteUser = ({ user, disabled }: { user: User; disabled?: boolean }) => {
     setIsLoading(true)
 
     try {
-      await deleteUser({ userId: user._id })
+      await deleteUser({ _id: user._id })
       toast.success("User deleted")
       setOpen(false)
     } catch (error) {

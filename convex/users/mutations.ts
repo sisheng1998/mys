@@ -30,37 +30,37 @@ export const createUser = authMutation({
 })
 
 const updateUserSchema = userSchema.partial().extend({
-  userId: zid("users"),
+  _id: zid("users"),
 })
 
 export const updateUser = authMutation({
   args: updateUserSchema.shape,
   handler: async (ctx, args) => {
-    const { userId, ...fields } = args
+    const { _id, ...fields } = args
 
-    const user = await ctx.db.get(userId)
+    const user = await ctx.db.get(_id)
     if (!user) throw new ConvexError("User not found")
 
     if (Object.keys(fields).length === 0)
       throw new ConvexError("No fields to update")
 
-    return ctx.db.patch(userId, fields)
+    return ctx.db.patch(_id, fields)
   },
 })
 
 export const deleteUser = authMutation({
   args: {
-    userId: zid("users"),
+    _id: zid("users"),
   },
   handler: async (ctx, args) => {
-    const { userId } = args
+    const { _id } = args
 
-    const user = await ctx.db.get(userId)
+    const user = await ctx.db.get(_id)
     if (!user) throw new ConvexError("User not found")
 
     const authSessions = await ctx.db
       .query("authSessions")
-      .withIndex("userId", (q) => q.eq("userId", userId))
+      .withIndex("userId", (q) => q.eq("userId", _id))
       .collect()
 
     for (const session of authSessions) {
@@ -78,7 +78,7 @@ export const deleteUser = authMutation({
 
     const authAccounts = await ctx.db
       .query("authAccounts")
-      .withIndex("userIdAndProvider", (q) => q.eq("userId", userId))
+      .withIndex("userIdAndProvider", (q) => q.eq("userId", _id))
       .collect()
 
     for (const account of authAccounts) {
@@ -94,6 +94,6 @@ export const deleteUser = authMutation({
       await ctx.db.delete(account._id)
     }
 
-    return ctx.db.delete(userId)
+    return ctx.db.delete(_id)
   },
 })

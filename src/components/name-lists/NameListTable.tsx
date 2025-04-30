@@ -2,17 +2,26 @@
 
 import React from "react"
 import { ColumnDef } from "@tanstack/react-table"
+import { Edit } from "lucide-react"
 
 import { NameListRecord } from "@/types/nameList"
 import { getRowNumber } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
+import { Button } from "@/components/ui/button"
+import { DialogTrigger } from "@/components/ui/dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import ColumnHeader, {
   multiSelectFilter,
 } from "@/components/data-table/ColumnHeader"
 import DataTable from "@/components/data-table/DataTable"
 import DeleteNameListRecord from "@/components/name-lists/DeleteNameListRecord"
 import TitleFilter from "@/components/name-lists/TitleFilter"
+import UpsertNameListRecord from "@/components/name-lists/UpsertNameListRecord"
 
 import { api } from "@cvx/_generated/api"
 
@@ -47,10 +56,29 @@ const NameListTable = () => {
     },
     {
       id: "actions",
-      cell: ({ row }) => <DeleteNameListRecord nameListRecord={row.original} />,
+      cell: ({ row }) => (
+        <>
+          <UpsertNameListRecord nameListRecord={row.original}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DialogTrigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <Edit />
+                  </Button>
+                </DialogTrigger>
+              </TooltipTrigger>
+
+              <TooltipContent side="bottom">Edit</TooltipContent>
+            </Tooltip>
+          </UpsertNameListRecord>
+
+          <DeleteNameListRecord nameListRecord={row.original} />
+        </>
+      ),
       enableHiding: false,
       meta: {
-        headerClassName: cn("w-20"),
+        headerClassName: cn("w-24"),
+        cellClassName: cn("text-center"),
       },
     },
   ]

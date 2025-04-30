@@ -31,7 +31,7 @@ const UpdateStatus = ({
 
   const handleUpdate = async (isAuthorized: boolean) => {
     try {
-      await updateUser({ userId: user._id, isAuthorized })
+      await updateUser({ _id: user._id, isAuthorized })
       toast.success("Status updated")
     } catch (error) {
       handleMutationError(error)
@@ -56,7 +56,7 @@ const UpdateStatus = ({
 
       <DropdownMenuContent
         align="start"
-        onCloseAutoFocus={(event) => event.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
         sideOffset={4}
       >
         <DropdownMenuLabel>Status</DropdownMenuLabel>

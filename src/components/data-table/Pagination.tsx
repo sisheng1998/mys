@@ -22,90 +22,98 @@ interface PaginationProps<TData> {
   table: Table<TData>
 }
 
-const Pagination = <TData,>({ table }: PaginationProps<TData>) => (
-  <div className="flex flex-wrap items-center justify-between gap-4">
-    {table.getFilteredRowModel().rows.length !== 0 ? (
-      <p className="text-sm">
-        Showing{" "}
-        {table.getState().pagination.pageIndex *
-          table.getState().pagination.pageSize +
-          1}{" "}
-        -{" "}
-        {Math.min(
-          (table.getState().pagination.pageIndex + 1) *
-            table.getState().pagination.pageSize,
-          table.getFilteredRowModel().rows.length
-        )}{" "}
-        of {table.getFilteredRowModel().rows.length} result
-        {table.getFilteredRowModel().rows.length !== 1 ? "s" : ""}
-      </p>
-    ) : (
-      <p className="text-sm">Showing 0 results</p>
-    )}
+const Pagination = <TData,>({ table }: PaginationProps<TData>) => {
+  const totalRows = table.getFilteredRowModel().rows.length
 
-    <div className="flex flex-wrap items-center gap-4">
-      <div className="flex items-center gap-2">
-        <p className="text-sm">Rows / Page</p>
+  const firstRowNumber =
+    table.getState().pagination.pageIndex *
+      table.getState().pagination.pageSize +
+    1
 
-        <Select
-          value={`${table.getState().pagination.pageSize}`}
-          onValueChange={(value) => {
-            table.setPageSize(Number(value))
-          }}
-        >
-          <SelectTrigger className="w-20">
-            <SelectValue placeholder={table.getState().pagination.pageSize} />
-          </SelectTrigger>
+  const lastRowNumber = Math.min(
+    (table.getState().pagination.pageIndex + 1) *
+      table.getState().pagination.pageSize,
+    table.getFilteredRowModel().rows.length
+  )
 
-          <SelectContent side="top">
-            {[25, 50, 100].map((pageSize) => (
-              <SelectItem key={pageSize} value={`${pageSize}`}>
-                {pageSize}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+  const currentPageSize = table.getState().pagination.pageSize
 
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => table.setPageIndex(0)}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronsLeft />
-        </Button>
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      {totalRows > 1 ? (
+        <p className="text-sm">
+          Showing {firstRowNumber} - {lastRowNumber} of {totalRows} results
+        </p>
+      ) : (
+        <p className="text-sm">
+          Showing {totalRows} result{totalRows === 0 ? "s" : ""}
+        </p>
+      )}
 
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronLeft />
-        </Button>
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
+          <p className="text-sm">Rows / Page</p>
 
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronRight />
-        </Button>
+          <Select
+            value={currentPageSize.toString()}
+            onValueChange={(value) => {
+              table.setPageSize(Number(value))
+            }}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue placeholder={currentPageSize.toString()} />
+            </SelectTrigger>
 
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronsRight />
-        </Button>
+            <SelectContent side="top">
+              {[25, 50, 100].map((pageSize) => (
+                <SelectItem key={pageSize} value={pageSize.toString()}>
+                  {pageSize}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronsLeft />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronsRight />
+          </Button>
+        </div>
       </div>
     </div>
-  </div>
-)
+  )
+}
 
 export default Pagination

@@ -3,11 +3,11 @@
 import React, { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
-import { Plus } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { NameListRecord } from "@/types/nameList"
 import { handleFormError } from "@/lib/error"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -39,30 +38,39 @@ import {
 } from "@/components/ui/select"
 
 import { api } from "@cvx/_generated/api"
-import { createNameListRecordSchema } from "@cvx/nameLists/mutations"
+import { upsertNameListRecordSchema } from "@cvx/nameLists/mutations"
 import { TITLES } from "@cvx/nameLists/schemas"
 
-type formSchema = z.infer<typeof createNameListRecordSchema>
+type formSchema = z.infer<typeof upsertNameListRecordSchema>
 
-const AddNewRecord = () => {
+const UpsertNameListRecord = ({
+  nameListRecord,
+  children,
+}: {
+  nameListRecord?: NameListRecord
+  children: React.ReactNode
+}) => {
   const [open, setOpen] = useState<boolean>(false)
 
-  const createNameListRecord = useMutation(
-    api.nameLists.mutations.createNameListRecord
+  const upsertNameListRecord = useMutation(
+    api.nameLists.mutations.upsertNameListRecord
   )
 
+  const isEdit = !!nameListRecord
+
   const form = useForm<formSchema>({
-    resolver: zodResolver(createNameListRecordSchema),
+    resolver: zodResolver(upsertNameListRecordSchema),
     defaultValues: {
-      title: undefined,
-      name: "",
+      _id: nameListRecord?._id || undefined,
+      title: nameListRecord?.title || undefined,
+      name: nameListRecord?.name || "",
     },
   })
 
   const onSubmit = async (values: formSchema) => {
     try {
-      await createNameListRecord(values)
-      toast.success("New record added")
+      await upsertNameListRecord(values)
+      toast.success(isEdit ? "Record updated" : "New record added")
       setOpen(false)
     } catch (error) {
       handleFormError(error, form.setError)
@@ -71,14 +79,14 @@ const AddNewRecord = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus />
-          <span>New Record</span>
-        </Button>
-      </DialogTrigger>
+      {children}
 
-      <DialogContent onCloseAutoFocus={() => form.reset()}>
+      <DialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          form.reset()
+        }}
+      >
         <Form {...form}>
           <form
             autoComplete="off"
@@ -86,9 +94,11 @@ const AddNewRecord = () => {
             className="flex flex-col gap-6"
           >
             <DialogHeader>
-              <DialogTitle>New Record</DialogTitle>
+              <DialogTitle>{isEdit ? "Edit" : "New"} Record</DialogTitle>
               <DialogDescription>
-                New record will be added to the list.
+                {isEdit
+                  ? "The record in the list will be updated."
+                  : "New record will be added to the list."}
               </DialogDescription>
             </DialogHeader>
 
@@ -156,7 +166,7 @@ const AddNewRecord = () => {
                   !form.formState.isValid || form.formState.isSubmitting
                 }
               >
-                Add Record
+                {isEdit ? "Update" : "Add Record"}
               </LoaderButton>
             </DialogFooter>
           </form>
@@ -166,4 +176,4 @@ const AddNewRecord = () => {
   )
 }
 
-export default AddNewRecord
+export default UpsertNameListRecord

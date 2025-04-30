@@ -43,7 +43,7 @@ const DeleteNameListRecord = ({
     setIsLoading(true)
 
     try {
-      await deleteNameListRecord({ nameListId: nameListRecord._id })
+      await deleteNameListRecord({ _id: nameListRecord._id })
       toast.success("Record deleted")
       setOpen(false)
     } catch (error) {
