@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { CalendarDays, NotebookTabs, Users } from "lucide-react"
+import { FileText, ListTodo } from "lucide-react"
 
 import {
   SidebarGroup,
@@ -17,29 +17,24 @@ import {
 
 const PAGES = [
   {
-    title: "Events",
-    url: "/",
-    icon: CalendarDays,
+    title: "Templates",
+    url: "/templates",
+    icon: FileText,
   },
   {
-    title: "Name Lists",
-    url: "/name-lists",
-    icon: NotebookTabs,
-  },
-  {
-    title: "Users",
-    url: "/users",
-    icon: Users,
+    title: "Categories",
+    url: "/categories",
+    icon: ListTodo,
   },
 ]
 
-const NavMain = () => {
+const NavSettings = () => {
   const pathname = usePathname()
   const { setOpenMobile } = useSidebar()
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Application</SidebarGroupLabel>
+      <SidebarGroupLabel>Settings</SidebarGroupLabel>
 
       <SidebarGroupContent>
         <SidebarMenu>
@@ -64,4 +59,4 @@ const NavMain = () => {
   )
 }
 
-export default NavMain
+export default NavSettings

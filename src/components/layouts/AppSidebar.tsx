@@ -11,6 +11,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import NavMain from "@/components/layouts/NavMain"
+import NavSettings from "@/components/layouts/NavSettings"
 import NavUser from "@/components/layouts/NavUser"
 import Logo from "@/icons/Logo"
 
@@ -36,6 +37,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => (
 
     <SidebarContent className="overflow-x-hidden">
       <NavMain />
+      <NavSettings />
     </SidebarContent>
 
     <SidebarFooter>
