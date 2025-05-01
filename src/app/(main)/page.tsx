@@ -3,16 +3,16 @@ import React from "react"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
 export const metadata = {
-  title: "Dashboard",
+  title: "Events",
 }
 
-const Dashboard = () => {
+const Events = () => {
   return (
     <div>
-      <Breadcrumb links={[{ label: "Dashboard" }]} />
-      Dashboard
+      <Breadcrumb links={[{ label: "Events" }]} />
+      Events
     </div>
   )
 }
 
-export default Dashboard
+export default Events

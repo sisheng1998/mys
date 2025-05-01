@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, NotebookTabs, Users } from "lucide-react"
+import { CalendarDays, FileText, NotebookTabs, Users } from "lucide-react"
 
 import {
   SidebarGroup,
@@ -17,14 +17,19 @@ import {
 
 const PAGES = [
   {
-    title: "Dashboard",
+    title: "Events",
     url: "/",
-    icon: LayoutDashboard,
+    icon: CalendarDays,
   },
   {
     title: "Name Lists",
     url: "/name-lists",
     icon: NotebookTabs,
+  },
+  {
+    title: "Templates",
+    url: "/templates",
+    icon: FileText,
   },
   {
     title: "Users",
