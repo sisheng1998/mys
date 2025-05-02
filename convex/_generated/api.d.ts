@@ -15,6 +15,9 @@ import type {
 } from "convex/server";
 import type * as auth_schemas from "../auth/schemas.js";
 import type * as auth from "../auth.js";
+import type * as categories_mutations from "../categories/mutations.js";
+import type * as categories_queries from "../categories/queries.js";
+import type * as categories_schemas from "../categories/schemas.js";
 import type * as http from "../http.js";
 import type * as nameLists_mutations from "../nameLists/mutations.js";
 import type * as nameLists_queries from "../nameLists/queries.js";
@@ -36,6 +39,9 @@ import type * as utils_function from "../utils/function.js";
 declare const fullApi: ApiFromModules<{
   "auth/schemas": typeof auth_schemas;
   auth: typeof auth;
+  "categories/mutations": typeof categories_mutations;
+  "categories/queries": typeof categories_queries;
+  "categories/schemas": typeof categories_schemas;
   http: typeof http;
   "nameLists/mutations": typeof nameLists_mutations;
   "nameLists/queries": typeof nameLists_queries;

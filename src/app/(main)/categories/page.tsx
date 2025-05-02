@@ -1,5 +1,7 @@
 import React from "react"
+import { Plus } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -7,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { DialogTrigger } from "@/components/ui/dialog"
+import UpsertCategory from "@/components/categories/UpsertCategory"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
 export const metadata = {
@@ -24,7 +28,14 @@ const Categories = () => (
           <CardDescription>Create and manage categories</CardDescription>
         </div>
 
-        {/* <AddNewUser /> */}
+        <UpsertCategory>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus />
+              <span>New Category</span>
+            </Button>
+          </DialogTrigger>
+        </UpsertCategory>
       </CardHeader>
     </Card>
 

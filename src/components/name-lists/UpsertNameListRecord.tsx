@@ -61,8 +61,8 @@ const UpsertNameListRecord = ({
   const form = useForm<formSchema>({
     resolver: zodResolver(upsertNameListRecordSchema),
     defaultValues: {
-      _id: nameListRecord?._id || undefined,
-      title: nameListRecord?.title || undefined,
+      _id: nameListRecord?._id,
+      title: nameListRecord?.title ?? undefined,
       name: nameListRecord?.name || "",
     },
   })
@@ -95,6 +95,7 @@ const UpsertNameListRecord = ({
           >
             <DialogHeader>
               <DialogTitle>{isEdit ? "Edit" : "New"} Record</DialogTitle>
+
               <DialogDescription>
                 {isEdit
                   ? "The record in the list will be updated."
@@ -102,7 +103,7 @@ const UpsertNameListRecord = ({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
+            <div className="grid items-start gap-4 sm:grid-cols-[auto_1fr]">
               <FormField
                 control={form.control}
                 name="title"
@@ -145,9 +146,11 @@ const UpsertNameListRecord = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
+
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input placeholder="John Doe" autoFocus {...field} />
                     </FormControl>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -162,9 +165,7 @@ const UpsertNameListRecord = ({
               <LoaderButton
                 type="submit"
                 isLoading={form.formState.isSubmitting}
-                disabled={
-                  !form.formState.isValid || form.formState.isSubmitting
-                }
+                disabled={form.formState.isSubmitting}
               >
                 {isEdit ? "Update" : "Add Record"}
               </LoaderButton>

@@ -76,6 +76,7 @@ const AddNewUser = () => {
           >
             <DialogHeader>
               <DialogTitle>New User</DialogTitle>
+
               <DialogDescription>
                 New user will be added to the list.
               </DialogDescription>
@@ -87,9 +88,11 @@ const AddNewUser = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
+
                   <FormControl>
                     <Input placeholder="you@example.com" {...field} />
                   </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -103,9 +106,7 @@ const AddNewUser = () => {
               <LoaderButton
                 type="submit"
                 isLoading={form.formState.isSubmitting}
-                disabled={
-                  !form.formState.isValid || form.formState.isSubmitting
-                }
+                disabled={form.formState.isSubmitting}
               >
                 Add User
               </LoaderButton>
