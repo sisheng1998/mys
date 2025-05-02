@@ -25,7 +25,7 @@ const Categories = () => (
       <CardHeader className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Categories</CardTitle>
-          <CardDescription>Create and manage categories</CardDescription>
+          <CardDescription>Categories for donations</CardDescription>
         </div>
 
         <UpsertCategory>

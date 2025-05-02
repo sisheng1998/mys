@@ -21,7 +21,7 @@ const Templates = () => (
       <CardHeader className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Templates</CardTitle>
-          <CardDescription>Create and manage templates</CardDescription>
+          <CardDescription>Predefined event templates</CardDescription>
         </div>
 
         {/* <AddNewUser /> */}

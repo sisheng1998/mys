@@ -23,7 +23,7 @@ const Users = () => (
       <CardHeader className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Users</CardTitle>
-          <CardDescription>Create and manage users</CardDescription>
+          <CardDescription>Users of the application</CardDescription>
         </div>
 
         <AddNewUser />
