@@ -40,6 +40,13 @@ import {
   NumberFieldInput,
 } from "@/components/ui/number-field"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -69,6 +76,7 @@ const UpsertCategory = ({
     name: category?.name || "",
     amount: category?.amount ?? NaN,
     titles: category?.titles || [],
+    isExclusion: category?.isExclusion || false,
   }
 
   const form = useForm<formSchema>({
@@ -183,7 +191,7 @@ const UpsertCategory = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      <span>Available To</span>
+                      <span>Conditions</span>
 
                       <Tooltip>
                         <TooltipTrigger
@@ -197,23 +205,58 @@ const UpsertCategory = ({
                           className="max-w-60 text-center"
                           side="bottom"
                         >
-                          Choose who can use this category. Leave empty for
-                          everyone.
+                          Specify who can / cannot use this category. Leave
+                          empty for everyone.
                         </TooltipContent>
                       </Tooltip>
                     </FormLabel>
 
-                    <FormControl>
-                      <MultiSelect
-                        placeholder="Everyone"
-                        options={TITLES.map((title) => ({
-                          value: title,
-                          label: title,
-                        }))}
-                        modal
-                        {...field}
+                    <div className="flex items-stretch">
+                      <FormField
+                        control={form.control}
+                        name="isExclusion"
+                        render={({ field: isExclusionField }) => (
+                          <FormItem>
+                            <Select
+                              defaultValue={isExclusionField.value.toString()}
+                              onValueChange={(value) =>
+                                isExclusionField.onChange(value === "true")
+                              }
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-auto! min-w-20 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                              </FormControl>
+
+                              <SelectContent>
+                                {[false, true].map((value) => (
+                                  <SelectItem
+                                    key={value.toString()}
+                                    value={value.toString()}
+                                  >
+                                    {value ? "Exclude" : "Include"}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
+
+                      <FormControl>
+                        <MultiSelect
+                          className="flex-1 rounded-l-none"
+                          placeholder="Everyone"
+                          options={TITLES.map((title) => ({
+                            value: title,
+                            label: title,
+                          }))}
+                          modal
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
 
                     <FormMessage />
                   </FormItem>

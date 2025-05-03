@@ -17,14 +17,14 @@ import {
 
 const PAGES = [
   {
-    title: "Templates",
-    url: "/templates",
-    icon: FileText,
-  },
-  {
     title: "Categories",
     url: "/categories",
     icon: ListTodo,
+  },
+  {
+    title: "Templates",
+    url: "/templates",
+    icon: FileText,
   },
 ]
 

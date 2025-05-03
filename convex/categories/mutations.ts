@@ -5,14 +5,25 @@ import { ConvexError } from "convex/values"
 import { categorySchema } from "@cvx/categories/schemas"
 import { authMutation } from "@cvx/utils/function"
 
-export const upsertCategorySchema = categorySchema.extend({
-  _id: zid("categories").optional(),
-})
+export const upsertCategorySchema = categorySchema
+  .extend({
+    _id: zid("categories").optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.isExclusion) return data.titles.length > 0
+      return true
+    },
+    {
+      message: "Required",
+      path: ["titles"],
+    }
+  )
 
 export const upsertCategory = authMutation({
-  args: upsertCategorySchema.shape,
+  args: upsertCategorySchema._def.schema.shape,
   handler: async (ctx, args) => {
-    const { _id, name, amount, titles } = args
+    const { _id, name, amount, ...fields } = args
 
     if (_id) {
       const existingCategory = await ctx.db.get(_id)
@@ -26,7 +37,7 @@ export const upsertCategory = authMutation({
       if (existingWithSameName)
         throw new ConvexError("Another category with this name already exists")
 
-      return ctx.db.patch(_id, { name, amount, titles })
+      return ctx.db.patch(_id, { name, amount, ...fields })
     }
 
     const existingCategory = await filter(
@@ -39,7 +50,7 @@ export const upsertCategory = authMutation({
     const newCategory = categorySchema.parse({
       name,
       amount,
-      titles,
+      ...fields,
     })
 
     return ctx.db.insert("categories", newCategory)

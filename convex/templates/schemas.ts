@@ -9,8 +9,10 @@ const templateFields = {
   categories: v.array(v.string()),
 }
 
+const zodFields = convexToZodFields(templateFields)
+
 export const templateSchema = z.object({
-  ...convexToZodFields(templateFields),
+  ...zodFields,
   name: z.string().trim().min(1, "Required"),
 })
 

@@ -10,14 +10,16 @@ const userFields = {
   isAuthorized: v.boolean(),
 }
 
+const zodFields = convexToZodFields(userFields)
+
 export const userSchema = z.object({
-  ...convexToZodFields(userFields),
+  ...zodFields,
   name: z.string().trim().default(""),
   email: z
     .string()
     .email()
     .transform((e) => e.toLowerCase()),
-  isAuthorized: z.boolean().default(false),
+  isAuthorized: zodFields.isAuthorized.default(false),
 })
 
 export const userTables = {

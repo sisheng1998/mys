@@ -9,10 +9,13 @@ const categoryFields = {
   name: v.string(),
   amount: v.optional(v.number()),
   titles: v.array(v.union(...TITLES.map((title) => v.literal(title)))),
+  isExclusion: v.boolean(),
 }
 
+const zodFields = convexToZodFields(categoryFields)
+
 export const categorySchema = z.object({
-  ...convexToZodFields(categoryFields),
+  ...zodFields,
   name: z.string().trim().min(1, "Required"),
   amount: z
     .union([z.number().min(1), z.nan().transform(() => undefined)])

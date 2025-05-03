@@ -18,8 +18,10 @@ const nameListFields = {
   name: v.string(),
 }
 
+const zodFields = convexToZodFields(nameListFields)
+
 export const nameListSchema = z.object({
-  ...convexToZodFields(nameListFields),
+  ...zodFields,
   name: z.string().trim().min(1, "Required"),
 })
 
