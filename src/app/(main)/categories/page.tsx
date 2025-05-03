@@ -4,12 +4,12 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { DialogTrigger } from "@/components/ui/dialog"
+import CategoryList from "@/components/categories/CategoryList"
 import UpsertCategory from "@/components/categories/UpsertCategory"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
@@ -39,11 +39,7 @@ const Categories = () => (
       </CardHeader>
     </Card>
 
-    <Card className="flex-1">
-      <CardContent className="flex flex-1 flex-col">
-        {/* <UserTable /> */}
-      </CardContent>
-    </Card>
+    <CategoryList />
   </>
 )
 

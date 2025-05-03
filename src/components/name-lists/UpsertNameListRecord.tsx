@@ -58,13 +58,15 @@ const UpsertNameListRecord = ({
 
   const isEdit = !!nameListRecord
 
+  const defaultValues = {
+    _id: nameListRecord?._id,
+    title: nameListRecord?.title ?? undefined,
+    name: nameListRecord?.name || "",
+  }
+
   const form = useForm<formSchema>({
     resolver: zodResolver(upsertNameListRecordSchema),
-    defaultValues: {
-      _id: nameListRecord?._id,
-      title: nameListRecord?.title ?? undefined,
-      name: nameListRecord?.name || "",
-    },
+    defaultValues,
   })
 
   const onSubmit = async (values: formSchema) => {
@@ -84,7 +86,7 @@ const UpsertNameListRecord = ({
       <DialogContent
         onCloseAutoFocus={(e) => {
           e.preventDefault()
-          form.reset()
+          form.reset(defaultValues)
         }}
       >
         <Form {...form}>

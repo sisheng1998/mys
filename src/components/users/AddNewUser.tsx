@@ -41,11 +41,12 @@ const AddNewUser = () => {
 
   const createUser = useMutation(api.users.mutations.createUser)
 
+  const defaultValues = {
+    email: "",
+  }
   const form = useForm<formSchema>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: {
-      email: "",
-    },
+    defaultValues,
   })
 
   const onSubmit = async (values: formSchema) => {
@@ -67,7 +68,7 @@ const AddNewUser = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent onCloseAutoFocus={() => form.reset()}>
+      <DialogContent onCloseAutoFocus={() => form.reset(defaultValues)}>
         <Form {...form}>
           <form
             autoComplete="off"

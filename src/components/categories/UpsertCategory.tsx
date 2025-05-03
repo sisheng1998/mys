@@ -10,6 +10,7 @@ import { z } from "zod"
 
 import { Category } from "@/types/category"
 import { handleFormError } from "@/lib/error"
+import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -63,14 +64,16 @@ const UpsertCategory = ({
 
   const isEdit = !!category
 
+  const defaultValues = {
+    _id: category?._id,
+    name: category?.name || "",
+    amount: category?.amount ?? NaN,
+    titles: category?.titles || [],
+  }
+
   const form = useForm<formSchema>({
     resolver: zodResolver(upsertCategorySchema),
-    defaultValues: {
-      _id: category?._id,
-      name: category?.name || "",
-      amount: category?.amount ?? NaN,
-      titles: category?.titles || [],
-    },
+    defaultValues,
   })
 
   const onSubmit = async (values: formSchema) => {
@@ -90,7 +93,7 @@ const UpsertCategory = ({
       <DialogContent
         onCloseAutoFocus={(e) => {
           e.preventDefault()
-          form.reset()
+          form.reset(defaultValues)
         }}
       >
         <Form {...form}>
@@ -119,7 +122,7 @@ const UpsertCategory = ({
                       <FormLabel>Name</FormLabel>
 
                       <FormControl>
-                        <Input placeholder="乐捐" {...field} />
+                        <Input placeholder="Donation" {...field} />
                       </FormControl>
 
                       <FormMessage />
@@ -156,14 +159,7 @@ const UpsertCategory = ({
                       <FormControl>
                         <NumberField
                           placeholder="Any amount"
-                          formatOptions={{
-                            style: "currency",
-                            currency: "MYR",
-                            currencyDisplay: "narrowSymbol",
-                            currencySign: "accounting",
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                          }}
+                          formatOptions={CURRENCY_FORMAT_OPTIONS}
                           minValue={1}
                           {...field}
                         >
@@ -209,7 +205,7 @@ const UpsertCategory = ({
 
                     <FormControl>
                       <MultiSelect
-                        placeholder="All people"
+                        placeholder="Everyone"
                         options={TITLES.map((title) => ({
                           value: title,
                           label: title,
