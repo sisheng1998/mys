@@ -1,12 +1,15 @@
 import React from "react"
+import { Plus } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { DialogTrigger } from "@/components/ui/dialog"
+import UpsertTemplate from "@/components/templates/UpsertTemplate"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
 export const metadata = {
@@ -24,14 +27,15 @@ const Templates = () => (
           <CardDescription>Predefined event templates</CardDescription>
         </div>
 
-        {/* <AddNewUser /> */}
+        <UpsertTemplate>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus />
+              <span>New Template</span>
+            </Button>
+          </DialogTrigger>
+        </UpsertTemplate>
       </CardHeader>
-    </Card>
-
-    <Card className="flex-1">
-      <CardContent className="flex flex-1 flex-col">
-        {/* <UserTable /> */}
-      </CardContent>
     </Card>
   </>
 )

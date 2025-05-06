@@ -24,7 +24,7 @@ const ColumnHeader = <TData, TValue>({
     <Button
       variant="ghost"
       size="sm"
-      className={cn("-ml-2.5 h-8 text-sm", className)}
+      className={cn("-ml-2.5", className)}
       onClick={() => {
         const currentSort = column.getIsSorted()
 

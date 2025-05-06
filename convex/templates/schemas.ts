@@ -3,10 +3,12 @@ import { defineTable } from "convex/server"
 import { v } from "convex/values"
 import { z } from "zod"
 
+import { Id } from "@cvx/_generated/dataModel"
+
 const templateFields = {
   name: v.string(),
   dates: v.array(v.string()),
-  categories: v.array(v.string()),
+  categories: v.array(v.id("categories")),
 }
 
 const zodFields = convexToZodFields(templateFields)
@@ -14,6 +16,8 @@ const zodFields = convexToZodFields(templateFields)
 export const templateSchema = z.object({
   ...zodFields,
   name: z.string().trim().min(1, "Required"),
+  dates: z.array(z.string()).nonempty("Required"),
+  categories: z.array(z.custom<Id<"categories">>()).nonempty("Required"),
 })
 
 export const templateTables = {

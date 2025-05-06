@@ -38,7 +38,7 @@ const SignIn = () => (
         <Button
           size="sm"
           variant="link"
-          className="text-foreground h-auto p-0"
+          className="text-foreground h-auto p-0 text-xs"
           asChild
         >
           <Link href="/terms-of-service" target="_blank">
@@ -49,7 +49,7 @@ const SignIn = () => (
         <Button
           size="sm"
           variant="link"
-          className="text-foreground h-auto p-0"
+          className="text-foreground h-auto p-0 text-xs"
           asChild
         >
           <Link href="/privacy-policy" target="_blank">

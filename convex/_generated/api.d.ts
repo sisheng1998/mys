@@ -22,6 +22,8 @@ import type * as http from "../http.js";
 import type * as nameLists_mutations from "../nameLists/mutations.js";
 import type * as nameLists_queries from "../nameLists/queries.js";
 import type * as nameLists_schemas from "../nameLists/schemas.js";
+import type * as templates_mutations from "../templates/mutations.js";
+import type * as templates_queries from "../templates/queries.js";
 import type * as templates_schemas from "../templates/schemas.js";
 import type * as users_mutations from "../users/mutations.js";
 import type * as users_queries from "../users/queries.js";
@@ -46,6 +48,8 @@ declare const fullApi: ApiFromModules<{
   "nameLists/mutations": typeof nameLists_mutations;
   "nameLists/queries": typeof nameLists_queries;
   "nameLists/schemas": typeof nameLists_schemas;
+  "templates/mutations": typeof templates_mutations;
+  "templates/queries": typeof templates_queries;
   "templates/schemas": typeof templates_schemas;
   "users/mutations": typeof users_mutations;
   "users/queries": typeof users_queries;

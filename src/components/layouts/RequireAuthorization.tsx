@@ -63,7 +63,7 @@ const Unauthorized = () => {
 
           <LoaderButton
             size="sm"
-            className="mt-1.5"
+            className="mt-1.5 text-xs"
             onClick={handleClick}
             isLoading={isLoading}
             icon={LogOut}
