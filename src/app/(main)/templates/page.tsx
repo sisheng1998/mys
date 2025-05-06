@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { DialogTrigger } from "@/components/ui/dialog"
+import TemplateList from "@/components/templates/TemplateList"
 import UpsertTemplate from "@/components/templates/UpsertTemplate"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
@@ -37,6 +38,8 @@ const Templates = () => (
         </UpsertTemplate>
       </CardHeader>
     </Card>
+
+    <TemplateList />
   </>
 )
 

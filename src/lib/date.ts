@@ -35,6 +35,29 @@ export const getSolarDateFromLunarDate = (date: string): Date => {
   return dayjsDate.toDate()
 }
 
+export const sortLunarDates = (dates: string[]) =>
+  dates.sort((a, b) => {
+    const [, monthAStr, dayAStr] = a.split(SEPARATOR)
+    const [, monthBStr, dayBStr] = b.split(SEPARATOR)
+
+    const monthA = Number(monthAStr)
+    const monthB = Number(monthBStr)
+    const dayA = Number(dayAStr)
+    const dayB = Number(dayBStr)
+
+    const absMonthA = Math.abs(monthA)
+    const absMonthB = Math.abs(monthB)
+
+    if (absMonthA !== absMonthB) return absMonthA - absMonthB
+
+    const isLeapA = monthA < 0 ? 1 : 0
+    const isLeapB = monthB < 0 ? 1 : 0
+
+    if (isLeapA !== isLeapB) return isLeapA - isLeapB
+
+    return dayA - dayB
+  })
+
 export const isSelectedLunarDate = (date: Date, selectedDates: string[]) => {
   const dayjsDate = dayjs(date)
 

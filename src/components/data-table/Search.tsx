@@ -19,7 +19,7 @@ const Search = ({ search, setSearch }: SearchProps) => (
     <Input
       placeholder="Search"
       value={search}
-      onChange={(event) => setSearch(event.target.value)}
+      onChange={(e) => setSearch(e.target.value)}
     />
   </InputRoot>
 )

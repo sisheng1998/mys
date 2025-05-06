@@ -15,6 +15,7 @@ import {
   getLunarDateInChinese,
   getSolarDateFromLunarDate,
   isSelectedLunarDate,
+  sortLunarDates,
 } from "@/lib/date"
 import { handleFormError } from "@/lib/error"
 import { cn } from "@/lib/utils"
@@ -215,8 +216,10 @@ const UpsertTemplate = ({
                             )}
                             onSelect={(dates) =>
                               field.onChange(
-                                (dates ?? []).map((date) =>
-                                  getLunarDateFromSolarDate(date)
+                                sortLunarDates(
+                                  (dates ?? []).map((date) =>
+                                    getLunarDateFromSolarDate(date)
+                                  )
                                 )
                               )
                             }

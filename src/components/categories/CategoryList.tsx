@@ -3,7 +3,7 @@
 import React from "react"
 import { Edit, Plus } from "lucide-react"
 
-import { CurrencyDisplay } from "@/lib/number"
+import { formatCurrency } from "@/lib/number"
 import { useQuery } from "@/hooks/use-query"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,7 +30,7 @@ const CategoryList = () => {
   return (
     <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
       {status === "pending" ? (
-        Array.from({ length: 5 }).map((_, i) => (
+        Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="bg-card rounded-lg">
             <Skeleton className="min-h-24 rounded-lg" />
           </div>
@@ -42,11 +42,9 @@ const CategoryList = () => {
               <div className="flex flex-col gap-1.5">
                 <CardTitle className="leading-5">{category.name}</CardTitle>
                 <CardDescription>
-                  {category.amount !== undefined ? (
-                    <CurrencyDisplay value={category.amount} />
-                  ) : (
-                    "Any Amount"
-                  )}
+                  {category.amount !== undefined
+                    ? formatCurrency(category.amount)
+                    : "Any Amount"}
                 </CardDescription>
               </div>
 
@@ -64,6 +62,7 @@ const CategoryList = () => {
                     <TooltipContent side="bottom">Edit</TooltipContent>
                   </Tooltip>
                 </UpsertCategory>
+
                 <DeleteCategory category={category} />
               </div>
             </CardContent>
