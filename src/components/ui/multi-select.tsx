@@ -76,7 +76,11 @@ export const MultiSelect = ({
                     Array.isArray(value) && value.includes(option.value)
                 )
                 .map((option) => (
-                  <Badge key={option.value} variant="secondary">
+                  <Badge
+                    key={option.value}
+                    variant="outline"
+                    className="bg-background"
+                  >
                     {option.label}
                     <div
                       className="text-muted-foreground hover:text-foreground transition-colors"

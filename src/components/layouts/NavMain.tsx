@@ -47,7 +47,11 @@ const NavMain = () => {
             <SidebarMenuItem key={page.title}>
               <SidebarMenuButton
                 tooltip={page.title}
-                isActive={pathname === page.url}
+                isActive={
+                  page.url !== "/"
+                    ? pathname.startsWith(page.url)
+                    : pathname === page.url
+                }
                 onClick={() => setOpenMobile(false)}
                 asChild
               >

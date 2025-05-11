@@ -23,7 +23,7 @@ const NameLists = () => (
     <Breadcrumb links={[{ label: "Name Lists" }]} />
 
     <Card>
-      <CardHeader className="flex flex-wrap items-start justify-between gap-3">
+      <CardHeader className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Name Lists</CardTitle>
           <CardDescription>Master list of donors</CardDescription>

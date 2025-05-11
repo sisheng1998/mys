@@ -22,7 +22,7 @@ const Categories = () => (
     <Breadcrumb links={[{ label: "Categories" }]} />
 
     <Card>
-      <CardHeader className="flex flex-wrap items-start justify-between gap-3">
+      <CardHeader className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Categories</CardTitle>
           <CardDescription>Categories for donation items</CardDescription>

@@ -163,7 +163,11 @@ const UpsertTemplate = ({
                               >
                                 {hasValue ? (
                                   field.value.map((date) => (
-                                    <Badge key={date} variant="secondary">
+                                    <Badge
+                                      key={date}
+                                      variant="outline"
+                                      className="bg-background"
+                                    >
                                       {getLunarDateInChinese(date)}
                                       <div
                                         className="text-muted-foreground hover:text-foreground transition-colors"

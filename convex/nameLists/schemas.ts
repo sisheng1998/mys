@@ -13,7 +13,7 @@ export const TITLES = [
   "已故",
 ] as const
 
-const nameListFields = {
+export const nameListFields = {
   title: v.optional(v.union(...TITLES.map((title) => v.literal(title)))),
   name: v.string(),
 }

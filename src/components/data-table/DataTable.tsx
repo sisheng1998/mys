@@ -82,7 +82,7 @@ const DataTable = <TData, TValue>({
 
   return !isLoading ? (
     <div className="flex flex-1 flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2 gap-y-4">
+      <div className="flex flex-wrap items-center gap-2">
         <ColumnToggle table={table} />
 
         {filters}

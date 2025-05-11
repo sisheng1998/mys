@@ -22,7 +22,7 @@ const Templates = () => (
     <Breadcrumb links={[{ label: "Templates" }]} />
 
     <Card>
-      <CardHeader className="flex flex-wrap items-start justify-between gap-3">
+      <CardHeader className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Templates</CardTitle>
           <CardDescription>Predefined event templates</CardDescription>

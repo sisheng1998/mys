@@ -28,18 +28,15 @@ const KEY = "title"
 
 const TitleFilter = () => {
   const [columnFilters, setColumnFilters] = useFilterParams()
-  const selectedStatus = columnFilters.find((f) => f.id === KEY)
+  const selectedItem = columnFilters.find((f) => f.id === KEY)
 
   const handleSelect = (value?: string) => {
-    if (selectedStatus) {
+    if (selectedItem) {
       const newValues =
-        Array.isArray(selectedStatus.value) &&
-        selectedStatus.value.includes(value)
-          ? selectedStatus.value.filter((val) => val !== value)
+        Array.isArray(selectedItem.value) && selectedItem.value.includes(value)
+          ? selectedItem.value.filter((val) => val !== value)
           : [
-              ...(Array.isArray(selectedStatus.value)
-                ? selectedStatus.value
-                : []),
+              ...(Array.isArray(selectedItem.value) ? selectedItem.value : []),
               value,
             ]
 
@@ -62,9 +59,7 @@ const TitleFilter = () => {
         <Button variant="outline">
           <NotificationBadge
             badgeContent={
-              Array.isArray(selectedStatus?.value)
-                ? selectedStatus.value.length
-                : 0
+              Array.isArray(selectedItem?.value) ? selectedItem.value.length : 0
             }
           >
             <ListFilter />
@@ -85,8 +80,8 @@ const TitleFilter = () => {
                 <Checkbox
                   className="pointer-events-none"
                   checked={
-                    Array.isArray(selectedStatus?.value) &&
-                    selectedStatus.value.includes(undefined)
+                    Array.isArray(selectedItem?.value) &&
+                    selectedItem.value.includes(undefined)
                   }
                 />
                 <span>No Title</span>
@@ -94,8 +89,8 @@ const TitleFilter = () => {
 
               {TITLES.map((value, index) => {
                 const isSelected =
-                  Array.isArray(selectedStatus?.value) &&
-                  selectedStatus.value.includes(value)
+                  Array.isArray(selectedItem?.value) &&
+                  selectedItem.value.includes(value)
 
                 return (
                   <CommandItem key={index} onSelect={() => handleSelect(value)}>
@@ -109,7 +104,7 @@ const TitleFilter = () => {
               })}
             </CommandGroup>
 
-            {selectedStatus && (
+            {selectedItem && (
               <>
                 <CommandSeparator alwaysRender />
 

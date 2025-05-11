@@ -3,6 +3,7 @@
 import React from "react"
 import { ListFilter, X } from "lucide-react"
 
+import { Category } from "@/types/category"
 import { useFilterParams } from "@/hooks/use-data-table"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -22,13 +23,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-const KEY = "status"
+const KEY = "category"
 
-const StatusFilter = () => {
+const CategoryFilter = ({ categories }: { categories: Category[] }) => {
   const [columnFilters, setColumnFilters] = useFilterParams()
   const selectedItem = columnFilters.find((f) => f.id === KEY)
 
-  const handleSelect = (value: boolean) => {
+  const handleSelect = (value?: string) => {
     if (selectedItem) {
       const newValues =
         Array.isArray(selectedItem.value) && selectedItem.value.includes(value)
@@ -62,7 +63,7 @@ const StatusFilter = () => {
           >
             <ListFilter />
           </NotificationBadge>
-          Status
+          Category
         </Button>
       </PopoverTrigger>
 
@@ -74,18 +75,21 @@ const StatusFilter = () => {
             <CommandEmpty>No results found</CommandEmpty>
 
             <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
-              {[true, false].map((value, index) => {
+              {categories.map((category, index) => {
                 const isSelected =
                   Array.isArray(selectedItem?.value) &&
-                  selectedItem.value.includes(value)
+                  selectedItem.value.includes(category.name)
 
                 return (
-                  <CommandItem key={index} onSelect={() => handleSelect(value)}>
+                  <CommandItem
+                    key={index}
+                    onSelect={() => handleSelect(category.name)}
+                  >
                     <Checkbox
                       className="pointer-events-none"
                       checked={isSelected}
                     />
-                    <span>{value ? "Authorized" : "Unauthorized"}</span>
+                    <span>{category.name}</span>
                   </CommandItem>
                 )
               })}
@@ -113,4 +117,4 @@ const StatusFilter = () => {
   )
 }
 
-export default StatusFilter
+export default CategoryFilter

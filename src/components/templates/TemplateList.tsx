@@ -5,7 +5,6 @@ import Link from "next/link"
 import {
   CircleDollarSign,
   Command,
-  Edit,
   LayoutList,
   LucideIcon,
   Plus,
@@ -16,7 +15,6 @@ import { getLunarDateInChinese } from "@/lib/date"
 import { formatCurrency } from "@/lib/number"
 import { useQuery } from "@/hooks/use-query"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -32,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import DeleteTemplate from "@/components/templates/DeleteTemplate"
+import EditTemplate from "@/components/templates/EditTemplate"
 import UpsertTemplate from "@/components/templates/UpsertTemplate"
 
 import { api } from "@cvx/_generated/api"
@@ -63,20 +62,7 @@ const TemplateList = () => {
                 <CardTitle className="leading-5">{template.name}</CardTitle>
 
                 <div className="relative z-10 -m-2 flex items-center">
-                  <UpsertTemplate template={template}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DialogTrigger asChild>
-                          <Button size="icon" variant="ghost">
-                            <Edit />
-                          </Button>
-                        </DialogTrigger>
-                      </TooltipTrigger>
-
-                      <TooltipContent side="bottom">Edit</TooltipContent>
-                    </Tooltip>
-                  </UpsertTemplate>
-
+                  <EditTemplate template={template} />
                   <DeleteTemplate template={template} />
                 </div>
               </div>
