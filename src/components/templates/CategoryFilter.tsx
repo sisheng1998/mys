@@ -55,7 +55,7 @@ const CategoryFilter = ({ categories }: { categories: Category[] }) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="px-3">
           <NotificationBadge
             badgeContent={
               Array.isArray(selectedItem?.value) ? selectedItem.value.length : 0
@@ -63,7 +63,7 @@ const CategoryFilter = ({ categories }: { categories: Category[] }) => {
           >
             <ListFilter />
           </NotificationBadge>
-          Category
+          <span className="hidden lg:inline">Category</span>
         </Button>
       </PopoverTrigger>
 
@@ -74,7 +74,10 @@ const CategoryFilter = ({ categories }: { categories: Category[] }) => {
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
+            <CommandGroup
+              heading="Category"
+              className="max-h-80 overflow-x-hidden overflow-y-auto"
+            >
               {categories.map((category, index) => {
                 const isSelected =
                   Array.isArray(selectedItem?.value) &&

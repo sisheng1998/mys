@@ -28,9 +28,8 @@ interface ColumnToggleProps<TData> {
 const ColumnToggle = <TData,>({ table }: ColumnToggleProps<TData>) => (
   <Popover>
     <PopoverTrigger asChild>
-      <Button variant="outline">
+      <Button variant="outline" size="icon">
         <Columns2 />
-        Columns
       </Button>
     </PopoverTrigger>
 
@@ -41,7 +40,10 @@ const ColumnToggle = <TData,>({ table }: ColumnToggleProps<TData>) => (
         <CommandList className="max-h-full">
           <CommandEmpty>No results found</CommandEmpty>
 
-          <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
+          <CommandGroup
+            heading="Column"
+            className="max-h-80 overflow-x-hidden overflow-y-auto"
+          >
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())

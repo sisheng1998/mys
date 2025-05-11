@@ -33,7 +33,11 @@ const templateRecordZodFields = convexToZodFields(templateRecordFields)
 export const templateRecordSchema = z.object({
   ...templateRecordZodFields,
   name: z.string().trim().min(1, "Required"),
-  amount: z.number().min(1, "Required"),
+  amount: z
+    .number({
+      invalid_type_error: "Required",
+    })
+    .min(1, "Required"),
   category: z.string().min(1, "Required"),
 })
 

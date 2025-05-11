@@ -39,8 +39,8 @@ const EventTemplate = ({
         ]}
       />
 
-      <div className="flex flex-1 flex-col gap-4 xl:grid xl:grid-cols-3">
-        <Card className="xl:self-start">
+      <div className="flex flex-1 flex-col gap-4 lg:grid lg:grid-cols-3">
+        <Card className="lg:self-start">
           <CardHeader className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex flex-col gap-2.5">
               <CardTitle>{template.name}</CardTitle>
@@ -71,7 +71,7 @@ const EventTemplate = ({
           <DonationStats categories={template.categories} />
         </Card>
 
-        <Card className="flex-1 xl:col-span-2">
+        <Card className="flex-1 lg:col-span-2">
           <CardHeader className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex flex-col gap-1.5">
               <CardTitle>Donations</CardTitle>

@@ -12,12 +12,27 @@ export const list = authQuery({
       .order("asc")
       .collect()
 
-    return templates.map((template) => ({
-      ...template,
-      totalDonors: 0,
-      totalAmount: 0,
-      totalRecords: 0,
-    }))
+    const templatesWithStats = await Promise.all(
+      templates.map(async (template) => {
+        const records = await ctx.db
+          .query("templateRecords")
+          .withIndex("by_template", (q) => q.eq("templateId", template._id))
+          .collect()
+
+        const totalAmount = records.reduce((sum, r) => sum + r.amount, 0)
+        const totalDonors = new Set(records.map((r) => r.name)).size
+        const totalRecords = records.length
+
+        return {
+          ...template,
+          totalAmount,
+          totalDonors,
+          totalRecords,
+        }
+      })
+    )
+
+    return templatesWithStats
   },
 })
 
@@ -73,8 +88,8 @@ export const getStats = authQuery({
       .withIndex("by_template", (q) => q.eq("templateId", _id))
       .collect()
 
-    const totalDonors = new Set(records.map((record) => record.name)).size
     const totalAmount = records.reduce((acc, record) => acc + record.amount, 0)
+    const totalDonors = new Set(records.map((record) => record.name)).size
     const totalRecords = records.length
 
     const categories = (
@@ -85,7 +100,7 @@ export const getStats = authQuery({
 
     const categoryStats = categories.map((category) => {
       const categoryRecords = records.filter(
-        (record) => record.category === category._id
+        (record) => record.category === category.name
       )
 
       const amount = categoryRecords.reduce(
@@ -106,8 +121,8 @@ export const getStats = authQuery({
     })
 
     return {
-      totalDonors,
       totalAmount,
+      totalDonors,
       totalRecords,
       categoryStats,
     }

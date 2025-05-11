@@ -18,8 +18,8 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
 
   const {
     data = {
-      totalDonors: 0,
       totalAmount: 0,
+      totalDonors: 0,
       totalRecords: 0,
       categoryStats: categories.map((category) => ({
         name: category.name,
@@ -38,14 +38,14 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
     <CardContent className="flex flex-col gap-4 text-sm">
       <div className="flex flex-col gap-2">
         <OverallInfo
-          title="Total Donors"
-          value={data.totalDonors.toString()}
+          title="Total Amount"
+          value={formatCurrency(data.totalAmount)}
           isLoading={isLoading}
         />
 
         <OverallInfo
-          title="Total Amount"
-          value={formatCurrency(data.totalAmount)}
+          title="Total Donors"
+          value={data.totalDonors.toString()}
           isLoading={isLoading}
         />
 

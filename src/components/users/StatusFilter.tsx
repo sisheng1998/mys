@@ -54,7 +54,7 @@ const StatusFilter = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="px-3">
           <NotificationBadge
             badgeContent={
               Array.isArray(selectedItem?.value) ? selectedItem.value.length : 0
@@ -62,7 +62,7 @@ const StatusFilter = () => {
           >
             <ListFilter />
           </NotificationBadge>
-          Status
+          <span className="hidden lg:inline">Status</span>
         </Button>
       </PopoverTrigger>
 
@@ -73,7 +73,10 @@ const StatusFilter = () => {
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
+            <CommandGroup
+              heading="Status"
+              className="max-h-80 overflow-x-hidden overflow-y-auto"
+            >
               {[true, false].map((value, index) => {
                 const isSelected =
                   Array.isArray(selectedItem?.value) &&

@@ -64,7 +64,7 @@ const TitleFilter = () => {
           >
             <ListFilter />
           </NotificationBadge>
-          Title
+          <span className="hidden lg:inline">Title</span>
         </Button>
       </PopoverTrigger>
 
@@ -75,7 +75,10 @@ const TitleFilter = () => {
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
+            <CommandGroup
+              heading="Title"
+              className="max-h-80 overflow-x-hidden overflow-y-auto"
+            >
               <CommandItem onSelect={() => handleSelect(undefined)}>
                 <Checkbox
                   className="pointer-events-none"

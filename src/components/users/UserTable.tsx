@@ -43,7 +43,7 @@ const UserTable = () => {
     {
       accessorKey: "email",
       header: ({ column }) => <ColumnHeader column={column} title="Email" />,
-      cell: (info) => info.getValue() || "-",
+      cell: (info) => info.getValue(),
     },
     {
       id: "status",
