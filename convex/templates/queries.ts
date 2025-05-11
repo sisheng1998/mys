@@ -15,8 +15,8 @@ export const list = authQuery({
     return templates.map((template) => ({
       ...template,
       totalDonors: 0,
-      totalRecords: 0,
       totalAmount: 0,
+      totalRecords: 0,
     }))
   },
 })

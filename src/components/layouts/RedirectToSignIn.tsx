@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuthActions } from "@convex-dev/auth/react"
 import { toast } from "sonner"
 
-import Logo from "@/icons/Logo"
+import { LoadingAnimation } from "@/components/layouts/Preloader"
 
 const RedirectToSignIn = () => {
   const { push } = useRouter()
@@ -30,11 +30,7 @@ const RedirectToSignIn = () => {
     }
   }, [signOut, push])
 
-  return (
-    <div className="bg-background fixed inset-0 z-50 flex items-center justify-center">
-      <Logo className="text-primary size-20 animate-spin" />
-    </div>
-  )
+  return <LoadingAnimation />
 }
 
 export default RedirectToSignIn

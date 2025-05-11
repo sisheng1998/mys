@@ -4,7 +4,6 @@ import React from "react"
 import Link from "next/link"
 import {
   CircleDollarSign,
-  Command,
   LayoutList,
   LucideIcon,
   Plus,
@@ -76,18 +75,6 @@ const TemplateList = () => {
 
             <CardFooter className="flex-wrap gap-x-4 gap-y-2 text-sm">
               <IconWithText
-                icon={Command}
-                text={template.categories.length.toString()}
-                title="Total Categories"
-              />
-
-              <IconWithText
-                icon={LayoutList}
-                text={template.totalRecords.toString()}
-                title="Total Records"
-              />
-
-              <IconWithText
                 icon={Users}
                 text={template.totalDonors.toString()}
                 title="Total Donors"
@@ -97,6 +84,12 @@ const TemplateList = () => {
                 icon={CircleDollarSign}
                 text={formatCurrency(template.totalAmount)}
                 title="Total Amount"
+              />
+
+              <IconWithText
+                icon={LayoutList}
+                text={template.totalRecords.toString()}
+                title="Total Records"
               />
             </CardFooter>
           </Card>

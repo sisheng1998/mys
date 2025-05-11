@@ -14,15 +14,24 @@ const Preloader = () => {
   }, [])
 
   return (
-    <div
+    <LoadingAnimation
       className={cn(
-        "bg-background fixed inset-0 z-50 flex items-center justify-center opacity-100 transition-opacity duration-500",
+        "opacity-100 transition-opacity duration-500",
         isAnimated && "pointer-events-none opacity-0"
       )}
-    >
-      <Logo className="text-primary size-20 animate-spin" />
-    </div>
+    />
   )
 }
 
 export default Preloader
+
+export const LoadingAnimation = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      "bg-background fixed inset-0 z-50 flex items-center justify-center",
+      className
+    )}
+  >
+    <Logo className="text-primary size-20 animate-spin" />
+  </div>
+)

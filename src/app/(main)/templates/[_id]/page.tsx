@@ -14,15 +14,21 @@ export const generateMetadata = async ({
 }: {
   params: Promise<{ _id: Id<"templates"> }>
 }): Promise<Metadata> => {
-  const { _id } = await params
+  try {
+    const { _id } = await params
 
-  const title = await fetchQuery(
-    api.templates.queries.getName,
-    { _id },
-    { token: await convexAuthNextjsToken() }
-  )
+    const title = await fetchQuery(
+      api.templates.queries.getName,
+      { _id },
+      { token: await convexAuthNextjsToken() }
+    )
 
-  return { title }
+    return { title }
+  } catch {
+    return {
+      title: "Template",
+    }
+  }
 }
 
 const Template = async ({

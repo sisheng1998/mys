@@ -13,15 +13,12 @@ import {
 } from "@/components/ui/tooltip"
 import UpsertTemplate from "@/components/templates/UpsertTemplate"
 
-const EditTemplate = ({
-  template,
-  ...props
-}: React.ComponentProps<typeof Button> & { template: Template }) => (
+const EditTemplate = ({ template }: { template: Template }) => (
   <UpsertTemplate template={template}>
     <Tooltip>
       <TooltipTrigger asChild>
         <DialogTrigger asChild>
-          <Button size="icon" variant="ghost" {...props}>
+          <Button size="icon" variant="ghost">
             <Edit />
           </Button>
         </DialogTrigger>
