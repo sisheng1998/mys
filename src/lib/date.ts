@@ -11,6 +11,12 @@ dayjs.tz.setDefault(TIMEZONE)
 
 export default dayjs
 
+const DATE_FORMAT = "DD/MM/YYYY"
+const TIME_FORMAT = "HH:mm A"
+
+export const formatDate = (date: number) => dayjs(date).format(DATE_FORMAT)
+export const formatTime = (date: number) => dayjs(date).format(TIME_FORMAT)
+
 const SEPARATOR = "|"
 
 export const getLunarDateFromSolarDate = (date: Date): string => {

@@ -142,6 +142,7 @@ export const getRecords = authQuery({
     const records = await ctx.db
       .query("templateRecords")
       .withIndex("by_template", (q) => q.eq("templateId", _id))
+      .order("desc")
       .collect()
 
     return records

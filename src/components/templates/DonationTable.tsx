@@ -7,10 +7,16 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Category } from "@/types/category"
 import { TemplateRecord } from "@/types/template"
 import { getRowNumber } from "@/lib/data-table"
+import { formatDate, formatTime } from "@/lib/date"
 import { getNameWithTitle } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS, formatCurrency } from "@/lib/number"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import ColumnHeader, {
   multiSelectFilter,
 } from "@/components/data-table/ColumnHeader"
@@ -42,16 +48,14 @@ const DonationTable = ({ categories }: { categories: Category[] }) => {
       },
     },
     {
-      accessorKey: "name",
+      id: "donor",
       header: ({ column }) => <ColumnHeader column={column} title="Donor" />,
-      cell: (info) =>
-        getNameWithTitle(info.getValue() as string, info.row.original.title),
+      accessorFn: (row) => getNameWithTitle(row.name, row.title),
     },
     {
       accessorKey: "category",
       filterFn: multiSelectFilter,
       header: ({ column }) => <ColumnHeader column={column} title="Category" />,
-      cell: (info) => info.getValue(),
     },
     {
       accessorKey: "amount",
@@ -59,7 +63,7 @@ const DonationTable = ({ categories }: { categories: Category[] }) => {
         <ColumnHeader
           className="-mr-2.5 ml-0 flex-row-reverse"
           column={column}
-          title="Amount (RM)"
+          title="Amount"
         />
       ),
       cell: (info) =>
@@ -71,6 +75,23 @@ const DonationTable = ({ categories }: { categories: Category[] }) => {
         headerClassName: cn("text-right"),
         cellClassName: cn("text-right"),
       },
+    },
+    {
+      id: "date",
+      header: ({ column }) => <ColumnHeader column={column} title="Date" />,
+      accessorFn: (row) => formatDate(row._creationTime),
+      cell: ({ cell, row }) => (
+        <Tooltip>
+          <TooltipTrigger className="cursor-text">
+            {cell.getValue() as string}
+          </TooltipTrigger>
+
+          <TooltipContent side="bottom">
+            Recorded on {cell.getValue() as string}, at{" "}
+            {formatTime(row.original._creationTime)}
+          </TooltipContent>
+        </Tooltip>
+      ),
     },
     {
       id: "actions",

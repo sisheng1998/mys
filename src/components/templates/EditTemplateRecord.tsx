@@ -9,7 +9,9 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { Category } from "@/types/category"
+import { Title } from "@/types/nameList"
 import { TemplateRecord } from "@/types/template"
+import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
@@ -58,6 +60,8 @@ import { TITLES } from "@cvx/nameLists/schemas"
 import { editTemplateRecordSchema } from "@cvx/templates/mutations"
 
 type formSchema = z.infer<typeof editTemplateRecordSchema>
+
+// TODO: Implement autocomplete field for name
 
 const EditTemplateRecord = ({
   templateRecord,
@@ -123,18 +127,101 @@ const EditTemplateRecord = ({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid items-start gap-4 sm:grid-cols-[auto_1fr]">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Donor</FormLabel>
+
+                  <div className="flex items-stretch">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field: titleField }) => (
+                        <FormItem>
+                          <Select
+                            onValueChange={(value) => {
+                              const title = value || undefined
+                              titleField.onChange(title)
+
+                              const category = form.watch("category")
+                              const selectedCategory = categories.find(
+                                (c) => c.name === category
+                              )
+
+                              if (
+                                selectedCategory &&
+                                isCategoryDisabled(
+                                  selectedCategory,
+                                  title as Title
+                                )
+                              ) {
+                                form.setValue("category", null!)
+                              }
+                            }}
+                            defaultValue={titleField.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
+                                <SelectValue placeholder="Title" />
+                              </SelectTrigger>
+                            </FormControl>
+
+                            <SelectContent>
+                              <SelectItem value={null!}>
+                                <span className="text-muted-foreground">
+                                  Select
+                                </span>
+                              </SelectItem>
+
+                              {TITLES.map((title) => (
+                                <SelectItem key={title} value={title}>
+                                  {title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormControl>
+                      <Input
+                        className="flex-1 rounded-l-none"
+                        placeholder="John Doe"
+                        autoFocus
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid items-start gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
-                name="title"
+                name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>Category</FormLabel>
+
                     <Select
-                      onValueChange={(value) =>
-                        field.onChange(value || undefined)
-                      }
-                      defaultValue={field.value}
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value)
+
+                        const selectedCategory = categories.find(
+                          (c) => c.name === value
+                        )
+
+                        if (selectedCategory && selectedCategory.amount) {
+                          form.setValue("amount", selectedCategory.amount)
+                        }
+                      }}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full min-w-24">
@@ -147,56 +234,15 @@ const EditTemplateRecord = ({
                           <span className="text-muted-foreground">Select</span>
                         </SelectItem>
 
-                        {TITLES.map((title) => (
-                          <SelectItem key={title} value={title}>
-                            {title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-
-                    <FormControl>
-                      <Input placeholder="John Doe" autoFocus {...field} />
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid items-start gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full min-w-24">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                      </FormControl>
-
-                      <SelectContent>
                         {categories.map((category) => (
-                          <SelectItem key={category._id} value={category.name}>
+                          <SelectItem
+                            key={category._id}
+                            value={category.name}
+                            disabled={isCategoryDisabled(
+                              category,
+                              form.watch("title")
+                            )}
+                          >
                             {category.name}
                           </SelectItem>
                         ))}
@@ -211,28 +257,37 @@ const EditTemplateRecord = ({
               <FormField
                 control={form.control}
                 name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount</FormLabel>
+                render={({ field }) => {
+                  const category = form.watch("category")
+                  const selectedCategory = categories.find(
+                    (c) => c.name === category
+                  )
+                  const isDisabled = selectedCategory?.amount !== undefined
 
-                    <FormControl>
-                      <NumberField
-                        placeholder="Enter amount"
-                        formatOptions={CURRENCY_FORMAT_OPTIONS}
-                        minValue={1}
-                        {...field}
-                      >
-                        <NumberFieldGroup>
-                          <NumberFieldDecrement />
-                          <NumberFieldInput />
-                          <NumberFieldIncrement />
-                        </NumberFieldGroup>
-                      </NumberField>
-                    </FormControl>
+                  return (
+                    <FormItem>
+                      <FormLabel>Amount</FormLabel>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
+                      <FormControl>
+                        <NumberField
+                          placeholder="Enter amount"
+                          formatOptions={CURRENCY_FORMAT_OPTIONS}
+                          minValue={1}
+                          isDisabled={isDisabled}
+                          {...field}
+                        >
+                          <NumberFieldGroup>
+                            <NumberFieldDecrement />
+                            <NumberFieldInput />
+                            <NumberFieldIncrement />
+                          </NumberFieldGroup>
+                        </NumberField>
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
               />
             </div>
 

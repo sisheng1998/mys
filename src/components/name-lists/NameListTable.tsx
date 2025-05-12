@@ -52,7 +52,6 @@ const NameListTable = () => {
     {
       accessorKey: "name",
       header: ({ column }) => <ColumnHeader column={column} title="Name" />,
-      cell: (info) => info.getValue(),
     },
     {
       id: "actions",

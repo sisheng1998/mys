@@ -11,7 +11,7 @@ interface SearchProps {
 }
 
 const Search = ({ search, setSearch }: SearchProps) => (
-  <InputRoot className="w-full md:max-w-60 xl:max-w-80">
+  <InputRoot className="w-full md:max-w-60">
     <InputIcon>
       <SearchIcon />
     </InputIcon>
