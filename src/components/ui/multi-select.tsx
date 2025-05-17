@@ -61,7 +61,10 @@ export const MultiSelect = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn("h-auto min-h-9 px-3 py-1 font-normal", className)}
+          className={cn(
+            "hover:bg-background h-auto min-h-9 px-3 py-1 font-normal",
+            className
+          )}
         >
           <div
             className={cn(
@@ -76,11 +79,7 @@ export const MultiSelect = ({
                     Array.isArray(value) && value.includes(option.value)
                 )
                 .map((option) => (
-                  <Badge
-                    key={option.value}
-                    variant="outline"
-                    className="bg-background"
-                  >
+                  <Badge key={option.value} variant="secondary">
                     {option.label}
                     <div
                       className="text-muted-foreground hover:text-foreground transition-colors"
@@ -114,7 +113,7 @@ export const MultiSelect = ({
             </>
           )}
 
-          <ChevronDown className="text-muted-foreground size-4 opacity-50" />
+          <ChevronDown className="size-4 opacity-50" />
         </Button>
       </PopoverTrigger>
 

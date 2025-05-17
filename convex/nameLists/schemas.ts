@@ -26,5 +26,9 @@ export const nameListSchema = z.object({
 })
 
 export const nameListTables = {
-  nameLists: defineTable(nameListFields).index("by_name", ["name"]),
+  nameLists: defineTable(nameListFields)
+    .index("by_name", ["name"])
+    .searchIndex("search_name", {
+      searchField: "name",
+    }),
 }

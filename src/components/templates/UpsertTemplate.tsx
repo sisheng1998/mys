@@ -153,7 +153,7 @@ const UpsertTemplate = ({
                           <FormControl>
                             <Button
                               variant="outline"
-                              className="h-auto min-h-9 px-3 py-1 font-normal"
+                              className="hover:bg-background h-auto min-h-9 px-3 py-1 font-normal"
                             >
                               <div
                                 className={cn(
@@ -163,11 +163,7 @@ const UpsertTemplate = ({
                               >
                                 {hasValue ? (
                                   field.value.map((date) => (
-                                    <Badge
-                                      key={date}
-                                      variant="outline"
-                                      className="bg-background"
-                                    >
+                                    <Badge key={date} variant="secondary">
                                       {getLunarDateInChinese(date)}
                                       <div
                                         className="text-muted-foreground hover:text-foreground transition-colors"
@@ -207,7 +203,7 @@ const UpsertTemplate = ({
                                 </>
                               )}
 
-                              <ChevronDown className="text-muted-foreground size-4 opacity-50" />
+                              <ChevronDown className="size-4 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>

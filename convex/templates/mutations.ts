@@ -1,6 +1,8 @@
+import { filter } from "convex-helpers/server/filter"
 import { zid } from "convex-helpers/server/zod"
 import { ConvexError } from "convex/values"
 
+import { nameListSchema } from "@cvx/nameLists/schemas"
 import { templateRecordSchema, templateSchema } from "@cvx/templates/schemas"
 import { authMutation } from "@cvx/utils/function"
 
@@ -46,12 +48,47 @@ export const editTemplateRecordSchema = templateRecordSchema.extend({
 export const editTemplateRecord = authMutation({
   args: editTemplateRecordSchema.shape,
   handler: async (ctx, args) => {
-    const { _id, title, ...fields } = args
+    const { _id, title, name, category, ...fields } = args
 
     const existingTemplateRecord = await ctx.db.get(_id)
     if (!existingTemplateRecord) throw new ConvexError("Record not found")
 
-    return ctx.db.patch(_id, { title, ...fields })
+    const duplicatedRecord = await ctx.db
+      .query("templateRecords")
+      .withIndex("by_template", (q) =>
+        q.eq("templateId", existingTemplateRecord.templateId)
+      )
+      .filter((q) =>
+        q.and(
+          q.neq(q.field("_id"), _id),
+          q.eq(q.field("name"), name),
+          q.eq(q.field("category"), category)
+        )
+      )
+      .first()
+
+    if (duplicatedRecord)
+      throw new ConvexError(
+        "Another record with this donor and category already exists"
+      )
+
+    const existingNameListRecord = await filter(
+      ctx.db
+        .query("nameLists")
+        .withSearchIndex("search_name", (q) => q.search("name", name)),
+      (q) => q.name.toLowerCase() === name.toLowerCase()
+    ).unique()
+
+    if (!existingNameListRecord) {
+      const newNameListRecord = nameListSchema.parse({
+        title,
+        name,
+      })
+
+      await ctx.db.insert("nameLists", newNameListRecord)
+    }
+
+    return ctx.db.patch(_id, { title, name, category, ...fields })
   },
 })
 

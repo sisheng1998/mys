@@ -15,7 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import DeleteTemplate from "@/components/templates/DeleteTemplate"
 import DonationStats from "@/components/templates/DonationStats"
 import DonationTable from "@/components/templates/DonationTable"
 import EditTemplate from "@/components/templates/EditTemplate"
@@ -52,7 +51,7 @@ const EventTemplate = ({
               </div>
             </div>
 
-            <div className="-m-2 flex items-center">
+            <div className="-m-2">
               <EditTemplate
                 template={
                   {
@@ -63,8 +62,6 @@ const EventTemplate = ({
                   } as Template
                 }
               />
-
-              <DeleteTemplate template={template as unknown as Template} />
             </div>
           </CardHeader>
 

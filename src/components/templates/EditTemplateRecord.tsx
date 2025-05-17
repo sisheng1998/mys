@@ -33,7 +33,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { LoaderButton } from "@/components/ui/loader-button"
 import {
   NumberField,
@@ -54,14 +53,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import NameAutocomplete from "@/components/templates/NameAutocomplete"
 
 import { api } from "@cvx/_generated/api"
 import { TITLES } from "@cvx/nameLists/schemas"
 import { editTemplateRecordSchema } from "@cvx/templates/mutations"
 
-type formSchema = z.infer<typeof editTemplateRecordSchema>
+const extendedSchema = editTemplateRecordSchema.extend({
+  title: editTemplateRecordSchema.shape.title.nullable(),
+})
 
-// TODO: Implement autocomplete field for name
+type formSchema = z.infer<typeof extendedSchema>
 
 const EditTemplateRecord = ({
   templateRecord,
@@ -79,13 +81,13 @@ const EditTemplateRecord = ({
   const defaultValues = templateRecord
 
   const form = useForm<formSchema>({
-    resolver: zodResolver(editTemplateRecordSchema),
+    resolver: zodResolver(extendedSchema),
     defaultValues,
   })
 
   const onSubmit = async (values: formSchema) => {
     try {
-      await editTemplateRecord(values)
+      await editTemplateRecord({ ...values, title: values.title || undefined })
       toast.success("Record updated")
       setOpen(false)
     } catch (error) {
@@ -130,7 +132,7 @@ const EditTemplateRecord = ({
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Donor</FormLabel>
 
@@ -138,12 +140,12 @@ const EditTemplateRecord = ({
                     <FormField
                       control={form.control}
                       name="title"
-                      render={({ field: titleField }) => (
+                      render={({ field }) => (
                         <FormItem>
                           <Select
+                            value={field.value || ""}
                             onValueChange={(value) => {
-                              const title = value || undefined
-                              titleField.onChange(title)
+                              field.onChange(value)
 
                               const category = form.watch("category")
                               const selectedCategory = categories.find(
@@ -154,13 +156,12 @@ const EditTemplateRecord = ({
                                 selectedCategory &&
                                 isCategoryDisabled(
                                   selectedCategory,
-                                  title as Title
+                                  (value || undefined) as Title
                                 )
                               ) {
                                 form.setValue("category", null!)
                               }
                             }}
-                            defaultValue={titleField.value}
                           >
                             <FormControl>
                               <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
@@ -187,12 +188,7 @@ const EditTemplateRecord = ({
                     />
 
                     <FormControl>
-                      <Input
-                        className="flex-1 rounded-l-none"
-                        placeholder="John Doe"
-                        autoFocus
-                        {...field}
-                      />
+                      <NameAutocomplete categories={categories} />
                     </FormControl>
                   </div>
 
@@ -240,7 +236,7 @@ const EditTemplateRecord = ({
                             value={category.name}
                             disabled={isCategoryDisabled(
                               category,
-                              form.watch("title")
+                              form.watch("title") || undefined
                             )}
                           >
                             {category.name}

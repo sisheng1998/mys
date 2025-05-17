@@ -63,7 +63,7 @@ const DonationTable = ({ categories }: { categories: Category[] }) => {
         <ColumnHeader
           className="-mr-2.5 ml-0 flex-row-reverse"
           column={column}
-          title="Amount"
+          title="Amount (RM)"
         />
       ),
       cell: (info) =>

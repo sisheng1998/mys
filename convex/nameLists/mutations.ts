@@ -24,7 +24,9 @@ export const upsertNameListRecord = authMutation({
       if (!existingNameListRecord) throw new ConvexError("Record not found")
 
       const existingWithSameName = await filter(
-        ctx.db.query("nameLists"),
+        ctx.db
+          .query("nameLists")
+          .withSearchIndex("search_name", (q) => q.search("name", name)),
         (q) => q.name.toLowerCase() === name.toLowerCase() && q._id !== _id
       ).unique()
 
@@ -35,7 +37,9 @@ export const upsertNameListRecord = authMutation({
     }
 
     const existingNameListRecord = await filter(
-      ctx.db.query("nameLists"),
+      ctx.db
+        .query("nameLists")
+        .withSearchIndex("search_name", (q) => q.search("name", name)),
       (q) => q.name.toLowerCase() === name.toLowerCase()
     ).unique()
 

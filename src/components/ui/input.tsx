@@ -17,16 +17,20 @@ function InputRoot({
 
 function InputIcon({
   children,
+  position = "left",
   className,
 }: {
   children: React.ReactNode
+  position?: "left" | "right"
   className?: string
 }) {
   return (
     <Slot
       role="presentation"
       className={cn(
-        "pointer-events-none absolute left-3 size-4 [&~input]:pl-10",
+        "pointer-events-none absolute size-4",
+        position === "left" && "left-3 [&~input]:pl-10",
+        position === "right" && "right-3 [&~input]:pr-10",
         className
       )}
     >

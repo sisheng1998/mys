@@ -164,6 +164,19 @@ function CommandShortcut({
   )
 }
 
+function CommandLoading({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Loading>) {
+  return (
+    <CommandPrimitive.Loading
+      data-slot="command-loading"
+      className={cn("p-1", className)}
+      {...props}
+    />
+  )
+}
+
 export {
   Command,
   CommandDialog,
@@ -174,4 +187,5 @@ export {
   CommandItem,
   CommandShortcut,
   CommandSeparator,
+  CommandLoading,
 }

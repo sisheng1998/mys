@@ -128,16 +128,16 @@ function NumberFieldIncrement({
         "focus-visible:ring-0 focus-visible:ring-offset-0",
         buttonPosition === "outside"
           ? "px-3 py-2"
-          : "absolute top-0 right-0 z-10 flex h-1/2 w-6 items-center justify-center rounded-l-none rounded-b-none p-0 focus-visible:outline-none",
+          : "absolute top-0 right-0 flex h-1/2 w-6 items-center justify-center rounded-l-none rounded-b-none border-b-0 border-l-0 p-0 focus-visible:outline-none",
         className
       )}
       {...buttonProps}
       {...props}
     >
       {children || buttonPosition === "outside" ? (
-        <Plus className="size-3" />
+        <Plus className="size-3 opacity-50" />
       ) : (
-        <ChevronUp className="size-3" />
+        <ChevronUp className="size-3 opacity-50" />
       )}
     </Button>
   )
@@ -165,16 +165,16 @@ function NumberFieldDecrement({
         "focus-visible:ring-0 focus-visible:ring-offset-0",
         buttonPosition === "outside"
           ? "px-3 py-2"
-          : "absolute right-0 bottom-0 z-10 flex h-1/2 w-6 items-center justify-center rounded-t-none rounded-l-none p-0 focus-visible:outline-none",
+          : "absolute right-0 bottom-0 flex h-1/2 w-6 items-center justify-center rounded-t-none rounded-l-none border-l-0 p-0 focus-visible:outline-none",
         className
       )}
       {...buttonProps}
       {...props}
     >
       {children || buttonPosition === "outside" ? (
-        <Minus className="size-3" />
+        <Minus className="size-3 opacity-50" />
       ) : (
-        <ChevronDown className="size-3" />
+        <ChevronDown className="size-3 opacity-50" />
       )}
     </Button>
   )
@@ -197,7 +197,7 @@ function NumberFieldInput({
       type="number"
       className={cn(
         { "focus-visible:ring-destructive": isInvalid },
-        buttonPosition === "inside" && "pr-10",
+        buttonPosition === "inside" && "relative z-10 mr-6 rounded-r-none",
         className
       )}
       {...inputProps}
