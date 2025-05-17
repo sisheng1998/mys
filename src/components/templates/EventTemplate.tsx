@@ -2,12 +2,10 @@
 
 import React from "react"
 import { Preloaded, usePreloadedQuery } from "convex/react"
-import { Plus } from "lucide-react"
 
 import { Template } from "@/types/template"
 import { getLunarDateInChinese } from "@/lib/date"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -15,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import AddTemplateRecord from "@/components/templates/AddTemplateRecord"
 import DonationStats from "@/components/templates/DonationStats"
 import DonationTable from "@/components/templates/DonationTable"
 import EditTemplate from "@/components/templates/EditTemplate"
@@ -75,10 +74,7 @@ const EventTemplate = ({
               <CardDescription>List of all donation records</CardDescription>
             </div>
 
-            <Button>
-              <Plus />
-              <span>New Record</span>
-            </Button>
+            <AddTemplateRecord categories={template.categories} />
           </CardHeader>
 
           <CardContent className="flex flex-1 flex-col">

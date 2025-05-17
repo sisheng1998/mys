@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { useMutation } from "convex/react"
-import { Trash } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { User } from "@/types/user"
@@ -53,7 +53,7 @@ const DeleteUser = ({ user, disabled }: { user: User; disabled?: boolean }) => {
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
             <Button size="icon" variant="ghost" disabled={disabled}>
-              <Trash className="text-destructive" />
+              <Trash2 className="text-destructive" />
             </Button>
           </AlertDialogTrigger>
         </TooltipTrigger>

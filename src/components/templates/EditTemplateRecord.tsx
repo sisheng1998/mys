@@ -132,69 +132,79 @@ const EditTemplateRecord = ({
             <FormField
               control={form.control}
               name="name"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Donor</FormLabel>
+              render={({ field }) => {
+                const resetCategoryIfDisabled = (title?: Title) => {
+                  const category = form.watch("category")
+                  const selectedCategory = categories.find(
+                    (c) => c.name === category
+                  )
 
-                  <div className="flex items-stretch">
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            value={field.value || ""}
-                            onValueChange={(value) => {
-                              field.onChange(value)
+                  if (
+                    selectedCategory &&
+                    isCategoryDisabled(selectedCategory, title)
+                  ) {
+                    form.setValue("category", null!)
+                  }
+                }
 
-                              const category = form.watch("category")
-                              const selectedCategory = categories.find(
-                                (c) => c.name === category
-                              )
+                return (
+                  <FormItem>
+                    <FormLabel>Donor</FormLabel>
 
-                              if (
-                                selectedCategory &&
-                                isCategoryDisabled(
-                                  selectedCategory,
+                    <div className="flex items-stretch">
+                      <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field: titleField }) => (
+                          <FormItem>
+                            <Select
+                              value={titleField.value || ""}
+                              onValueChange={(value) => {
+                                titleField.onChange(value)
+                                resetCategoryIfDisabled(
                                   (value || undefined) as Title
                                 )
-                              ) {
-                                form.setValue("category", null!)
-                              }
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
-                                <SelectValue placeholder="Title" />
-                              </SelectTrigger>
-                            </FormControl>
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
+                                  <SelectValue placeholder="Title" />
+                                </SelectTrigger>
+                              </FormControl>
 
-                            <SelectContent>
-                              <SelectItem value={null!}>
-                                <span className="text-muted-foreground">
-                                  Select
-                                </span>
-                              </SelectItem>
-
-                              {TITLES.map((title) => (
-                                <SelectItem key={title} value={title}>
-                                  {title}
+                              <SelectContent>
+                                <SelectItem value={null!}>
+                                  <span className="text-muted-foreground">
+                                    Select
+                                  </span>
                                 </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
 
-                    <FormControl>
-                      <NameAutocomplete categories={categories} />
-                    </FormControl>
-                  </div>
+                                {TITLES.map((title) => (
+                                  <SelectItem key={title} value={title}>
+                                    {title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormMessage />
-                </FormItem>
-              )}
+                      <FormControl>
+                        <NameAutocomplete
+                          onSelect={(data) => {
+                            field.onChange(data.name)
+                            form.setValue("title", data.title || null)
+                            resetCategoryIfDisabled(data.title)
+                          }}
+                        />
+                      </FormControl>
+                    </div>
+
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
 
             <div className="grid items-start gap-4 sm:grid-cols-2">
@@ -230,18 +240,22 @@ const EditTemplateRecord = ({
                           <span className="text-muted-foreground">Select</span>
                         </SelectItem>
 
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category._id}
-                            value={category.name}
-                            disabled={isCategoryDisabled(
-                              category,
-                              form.watch("title") || undefined
-                            )}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
+                        {categories
+                          .filter(
+                            (category) =>
+                              !isCategoryDisabled(
+                                category,
+                                form.watch("title") || undefined
+                              )
+                          )
+                          .map((category) => (
+                            <SelectItem
+                              key={category._id}
+                              value={category.name}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
 

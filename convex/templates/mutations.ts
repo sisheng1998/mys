@@ -1,6 +1,7 @@
 import { filter } from "convex-helpers/server/filter"
 import { zid } from "convex-helpers/server/zod"
 import { ConvexError } from "convex/values"
+import { z } from "zod"
 
 import { nameListSchema } from "@cvx/nameLists/schemas"
 import { templateRecordSchema, templateSchema } from "@cvx/templates/schemas"
@@ -41,6 +42,78 @@ export const deleteTemplate = authMutation({
   },
 })
 
+export const addTemplateRecordSchema = templateRecordSchema
+  .pick({
+    templateId: true,
+    title: true,
+    name: true,
+  })
+  .extend({
+    records: z.array(
+      z.object(
+        templateRecordSchema.pick({
+          category: true,
+          amount: true,
+        }).shape
+      )
+    ),
+  })
+
+export const addTemplateRecord = authMutation({
+  args: addTemplateRecordSchema.shape,
+  handler: async (ctx, args) => {
+    const { templateId, title, name, records } = args
+
+    const template = await ctx.db.get(templateId)
+    if (!template) throw new ConvexError("Template not found")
+
+    for (const record of records) {
+      const { category, amount } = record
+
+      const duplicatedRecord = await ctx.db
+        .query("templateRecords")
+        .withIndex("by_template_name_category", (q) =>
+          q
+            .eq("templateId", templateId)
+            .eq("name", name)
+            .eq("category", category)
+        )
+        .unique()
+
+      if (duplicatedRecord)
+        throw new ConvexError(
+          `Another record with this donor and category "${category}" already exists`
+        )
+
+      const newTemplateRecord = templateRecordSchema.parse({
+        templateId,
+        title,
+        name,
+        category,
+        amount,
+      })
+
+      await ctx.db.insert("templateRecords", newTemplateRecord)
+    }
+
+    const existingNameListRecord = await filter(
+      ctx.db
+        .query("nameLists")
+        .withSearchIndex("search_name", (q) => q.search("name", name)),
+      (q) => q.name.toLowerCase() === name.toLowerCase()
+    ).unique()
+
+    if (!existingNameListRecord) {
+      const newNameListRecord = nameListSchema.parse({
+        title,
+        name,
+      })
+
+      await ctx.db.insert("nameLists", newNameListRecord)
+    }
+  },
+})
+
 export const editTemplateRecordSchema = templateRecordSchema.extend({
   _id: zid("templateRecords"),
 })
@@ -53,24 +126,25 @@ export const editTemplateRecord = authMutation({
     const existingTemplateRecord = await ctx.db.get(_id)
     if (!existingTemplateRecord) throw new ConvexError("Record not found")
 
-    const duplicatedRecord = await ctx.db
+    const potentialDuplicates = await ctx.db
       .query("templateRecords")
-      .withIndex("by_template", (q) =>
-        q.eq("templateId", existingTemplateRecord.templateId)
+      .withIndex("by_template_name_category", (q) =>
+        q
+          .eq("templateId", existingTemplateRecord.templateId)
+          .eq("name", name)
+          .eq("category", category)
       )
-      .filter((q) =>
-        q.and(
-          q.neq(q.field("_id"), _id),
-          q.eq(q.field("name"), name),
-          q.eq(q.field("category"), category)
-        )
-      )
-      .first()
+      .collect()
 
-    if (duplicatedRecord)
+    const duplicatedRecord = potentialDuplicates.find(
+      (record) => record._id !== _id
+    )
+
+    if (duplicatedRecord) {
       throw new ConvexError(
         "Another record with this donor and category already exists"
       )
+    }
 
     const existingNameListRecord = await filter(
       ctx.db

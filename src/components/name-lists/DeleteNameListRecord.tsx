@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { useMutation } from "convex/react"
-import { Trash } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { NameListRecord } from "@/types/nameList"
@@ -59,7 +59,7 @@ const DeleteNameListRecord = ({
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
             <Button size="icon" variant="ghost">
-              <Trash className="text-destructive" />
+              <Trash2 className="text-destructive" />
             </Button>
           </AlertDialogTrigger>
         </TooltipTrigger>

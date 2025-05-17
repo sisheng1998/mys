@@ -1,19 +1,21 @@
 "use client"
 
 import React from "react"
-import { useController, useFormContext } from "react-hook-form"
+import { useController } from "react-hook-form"
 import { useDebounceValue } from "usehooks-ts"
 
-import { Category } from "@/types/category"
-import { isCategoryDisabled } from "@/lib/category"
+import { NameListRecord } from "@/types/nameList"
 import { getNameWithTitle } from "@/lib/name"
 import { useQuery } from "@/hooks/use-query"
 import { Autocomplete } from "@/components/ui/autocomplete"
 
 import { api } from "@cvx/_generated/api"
 
-const NameAutocomplete = ({ categories }: { categories: Category[] }) => {
-  const { watch, setValue } = useFormContext()
+const NameAutocomplete = ({
+  onSelect,
+}: {
+  onSelect: (data: NameListRecord) => void
+}) => {
   const { field } = useController({
     name: "name",
   })
@@ -34,20 +36,7 @@ const NameAutocomplete = ({ categories }: { categories: Category[] }) => {
       placeholder="John Doe"
       value={field.value}
       onValueChange={(value) => field.onChange(value)}
-      onSelectValue={(data) => {
-        field.onChange(data.name)
-        setValue("title", data.title || null)
-
-        const category = watch("category")
-        const selectedCategory = categories.find((c) => c.name === category)
-
-        if (
-          selectedCategory &&
-          isCategoryDisabled(selectedCategory, data.title)
-        ) {
-          setValue("category", null)
-        }
-      }}
+      onSelectValue={onSelect}
       options={options.map((option) => ({
         data: option,
         value: option.name,
