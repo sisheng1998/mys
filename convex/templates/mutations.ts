@@ -1,9 +1,8 @@
-import { filter } from "convex-helpers/server/filter"
 import { zid } from "convex-helpers/server/zod"
 import { ConvexError } from "convex/values"
 import { z } from "zod"
 
-import { nameListSchema } from "@cvx/nameLists/schemas"
+import { createNameListRecord } from "@cvx/nameLists/mutations"
 import { templateRecordSchema, templateSchema } from "@cvx/templates/schemas"
 import { authMutation } from "@cvx/utils/function"
 
@@ -42,7 +41,7 @@ export const deleteTemplate = authMutation({
   },
 })
 
-export const addTemplateRecordSchema = templateRecordSchema
+export const addTemplateRecordByDonorSchema = templateRecordSchema
   .pick({
     templateId: true,
     title: true,
@@ -59,13 +58,23 @@ export const addTemplateRecordSchema = templateRecordSchema
     ),
   })
 
-export const addTemplateRecord = authMutation({
-  args: addTemplateRecordSchema.shape,
+export const addTemplateRecordByDonor = authMutation({
+  args: addTemplateRecordByDonorSchema.shape,
   handler: async (ctx, args) => {
     const { templateId, title, name, records } = args
 
     const template = await ctx.db.get(templateId)
     if (!template) throw new ConvexError("Template not found")
+
+    const categorySet = new Set()
+
+    for (const record of records) {
+      if (categorySet.has(record.category)) {
+        throw new ConvexError(`Duplicate category "${record.category}" found`)
+      }
+
+      categorySet.add(record.category)
+    }
 
     for (const record of records) {
       const { category, amount } = record
@@ -96,21 +105,7 @@ export const addTemplateRecord = authMutation({
       await ctx.db.insert("templateRecords", newTemplateRecord)
     }
 
-    const existingNameListRecord = await filter(
-      ctx.db
-        .query("nameLists")
-        .withSearchIndex("search_name", (q) => q.search("name", name)),
-      (q) => q.name.toLowerCase() === name.toLowerCase()
-    ).unique()
-
-    if (!existingNameListRecord) {
-      const newNameListRecord = nameListSchema.parse({
-        title,
-        name,
-      })
-
-      await ctx.db.insert("nameLists", newNameListRecord)
-    }
+    await createNameListRecord(ctx, { name, title })
   },
 })
 
@@ -146,21 +141,7 @@ export const editTemplateRecord = authMutation({
       )
     }
 
-    const existingNameListRecord = await filter(
-      ctx.db
-        .query("nameLists")
-        .withSearchIndex("search_name", (q) => q.search("name", name)),
-      (q) => q.name.toLowerCase() === name.toLowerCase()
-    ).unique()
-
-    if (!existingNameListRecord) {
-      const newNameListRecord = nameListSchema.parse({
-        title,
-        name,
-      })
-
-      await ctx.db.insert("nameLists", newNameListRecord)
-    }
+    await createNameListRecord(ctx, { name, title })
 
     return ctx.db.patch(_id, { title, name, category, ...fields })
   },

@@ -59,12 +59,12 @@ import NameAutocomplete from "@/components/templates/NameAutocomplete"
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
 import { TITLES } from "@cvx/nameLists/schemas"
-import { addTemplateRecordSchema } from "@cvx/templates/mutations"
+import { addTemplateRecordByDonorSchema } from "@cvx/templates/mutations"
 
-const extendedSchema = addTemplateRecordSchema.extend({
-  title: addTemplateRecordSchema.shape.title.nullable(),
+const extendedSchema = addTemplateRecordByDonorSchema.extend({
+  title: addTemplateRecordByDonorSchema.shape.title.nullable(),
   records: z.array(
-    addTemplateRecordSchema.shape.records.element.extend({
+    addTemplateRecordByDonorSchema.shape.records.element.extend({
       id: z.number(),
     })
   ),
@@ -77,7 +77,7 @@ const AddTemplateRecord = ({ categories }: { categories: Category[] }) => {
   const [open, setOpen] = useState<boolean>(false)
 
   const addTemplateRecord = useMutation(
-    api.templates.mutations.addTemplateRecord
+    api.templates.mutations.addTemplateRecordByDonor
   )
 
   const defaultValues: formSchema = {
@@ -244,8 +244,8 @@ const AddTemplateRecord = ({ categories }: { categories: Category[] }) => {
             />
 
             <div className="-mt-1 flex flex-col gap-4">
-              <div className="-mb-1 flex items-center justify-between gap-2 sm:-mb-2">
-                <FormLabel>Item(s)</FormLabel>
+              <div className="-mb-1 flex flex-wrap items-center justify-between gap-2 sm:-mb-2">
+                <FormLabel>Donation(s)</FormLabel>
 
                 <Button
                   type="button"
@@ -256,7 +256,7 @@ const AddTemplateRecord = ({ categories }: { categories: Category[] }) => {
                   }
                 >
                   <Plus />
-                  Add Item
+                  Add Donation
                 </Button>
               </div>
 

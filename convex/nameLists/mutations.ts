@@ -1,9 +1,32 @@
 import { filter } from "convex-helpers/server/filter"
 import { zid } from "convex-helpers/server/zod"
 import { ConvexError } from "convex/values"
+import { z } from "zod"
 
+import { MutationCtx } from "@cvx/_generated/server"
 import { nameListSchema } from "@cvx/nameLists/schemas"
 import { authMutation } from "@cvx/utils/function"
+
+export const createNameListRecord = async (
+  ctx: MutationCtx,
+  { name, title }: z.infer<typeof nameListSchema>
+) => {
+  const existingNameListRecord = await filter(
+    ctx.db
+      .query("nameLists")
+      .withSearchIndex("search_name", (q) => q.search("name", name)),
+    (q) => q.name.toLowerCase() === name.toLowerCase()
+  ).unique()
+
+  if (existingNameListRecord) return
+
+  const newNameListRecord = nameListSchema.parse({
+    title,
+    name,
+  })
+
+  await ctx.db.insert("nameLists", newNameListRecord)
+}
 
 export const upsertNameListRecordSchema = nameListSchema
   .pick({
