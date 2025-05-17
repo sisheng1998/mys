@@ -68,7 +68,12 @@ const AddNewUser = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent onCloseAutoFocus={() => form.reset(defaultValues)}>
+      <DialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          form.reset(defaultValues)
+        }}
+      >
         <Form {...form}>
           <form
             autoComplete="off"

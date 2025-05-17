@@ -55,7 +55,6 @@ const NameAutocomplete = ({ categories }: { categories: Category[] }) => {
       }))}
       isLoading={status === "pending"}
       autoFocus
-      modal
     />
   )
 }
