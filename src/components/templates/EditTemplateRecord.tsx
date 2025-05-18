@@ -269,37 +269,28 @@ const EditTemplateRecord = ({
               <FormField
                 control={form.control}
                 name="amount"
-                render={({ field }) => {
-                  const category = form.watch("category")
-                  const selectedCategory = categories.find(
-                    (c) => c.name === category
-                  )
-                  const isDisabled = selectedCategory?.amount !== undefined
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
 
-                  return (
-                    <FormItem>
-                      <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <NumberField
+                        placeholder="Enter amount"
+                        formatOptions={CURRENCY_FORMAT_OPTIONS}
+                        minValue={1}
+                        {...field}
+                      >
+                        <NumberFieldGroup>
+                          <NumberFieldDecrement />
+                          <NumberFieldInput />
+                          <NumberFieldIncrement />
+                        </NumberFieldGroup>
+                      </NumberField>
+                    </FormControl>
 
-                      <FormControl>
-                        <NumberField
-                          placeholder="Enter amount"
-                          formatOptions={CURRENCY_FORMAT_OPTIONS}
-                          minValue={1}
-                          isDisabled={isDisabled}
-                          {...field}
-                        >
-                          <NumberFieldGroup>
-                            <NumberFieldDecrement />
-                            <NumberFieldInput />
-                            <NumberFieldIncrement />
-                          </NumberFieldGroup>
-                        </NumberField>
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )
-                }}
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
 

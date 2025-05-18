@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  RowSelectionState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
@@ -32,18 +33,24 @@ import ColumnToggle from "@/components/data-table/ColumnToggle"
 import Pagination from "@/components/data-table/Pagination"
 import Search from "@/components/data-table/Search"
 
+type WithId = { _id: string }
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   filters?: React.ReactNode
   isLoading?: boolean
+  rowSelection?: RowSelectionState
+  setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>
 }
 
-const DataTable = <TData, TValue>({
+const DataTable = <TData extends WithId, TValue>({
   columns,
   data,
   filters,
   isLoading,
+  rowSelection,
+  setRowSelection,
 }: DataTableProps<TData, TValue>) => {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -62,7 +69,9 @@ const DataTable = <TData, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
     },
+    getRowId: (row) => row._id,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -72,6 +81,7 @@ const DataTable = <TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
   })
 
   useEffect(() => {
@@ -97,7 +107,7 @@ const DataTable = <TData, TValue>({
         className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
       >
         <Table>
-          <TableHeader className="bg-accent sticky top-0 z-10 shadow-[inset_0_-1px_0_0_var(--color-border)] [&_tr]:border-b-0">
+          <TableHeader className="bg-card sticky top-0 z-10 shadow-[inset_0_-1px_0_0_var(--color-border)] [&_tr]:border-b-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (

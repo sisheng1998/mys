@@ -1,0 +1,158 @@
+"use client"
+
+import React, { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "convex/react"
+import { Edit, Info } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { z } from "zod"
+
+import { handleFormError } from "@/lib/error"
+import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { LoaderButton } from "@/components/ui/loader-button"
+import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from "@/components/ui/number-field"
+
+import { api } from "@cvx/_generated/api"
+import { updateTemplateRecordAmountSchema } from "@cvx/templates/mutations"
+
+type formSchema = z.infer<typeof updateTemplateRecordAmountSchema>
+
+const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
+  const [open, setOpen] = useState<boolean>(false)
+
+  const updateTemplateRecordAmount = useMutation(
+    api.templates.mutations.updateTemplateRecordAmount
+  )
+
+  const defaultValues = {
+    ids,
+    amount: NaN,
+  }
+
+  const form = useForm<formSchema>({
+    resolver: zodResolver(updateTemplateRecordAmountSchema),
+    defaultValues,
+  })
+
+  const onSubmit = async (values: formSchema) => {
+    try {
+      await updateTemplateRecordAmount(values)
+      toast.success("Record(s) updated")
+      setOpen(false)
+    } catch (error) {
+      handleFormError(error, form.setError)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Edit />
+          <span>Edit Amount</span>
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          form.reset(defaultValues)
+        }}
+      >
+        <Form {...form}>
+          <form
+            autoComplete="off"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-6"
+          >
+            <DialogHeader>
+              <DialogTitle>Edit Amount</DialogTitle>
+
+              <DialogDescription>
+                The amount for the selected record(s) will be updated.
+              </DialogDescription>
+            </DialogHeader>
+
+            <Alert className="bg-primary/10 border-primary text-primary -my-1.5">
+              <Info className="size-4" />
+              <AlertTitle>{ids.length} record(s) selected</AlertTitle>
+              <AlertDescription className="text-primary/80">
+                The amount will be applied to all selected record(s).
+              </AlertDescription>
+            </Alert>
+
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+
+                  <FormControl>
+                    <NumberField
+                      placeholder="Enter amount"
+                      formatOptions={CURRENCY_FORMAT_OPTIONS}
+                      minValue={1}
+                      {...field}
+                    >
+                      <NumberFieldGroup>
+                        <NumberFieldDecrement />
+                        <NumberFieldInput />
+                        <NumberFieldIncrement />
+                      </NumberFieldGroup>
+                    </NumberField>
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+
+              <LoaderButton
+                type="submit"
+                isLoading={form.formState.isSubmitting}
+                disabled={form.formState.isSubmitting}
+              >
+                Update
+              </LoaderButton>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default UpdateTemplateRecordAmount

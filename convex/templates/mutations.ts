@@ -109,6 +109,74 @@ export const addTemplateRecordByDonor = authMutation({
   },
 })
 
+export const addTemplateRecordByCategorySchema = templateRecordSchema
+  .pick({
+    templateId: true,
+    category: true,
+    amount: true,
+  })
+  .extend({
+    records: z.array(
+      z.object(
+        templateRecordSchema.pick({
+          title: true,
+          name: true,
+        }).shape
+      )
+    ),
+  })
+
+export const addTemplateRecordByCategory = authMutation({
+  args: addTemplateRecordByCategorySchema.shape,
+  handler: async (ctx, args) => {
+    const { templateId, category, amount, records } = args
+
+    const template = await ctx.db.get(templateId)
+    if (!template) throw new ConvexError("Template not found")
+
+    const nameSet = new Set()
+
+    for (const record of records) {
+      if (nameSet.has(record.name)) {
+        throw new ConvexError(`Duplicate name "${record.name}" found`)
+      }
+
+      nameSet.add(record.name)
+    }
+
+    for (const record of records) {
+      const { title, name } = record
+
+      const duplicatedRecord = await ctx.db
+        .query("templateRecords")
+        .withIndex("by_template_name_category", (q) =>
+          q
+            .eq("templateId", templateId)
+            .eq("name", name)
+            .eq("category", category)
+        )
+        .unique()
+
+      if (duplicatedRecord)
+        throw new ConvexError(
+          `Another record with this category and donor "${name}" already exists`
+        )
+
+      await createNameListRecord(ctx, { name, title })
+
+      const newTemplateRecord = templateRecordSchema.parse({
+        templateId,
+        title,
+        name,
+        category,
+        amount,
+      })
+
+      await ctx.db.insert("templateRecords", newTemplateRecord)
+    }
+  },
+})
+
 export const editTemplateRecordSchema = templateRecordSchema.extend({
   _id: zid("templateRecords"),
 })
@@ -144,6 +212,28 @@ export const editTemplateRecord = authMutation({
     await createNameListRecord(ctx, { name, title })
 
     return ctx.db.patch(_id, { title, name, category, ...fields })
+  },
+})
+
+export const updateTemplateRecordAmountSchema = templateRecordSchema
+  .pick({
+    amount: true,
+  })
+  .extend({
+    ids: z.array(zid("templateRecords")),
+  })
+
+export const updateTemplateRecordAmount = authMutation({
+  args: updateTemplateRecordAmountSchema.shape,
+  handler: async (ctx, args) => {
+    const { ids, amount } = args
+
+    for (const _id of ids) {
+      const existingTemplateRecord = await ctx.db.get(_id)
+      if (!existingTemplateRecord) throw new ConvexError("Record not found")
+
+      await ctx.db.patch(_id, { amount })
+    }
   },
 })
 

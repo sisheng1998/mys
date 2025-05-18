@@ -33,14 +33,21 @@ const Pagination = <TData,>({ table }: PaginationProps<TData>) => {
   const lastRowNumber = Math.min(
     (table.getState().pagination.pageIndex + 1) *
       table.getState().pagination.pageSize,
-    table.getFilteredRowModel().rows.length
+    totalRows
   )
 
   const currentPageSize = table.getState().pagination.pageSize
 
+  const noOfRowsSelected = table.getFilteredSelectedRowModel().rows.length
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
-      {totalRows > 1 ? (
+      {noOfRowsSelected !== 0 ? (
+        <p className="text-sm">
+          {noOfRowsSelected} of {totalRows} row{totalRows !== 1 ? "s" : ""}{" "}
+          selected
+        </p>
+      ) : totalRows > 1 ? (
         <p className="text-sm">
           Showing {firstRowNumber} - {lastRowNumber} of {totalRows} results
         </p>
@@ -61,7 +68,9 @@ const Pagination = <TData,>({ table }: PaginationProps<TData>) => {
             }}
           >
             <SelectTrigger className="w-20">
-              <SelectValue placeholder={currentPageSize.toString()} />
+              <SelectValue placeholder={currentPageSize.toString()}>
+                {currentPageSize}
+              </SelectValue>
             </SelectTrigger>
 
             <SelectContent side="top">

@@ -323,39 +323,30 @@ const AddTemplateRecord = ({ categories }: { categories: Category[] }) => {
                   <FormField
                     control={form.control}
                     name={`records.${index}.amount`}
-                    render={({ field }) => {
-                      const category = form.watch(`records.${index}.category`)
-                      const selectedCategory = categories.find(
-                        (c) => c.name === category
-                      )
-                      const isDisabled = selectedCategory?.amount !== undefined
+                    render={({ field }) => (
+                      <FormItem>
+                        {index === 0 && (
+                          <FormLabel className="mb-1">Amount</FormLabel>
+                        )}
 
-                      return (
-                        <FormItem>
-                          {index === 0 && (
-                            <FormLabel className="mb-1">Amount</FormLabel>
-                          )}
+                        <FormControl>
+                          <NumberField
+                            placeholder="Enter amount"
+                            formatOptions={CURRENCY_FORMAT_OPTIONS}
+                            minValue={1}
+                            {...field}
+                          >
+                            <NumberFieldGroup>
+                              <NumberFieldDecrement />
+                              <NumberFieldInput />
+                              <NumberFieldIncrement />
+                            </NumberFieldGroup>
+                          </NumberField>
+                        </FormControl>
 
-                          <FormControl>
-                            <NumberField
-                              placeholder="Enter amount"
-                              formatOptions={CURRENCY_FORMAT_OPTIONS}
-                              minValue={1}
-                              isDisabled={isDisabled}
-                              {...field}
-                            >
-                              <NumberFieldGroup>
-                                <NumberFieldDecrement />
-                                <NumberFieldInput />
-                                <NumberFieldIncrement />
-                              </NumberFieldGroup>
-                            </NumberField>
-                          </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )
-                    }}
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
 
                   <Tooltip>

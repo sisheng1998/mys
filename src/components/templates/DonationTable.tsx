@@ -2,21 +2,16 @@
 
 import React from "react"
 import { useParams } from "next/navigation"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 
 import { Category } from "@/types/category"
 import { TemplateRecord } from "@/types/template"
 import { getRowNumber } from "@/lib/data-table"
-import { formatDate, formatTime } from "@/lib/date"
 import { getNameWithTitle } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS, formatCurrency } from "@/lib/number"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
 import ColumnHeader, {
   multiSelectFilter,
 } from "@/components/data-table/ColumnHeader"
@@ -28,7 +23,15 @@ import EditTemplateRecord from "@/components/templates/EditTemplateRecord"
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
 
-const DonationTable = ({ categories }: { categories: Category[] }) => {
+const DonationTable = ({
+  categories,
+  rowSelection,
+  setRowSelection,
+}: {
+  categories: Category[]
+  rowSelection: RowSelectionState
+  setRowSelection: React.Dispatch<React.SetStateAction<RowSelectionState>>
+}) => {
   const { _id } = useParams<{ _id: Id<"templates"> }>()
 
   const { data = [], status } = useQuery(api.templates.queries.getRecords, {
@@ -36,6 +39,30 @@ const DonationTable = ({ categories }: { categories: Category[] }) => {
   })
 
   const columns: ColumnDef<TemplateRecord>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: {
+        headerClassName: cn("w-8 text-center"),
+        cellClassName: cn("text-center"),
+      },
+    },
     {
       accessorKey: "index",
       header: ({ column }) => <ColumnHeader column={column} title="No." />,
@@ -76,23 +103,24 @@ const DonationTable = ({ categories }: { categories: Category[] }) => {
         cellClassName: cn("text-right"),
       },
     },
-    {
-      id: "date",
-      header: ({ column }) => <ColumnHeader column={column} title="Date" />,
-      accessorFn: (row) => formatDate(row._creationTime),
-      cell: ({ cell, row }) => (
-        <Tooltip>
-          <TooltipTrigger className="cursor-text">
-            {cell.getValue() as string}
-          </TooltipTrigger>
+    // TODO: Move this to event donation table
+    // {
+    //   id: "date",
+    //   header: ({ column }) => <ColumnHeader column={column} title="Date" />,
+    //   accessorFn: (row) => formatDate(row._creationTime),
+    //   cell: ({ cell, row }) => (
+    //     <Tooltip>
+    //       <TooltipTrigger className="cursor-text">
+    //         {cell.getValue() as string}
+    //       </TooltipTrigger>
 
-          <TooltipContent side="bottom">
-            Recorded on {cell.getValue() as string}, at{" "}
-            {formatTime(row.original._creationTime)}
-          </TooltipContent>
-        </Tooltip>
-      ),
-    },
+    //       <TooltipContent side="bottom">
+    //         Recorded on {cell.getValue() as string}, at{" "}
+    //         {formatTime(row.original._creationTime)}
+    //       </TooltipContent>
+    //     </Tooltip>
+    //   ),
+    // },
     {
       id: "actions",
       cell: ({ row }) => (
@@ -118,6 +146,8 @@ const DonationTable = ({ categories }: { categories: Category[] }) => {
       data={data}
       filters={<CategoryFilter categories={categories} />}
       isLoading={status === "pending"}
+      rowSelection={rowSelection}
+      setRowSelection={setRowSelection}
     />
   )
 }
