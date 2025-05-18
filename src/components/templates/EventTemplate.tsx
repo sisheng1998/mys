@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import AddTemplateRecord from "@/components/templates/AddTemplateRecord"
+import DeleteTemplateRecords from "@/components/templates/DeleteTemplateRecords"
 import DonationStats from "@/components/templates/DonationStats"
 import DonationTable from "@/components/templates/DonationTable"
 import EditTemplate from "@/components/templates/EditTemplate"
@@ -93,7 +94,14 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
         </div>
 
         {selectedIds.length !== 0 ? (
-          <UpdateTemplateRecordAmount ids={selectedIds} />
+          <div className="flex items-center gap-2">
+            <UpdateTemplateRecordAmount ids={selectedIds} />
+
+            <DeleteTemplateRecords
+              ids={selectedIds}
+              setRowSelection={setRowSelection}
+            />
+          </div>
         ) : (
           <AddTemplateRecord categories={categories} />
         )}

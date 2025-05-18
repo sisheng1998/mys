@@ -237,16 +237,18 @@ export const updateTemplateRecordAmount = authMutation({
   },
 })
 
-export const deleteTemplateRecord = authMutation({
+export const deleteTemplateRecords = authMutation({
   args: {
-    _id: zid("templateRecords"),
+    ids: z.array(zid("templateRecords")),
   },
   handler: async (ctx, args) => {
-    const { _id } = args
+    const { ids } = args
 
-    const templateRecord = await ctx.db.get(_id)
-    if (!templateRecord) throw new ConvexError("Record not found")
+    for (const _id of ids) {
+      const existingTemplateRecord = await ctx.db.get(_id)
+      if (!existingTemplateRecord) throw new ConvexError("Record not found")
 
-    return ctx.db.delete(_id)
+      await ctx.db.delete(_id)
+    }
   },
 })
