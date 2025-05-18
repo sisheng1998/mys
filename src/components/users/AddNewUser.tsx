@@ -41,7 +41,7 @@ const AddNewUser = () => {
 
   const createUser = useMutation(api.users.mutations.createUser)
 
-  const defaultValues = {
+  const defaultValues: formSchema = {
     email: "",
   }
   const form = useForm<formSchema>({

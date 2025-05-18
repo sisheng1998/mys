@@ -58,7 +58,7 @@ const UpsertNameListRecord = ({
 
   const isEdit = !!nameListRecord
 
-  const defaultValues = {
+  const defaultValues: formSchema = {
     _id: nameListRecord?._id,
     title: nameListRecord?.title ?? undefined,
     name: nameListRecord?.name || "",

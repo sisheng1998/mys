@@ -19,6 +19,7 @@ type AutocompleteProps<T> = {
   onSelectValue: (data: T) => void
   isLoading?: boolean
   modal?: boolean
+  isInvalid?: boolean
 }
 
 export function Autocomplete<T>({
@@ -27,6 +28,7 @@ export function Autocomplete<T>({
   onSelectValue,
   isLoading,
   modal,
+  isInvalid,
   ...props
 }: AutocompleteProps<T> & React.ComponentProps<typeof CommandPrimitive.Input>) {
   const [open, setOpen] = useState<boolean>(false)
@@ -59,7 +61,7 @@ export function Autocomplete<T>({
               onBlur={handleBlur}
               asChild
             >
-              <Input />
+              <Input aria-invalid={isInvalid} />
             </CommandPrimitive.Input>
           </InputRoot>
         </PopoverAnchor>

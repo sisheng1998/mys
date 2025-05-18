@@ -78,7 +78,7 @@ const EditTemplateRecord = ({
     api.templates.mutations.editTemplateRecord
   )
 
-  const defaultValues = templateRecord
+  const defaultValues: formSchema = templateRecord
 
   const form = useForm<formSchema>({
     resolver: zodResolver(extendedSchema),
@@ -125,14 +125,14 @@ const EditTemplateRecord = ({
               <DialogTitle>Edit Record</DialogTitle>
 
               <DialogDescription>
-                The record in the list will be updated.
+                The record in the template will be updated.
               </DialogDescription>
             </DialogHeader>
 
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => {
+              render={({ field, fieldState }) => {
                 const resetCategoryIfDisabled = (title?: Title) => {
                   const category = form.watch("category")
                   const selectedCategory = categories.find(
@@ -197,6 +197,7 @@ const EditTemplateRecord = ({
                             form.setValue("title", data.title || null)
                             resetCategoryIfDisabled(data.title)
                           }}
+                          isInvalid={!!fieldState.error}
                         />
                       </FormControl>
                     </div>
@@ -269,7 +270,7 @@ const EditTemplateRecord = ({
               <FormField
                 control={form.control}
                 name="amount"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>Amount</FormLabel>
 
@@ -278,6 +279,7 @@ const EditTemplateRecord = ({
                         placeholder="Enter amount"
                         formatOptions={CURRENCY_FORMAT_OPTIONS}
                         minValue={1}
+                        isInvalid={!!fieldState.error}
                         {...field}
                       >
                         <NumberFieldGroup>

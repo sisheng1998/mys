@@ -53,6 +53,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { api } from "@cvx/_generated/api"
+import { Id } from "@cvx/_generated/dataModel"
 import { upsertTemplateSchema } from "@cvx/templates/mutations"
 
 type formSchema = z.infer<typeof upsertTemplateSchema>
@@ -73,11 +74,14 @@ const UpsertTemplate = ({
 
   const isEdit = !!template
 
-  const defaultValues = {
+  const defaultValues: formSchema = {
     _id: template?._id,
     name: template?.name || "",
-    dates: template?.dates || [],
-    categories: template?.categories || [],
+    dates: (template?.dates || []) as [string, ...string[]],
+    categories: (template?.categories || []) as [
+      Id<"categories">,
+      ...Id<"categories">[],
+    ],
   }
 
   const form = useForm<formSchema>({

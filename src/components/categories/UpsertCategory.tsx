@@ -71,7 +71,7 @@ const UpsertCategory = ({
 
   const isEdit = !!category
 
-  const defaultValues = {
+  const defaultValues: formSchema = {
     _id: category?._id,
     name: category?.name || "",
     amount: category?.amount ?? NaN,
@@ -141,7 +141,7 @@ const UpsertCategory = ({
                 <FormField
                   control={form.control}
                   name="amount"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>
                         <span>Amount</span>
@@ -169,6 +169,7 @@ const UpsertCategory = ({
                           placeholder="Any amount"
                           formatOptions={CURRENCY_FORMAT_OPTIONS}
                           minValue={1}
+                          isInvalid={!!fieldState.error}
                           {...field}
                         >
                           <NumberFieldGroup>

@@ -69,7 +69,7 @@ const DataTable = <TData extends WithId, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
+      ...(rowSelection && { rowSelection }),
     },
     getRowId: (row) => row._id,
     getCoreRowModel: getCoreRowModel(),
@@ -81,7 +81,7 @@ const DataTable = <TData extends WithId, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    ...(setRowSelection && { onRowSelectionChange: setRowSelection }),
   })
 
   useEffect(() => {

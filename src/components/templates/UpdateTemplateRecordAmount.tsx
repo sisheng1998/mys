@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/number-field"
 
 import { api } from "@cvx/_generated/api"
+import { Id } from "@cvx/_generated/dataModel"
 import { updateTemplateRecordAmountSchema } from "@cvx/templates/mutations"
 
 type formSchema = z.infer<typeof updateTemplateRecordAmountSchema>
@@ -51,8 +52,8 @@ const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
     api.templates.mutations.updateTemplateRecordAmount
   )
 
-  const defaultValues = {
-    ids,
+  const defaultValues: formSchema = {
+    ids: ids as Id<"templateRecords">[],
     amount: NaN,
   }
 
@@ -63,7 +64,10 @@ const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
 
   const onSubmit = async (values: formSchema) => {
     try {
-      await updateTemplateRecordAmount(values)
+      await updateTemplateRecordAmount({
+        ...values,
+        ids: ids as Id<"templateRecords">[],
+      })
       toast.success("Record(s) updated")
       setOpen(false)
     } catch (error) {
@@ -103,7 +107,7 @@ const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
             <Alert className="bg-primary/10 border-primary text-primary -my-1.5">
               <Info className="size-4" />
               <AlertTitle>{ids.length} record(s) selected</AlertTitle>
-              <AlertDescription className="text-primary/80">
+              <AlertDescription className="text-primary">
                 The amount will be applied to all selected record(s).
               </AlertDescription>
             </Alert>
@@ -111,7 +115,7 @@ const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
             <FormField
               control={form.control}
               name="amount"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
 
@@ -120,6 +124,7 @@ const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
                       placeholder="Enter amount"
                       formatOptions={CURRENCY_FORMAT_OPTIONS}
                       minValue={1}
+                      isInvalid={!!fieldState.error}
                       {...field}
                     >
                       <NumberFieldGroup>

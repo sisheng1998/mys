@@ -13,8 +13,10 @@ import { api } from "@cvx/_generated/api"
 
 const NameAutocomplete = ({
   onSelect,
+  isInvalid,
 }: {
   onSelect: (data: NameListRecord) => void
+  isInvalid?: boolean
 }) => {
   const { field } = useController({
     name: "name",
@@ -43,6 +45,7 @@ const NameAutocomplete = ({
         label: getNameWithTitle(option.name, option.title),
       }))}
       isLoading={status === "pending"}
+      isInvalid={isInvalid}
       autoFocus
     />
   )
