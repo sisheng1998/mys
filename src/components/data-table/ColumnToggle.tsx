@@ -28,8 +28,9 @@ interface ColumnToggleProps<TData> {
 const ColumnToggle = <TData,>({ table }: ColumnToggleProps<TData>) => (
   <Popover>
     <PopoverTrigger asChild>
-      <Button variant="outline" size="icon">
+      <Button variant="outline">
         <Columns2 />
+        <span className="hidden md:inline">Column</span>
       </Button>
     </PopoverTrigger>
 

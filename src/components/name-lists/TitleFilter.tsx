@@ -64,7 +64,7 @@ const TitleFilter = () => {
           >
             <ListFilter />
           </NotificationBadge>
-          <span className="hidden lg:inline">Title</span>
+          <span className="hidden md:inline">Title</span>
         </Button>
       </PopoverTrigger>
 

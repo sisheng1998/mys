@@ -62,7 +62,7 @@ const StatusFilter = () => {
           >
             <ListFilter />
           </NotificationBadge>
-          <span className="hidden lg:inline">Status</span>
+          <span className="hidden md:inline">Status</span>
         </Button>
       </PopoverTrigger>
 

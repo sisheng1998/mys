@@ -35,7 +35,10 @@ const AddTemplateRecord = ({ categories }: { categories: Category[] }) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <DialogContent
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        className="sm:max-w-xl"
+      >
         <DialogHeader>
           <DialogTitle>New Record(s)</DialogTitle>
           <DialogDescription>

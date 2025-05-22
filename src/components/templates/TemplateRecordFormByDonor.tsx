@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
   TooltipContent,
@@ -247,16 +248,23 @@ const TemplateRecordFormByDonor = ({
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid grid-cols-[1fr_1fr_auto] items-start gap-2 sm:gap-4"
+              className="grid items-start gap-4 sm:grid-cols-2"
             >
+              {index === 0 && <Separator className="-mb-2 sm:hidden" />}
+
               <FormField
                 control={form.control}
                 name={`records.${index}.category`}
                 render={({ field }) => (
                   <FormItem>
-                    {index === 0 && (
-                      <FormLabel className="mb-1">Category</FormLabel>
-                    )}
+                    <FormLabel
+                      className={cn(
+                        "sm:mb-1 sm:hidden",
+                        index === 0 && "flex!"
+                      )}
+                    >
+                      Category
+                    </FormLabel>
 
                     <Select
                       value={field.value}
@@ -308,55 +316,64 @@ const TemplateRecordFormByDonor = ({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name={`records.${index}.amount`}
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    {index === 0 && (
-                      <FormLabel className="mb-1">Amount</FormLabel>
-                    )}
-
-                    <FormControl>
-                      <NumberField
-                        placeholder="Enter amount"
-                        formatOptions={CURRENCY_FORMAT_OPTIONS}
-                        minValue={1}
-                        isInvalid={!!fieldState.error}
-                        {...field}
+              <div className="flex items-start gap-4">
+                <FormField
+                  control={form.control}
+                  name={`records.${index}.amount`}
+                  render={({ field, fieldState }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel
+                        className={cn(
+                          "sm:mb-1 sm:hidden",
+                          index === 0 && "flex!"
+                        )}
                       >
-                        <NumberFieldGroup>
-                          <NumberFieldDecrement />
-                          <NumberFieldInput />
-                          <NumberFieldIncrement />
-                        </NumberFieldGroup>
-                      </NumberField>
-                    </FormControl>
+                        Amount
+                      </FormLabel>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <NumberField
+                          placeholder="Enter amount"
+                          formatOptions={CURRENCY_FORMAT_OPTIONS}
+                          minValue={1}
+                          isInvalid={!!fieldState.error}
+                          {...field}
+                        >
+                          <NumberFieldGroup>
+                            <NumberFieldDecrement />
+                            <NumberFieldInput />
+                            <NumberFieldIncrement />
+                          </NumberFieldGroup>
+                        </NumberField>
+                      </FormControl>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "-mx-2 transition-colors",
-                      index === 0 && "mt-[1.625rem]"
-                    )}
-                    onClick={() => fields.length > 1 && remove(index)}
-                    disabled={fields.length === 1}
-                  >
-                    <Trash2 className="text-destructive" />
-                  </Button>
-                </TooltipTrigger>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                <TooltipContent side="left">Remove</TooltipContent>
-              </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "-mx-2 mt-[1.375rem] transition-colors sm:mt-0",
+                        index === 0 && "sm:mt-[1.625rem]"
+                      )}
+                      onClick={() => fields.length > 1 && remove(index)}
+                      disabled={fields.length === 1}
+                    >
+                      <Trash2 className="text-destructive" />
+                    </Button>
+                  </TooltipTrigger>
+
+                  <TooltipContent side="left">Remove</TooltipContent>
+                </Tooltip>
+              </div>
+
+              <Separator className="-mb-2 sm:hidden" />
             </div>
           ))}
         </div>
