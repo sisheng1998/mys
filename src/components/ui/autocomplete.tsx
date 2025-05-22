@@ -45,11 +45,14 @@ export function Autocomplete<T>({
       <Command className="overflow-visible bg-transparent" shouldFilter={false}>
         <PopoverAnchor asChild>
           <InputRoot className="w-full">
-            <InputIcon position="right">
+            <InputIcon
+              position="right"
+              className="text-muted-foreground mr-px opacity-50"
+            >
               {isLoading ? (
-                <Loader2 className="animate-spin opacity-50" />
+                <Loader2 className="animate-spin" />
               ) : (
-                <ChevronDown className="opacity-50" />
+                <ChevronDown />
               )}
             </InputIcon>
 

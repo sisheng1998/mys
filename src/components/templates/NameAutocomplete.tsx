@@ -12,15 +12,15 @@ import { Autocomplete } from "@/components/ui/autocomplete"
 import { api } from "@cvx/_generated/api"
 
 const NameAutocomplete = ({
+  name,
   onSelect,
   isInvalid,
 }: {
+  name: string
   onSelect: (data: NameListRecord) => void
   isInvalid?: boolean
 }) => {
-  const { field } = useController({
-    name: "name",
-  })
+  const { field } = useController({ name })
 
   const [debouncedValue] = useDebounceValue(field.value, 300)
 

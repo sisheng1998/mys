@@ -50,7 +50,9 @@ export const get = authQuery({
       await Promise.all(
         template.categories.map((category) => ctx.db.get(category))
       )
-    ).filter((category) => !!category)
+    )
+      .filter((category) => !!category)
+      .sort((a, b) => a.name.localeCompare(b.name))
 
     return {
       ...template,
@@ -96,7 +98,9 @@ export const getStats = authQuery({
       await Promise.all(
         template.categories.map((category) => ctx.db.get(category))
       )
-    ).filter((category) => !!category)
+    )
+      .filter((category) => !!category)
+      .sort((a, b) => a.name.localeCompare(b.name))
 
     const categoryStats = categories.map((category) => {
       const categoryRecords = records.filter(

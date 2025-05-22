@@ -226,7 +226,11 @@ const UpsertCategory = ({
                             >
                               <FormControl>
                                 <SelectTrigger className="h-auto! min-w-20 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
-                                  <SelectValue placeholder="Select" />
+                                  <SelectValue placeholder="Select">
+                                    {isExclusionField.value
+                                      ? "Exclude"
+                                      : "Include"}
+                                  </SelectValue>
                                 </SelectTrigger>
                               </FormControl>
 

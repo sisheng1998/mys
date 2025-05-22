@@ -121,6 +121,7 @@ export const addTemplateRecordByCategorySchema = templateRecordSchema
         templateRecordSchema.pick({
           title: true,
           name: true,
+          amount: true,
         }).shape
       )
     ),

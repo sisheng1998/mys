@@ -120,7 +120,9 @@ const UpsertNameListRecord = ({
                     >
                       <FormControl>
                         <SelectTrigger className="w-full min-w-24">
-                          <SelectValue placeholder="Select" />
+                          <SelectValue placeholder="Select">
+                            {field.value}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
 

@@ -168,7 +168,9 @@ const EditTemplateRecord = ({
                             >
                               <FormControl>
                                 <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
-                                  <SelectValue placeholder="Title" />
+                                  <SelectValue placeholder="Title">
+                                    {titleField.value}
+                                  </SelectValue>
                                 </SelectTrigger>
                               </FormControl>
 
@@ -192,6 +194,7 @@ const EditTemplateRecord = ({
 
                       <FormControl>
                         <NameAutocomplete
+                          name="name"
                           onSelect={(data) => {
                             field.onChange(data.name)
                             form.setValue("title", data.title || null)
