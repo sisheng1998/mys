@@ -63,7 +63,7 @@ const CategoryFilter = ({ categories }: { categories: Category[] }) => {
           >
             <ListFilter />
           </NotificationBadge>
-          <span className="hidden md:inline">Category</span>
+          Category
         </Button>
       </PopoverTrigger>
 

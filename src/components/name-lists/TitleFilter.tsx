@@ -56,7 +56,7 @@ const TitleFilter = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="px-3">
           <NotificationBadge
             badgeContent={
               Array.isArray(selectedItem?.value) ? selectedItem.value.length : 0
@@ -64,7 +64,7 @@ const TitleFilter = () => {
           >
             <ListFilter />
           </NotificationBadge>
-          <span className="hidden md:inline">Title</span>
+          Title
         </Button>
       </PopoverTrigger>
 

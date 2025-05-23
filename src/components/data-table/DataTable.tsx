@@ -92,12 +92,11 @@ const DataTable = <TData extends WithId, TValue>({
 
   return !isLoading ? (
     <div className="flex flex-1 flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <ColumnToggle table={table} />
-
-        {filters}
-
-        <div className="flex-1" />
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="mr-auto flex flex-wrap items-center gap-2">
+          <ColumnToggle table={table} />
+          {filters}
+        </div>
 
         <Search search={search} setSearch={setSearch} />
       </div>
