@@ -32,6 +32,7 @@ interface MultiSelectProps {
   value?: string[]
   onChange?: (values: string[]) => void
   className?: string
+  isInvalid?: boolean
   modal?: boolean
 }
 
@@ -41,6 +42,7 @@ export const MultiSelect = ({
   value,
   onChange,
   className,
+  isInvalid,
   modal,
 }: MultiSelectProps) => {
   const handleSelect = (selectedValue: string) => {
@@ -65,6 +67,7 @@ export const MultiSelect = ({
             "hover:bg-background h-auto min-h-9 px-3 py-1 font-normal",
             className
           )}
+          aria-invalid={isInvalid}
         >
           <div
             className={cn(

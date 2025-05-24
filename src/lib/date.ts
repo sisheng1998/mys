@@ -14,12 +14,19 @@ export default dayjs
 const DATE_FORMAT = "DD/MM/YYYY"
 const TIME_FORMAT = "HH:mm A"
 
-export const formatDate = (date: number) => dayjs(date).format(DATE_FORMAT)
-export const formatTime = (date: number) => dayjs(date).format(TIME_FORMAT)
+export const formatDate = (date: Date | string | number) =>
+  dayjs(date).format(DATE_FORMAT)
+export const formatTime = (date: Date | string | number) =>
+  dayjs(date).format(TIME_FORMAT)
+
+export const formatISODate = (date: Date) => date.toISOString().split("T")[0]
+export const getDateFromISODate = (date: string) => new Date(date)
 
 const SEPARATOR = "|"
 
-export const getLunarDateFromSolarDate = (date: Date): string => {
+export const getLunarDateFromSolarDate = (
+  date: Date | string | number
+): string => {
   const dayjsDate = dayjs(date)
 
   const year = dayjsDate.toLunarYear().getYear()

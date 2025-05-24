@@ -37,6 +37,15 @@ export const deleteTemplate = authMutation({
     const template = await ctx.db.get(_id)
     if (!template) throw new ConvexError("Template not found")
 
+    const records = await ctx.db
+      .query("templateRecords")
+      .withIndex("by_template", (q) => q.eq("templateId", _id))
+      .collect()
+
+    for (const record of records) {
+      await ctx.db.delete(record._id)
+    }
+
     return ctx.db.delete(_id)
   },
 })

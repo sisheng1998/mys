@@ -189,7 +189,7 @@ const UpsertCategory = ({
               <FormField
                 control={form.control}
                 name="titles"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>
                       <span>Conditions</span>
@@ -257,6 +257,7 @@ const UpsertCategory = ({
                             value: title,
                             label: title,
                           }))}
+                          isInvalid={!!fieldState.error}
                           modal
                           {...field}
                         />

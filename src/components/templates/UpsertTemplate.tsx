@@ -20,7 +20,6 @@ import {
 import { handleFormError } from "@/lib/error"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
-import { useRouter } from "@/hooks/use-router"
 import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -66,7 +65,6 @@ const UpsertTemplate = ({
   template?: Template
   children: React.ReactNode
 }) => {
-  const { push } = useRouter()
   const [open, setOpen] = useState<boolean>(false)
 
   const { data: categories = [], status } = useQuery(
@@ -93,8 +91,7 @@ const UpsertTemplate = ({
 
   const onSubmit = async (values: formSchema) => {
     try {
-      const templateId = await upsertTemplate(values)
-      if (!isEdit) push(`/templates/${templateId}`)
+      await upsertTemplate(values)
       toast.success(isEdit ? "Template updated" : "New template added")
       setOpen(false)
     } catch (error) {
@@ -246,7 +243,7 @@ const UpsertTemplate = ({
               <FormField
                 control={form.control}
                 name="categories"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <div className="flex items-center justify-between gap-2">
                       <FormLabel>Category(s)</FormLabel>
@@ -274,6 +271,7 @@ const UpsertTemplate = ({
                             value: category._id,
                             label: category.name,
                           }))}
+                          isInvalid={!!fieldState.error}
                           modal
                           {...field}
                         />

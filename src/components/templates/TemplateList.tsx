@@ -112,7 +112,7 @@ const TemplateList = () => {
 
 export default TemplateList
 
-const IconWithText = ({
+export const IconWithText = ({
   icon: Icon,
   text,
   title,
