@@ -1,9 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "convex/react"
-import { Edit, Info } from "lucide-react"
+import { Info } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -20,7 +19,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -39,51 +37,43 @@ import {
   NumberFieldInput,
 } from "@/components/ui/number-field"
 
-import { api } from "@cvx/_generated/api"
-import { Id } from "@cvx/_generated/dataModel"
-import { updateTemplateRecordAmountSchema } from "@cvx/templates/mutations"
+const formSchema = z.object({
+  amount: z
+    .number({
+      invalid_type_error: "Required",
+    })
+    .min(1, "Required"),
+})
 
-type formSchema = z.infer<typeof updateTemplateRecordAmountSchema>
-
-const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
-  const [open, setOpen] = useState<boolean>(false)
-
-  const updateTemplateRecordAmount = useMutation(
-    api.templates.mutations.updateTemplateRecordAmount
-  )
-
-  const defaultValues: formSchema = {
-    ids: ids as Id<"templateRecords">[],
+const UpdateRecordAmount = ({
+  ids,
+  handleUpdateAmount,
+  ...props
+}: React.ComponentProps<typeof Dialog> & {
+  ids: string[]
+  handleUpdateAmount: (amount: number) => Promise<void>
+}) => {
+  const defaultValues: z.infer<typeof formSchema> = {
     amount: NaN,
   }
 
-  const form = useForm<formSchema>({
-    resolver: zodResolver(updateTemplateRecordAmountSchema),
+  const form = useForm<typeof defaultValues>({
+    resolver: zodResolver(formSchema),
     defaultValues,
   })
 
-  const onSubmit = async (values: formSchema) => {
+  const onSubmit = async (values: typeof defaultValues) => {
     try {
-      await updateTemplateRecordAmount({
-        ...values,
-        ids: ids as Id<"templateRecords">[],
-      })
-      toast.success("Record(s) updated")
-      setOpen(false)
+      await handleUpdateAmount(values.amount)
+      toast.success(`${ids.length} record(s) updated`)
+      props.onOpenChange?.(false)
     } catch (error) {
       handleFormError(error, form.setError)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Edit />
-          <span>Edit Amount</span>
-        </Button>
-      </DialogTrigger>
-
+    <Dialog {...props}>
       <DialogContent
         onCloseAutoFocus={(e) => {
           e.preventDefault()
@@ -160,4 +150,4 @@ const UpdateTemplateRecordAmount = ({ ids }: { ids: string[] }) => {
   )
 }
 
-export default UpdateTemplateRecordAmount
+export default UpdateRecordAmount

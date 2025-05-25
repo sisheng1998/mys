@@ -2,12 +2,15 @@
 
 import React, { useState } from "react"
 import { RowSelectionState } from "@tanstack/react-table"
-import { Preloaded, usePreloadedQuery } from "convex/react"
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
+import { Edit, LayoutList, Trash2 } from "lucide-react"
 
 import { Category } from "@/types/category"
 import { Template } from "@/types/template"
 import { getLunarDateInChinese } from "@/lib/date"
+import { useDialog } from "@/hooks/use-dialog"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -15,15 +18,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import DeleteRecords from "@/components/records/DeleteRecords"
+import UpdateRecordAmount from "@/components/records/UpdateRecordAmount"
 import AddTemplateRecord from "@/components/templates/AddTemplateRecord"
-import DeleteTemplateRecords from "@/components/templates/DeleteTemplateRecords"
 import DonationStats from "@/components/templates/DonationStats"
 import DonationTable from "@/components/templates/DonationTable"
 import EditTemplate from "@/components/templates/EditTemplate"
-import UpdateTemplateRecordAmount from "@/components/templates/UpdateTemplateRecordAmount"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
 import { api } from "@cvx/_generated/api"
+import { Id } from "@cvx/_generated/dataModel"
 
 const EventTemplate = ({
   preloadedTemplate,
@@ -85,6 +97,16 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
     (key) => rowSelection[key]
   )
 
+  const updateRecordAmountDialog = useDialog()
+  const deleteRecordsDialog = useDialog()
+
+  const updateTemplateRecordAmount = useMutation(
+    api.templates.mutations.updateTemplateRecordAmount
+  )
+  const deleteTemplateRecords = useMutation(
+    api.templates.mutations.deleteTemplateRecords
+  )
+
   return (
     <Card className="flex-1 lg:col-span-2">
       <CardHeader className="flex flex-wrap items-start justify-between gap-4">
@@ -94,14 +116,64 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
         </div>
 
         {selectedIds.length !== 0 ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <UpdateTemplateRecordAmount ids={selectedIds} />
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button>
+                  <LayoutList />
+                  <span>Action(s)</span>
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DeleteTemplateRecords
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-52 rounded-lg"
+                side="bottom"
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel>
+                  {selectedIds.length} record(s) selected
+                </DropdownMenuLabel>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onSelect={updateRecordAmountDialog.trigger}>
+                  <Edit />
+                  Edit Amount
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={deleteRecordsDialog.trigger}
+                >
+                  <Trash2 />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <UpdateRecordAmount
               ids={selectedIds}
-              setRowSelection={setRowSelection}
+              handleUpdateAmount={async (amount) => {
+                await updateTemplateRecordAmount({
+                  ids: selectedIds as Id<"templateRecords">[],
+                  amount,
+                })
+              }}
+              {...updateRecordAmountDialog.props}
             />
-          </div>
+
+            <DeleteRecords
+              ids={selectedIds}
+              handleDeleteRecords={async () => {
+                await deleteTemplateRecords({
+                  ids: selectedIds as Id<"templateRecords">[],
+                })
+                setRowSelection({})
+              }}
+              {...deleteRecordsDialog.props}
+            />
+          </>
         ) : (
           <AddTemplateRecord categories={categories} />
         )}

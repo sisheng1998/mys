@@ -52,7 +52,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import NameAutocomplete from "@/components/templates/NameAutocomplete"
+import NameAutocomplete from "@/components/records/NameAutocomplete"
 
 import { api } from "@cvx/_generated/api"
 import { editEventRecordSchema } from "@cvx/events/mutations"

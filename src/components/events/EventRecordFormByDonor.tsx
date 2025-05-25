@@ -43,8 +43,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import NameAutocomplete from "@/components/records/NameAutocomplete"
 import { FormFooter } from "@/components/templates/AddTemplateRecord"
-import NameAutocomplete from "@/components/templates/NameAutocomplete"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"

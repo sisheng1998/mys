@@ -2,7 +2,8 @@
 
 import React, { useState } from "react"
 import { RowSelectionState } from "@tanstack/react-table"
-import { Preloaded, usePreloadedQuery } from "convex/react"
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
+import { Edit, LayoutList, Trash2 } from "lucide-react"
 
 import { Category } from "@/types/category"
 import { Event } from "@/types/event"
@@ -11,7 +12,9 @@ import {
   getLunarDateFromSolarDate,
   getLunarDateInChinese,
 } from "@/lib/date"
+import { useDialog } from "@/hooks/use-dialog"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -19,15 +22,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import AddEventRecord from "@/components/events/AddEventRecord"
-import DeleteEventRecords from "@/components/events/DeleteEventRecords"
 import DonationStats from "@/components/events/DonationStats"
 import DonationTable from "@/components/events/DonationTable"
 import EditEvent from "@/components/events/EditEvent"
-import UpdateEventRecordAmount from "@/components/events/UpdateEventRecordAmount"
+import DeleteRecords from "@/components/records/DeleteRecords"
+import UpdateRecordAmount from "@/components/records/UpdateRecordAmount"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
 import { api } from "@cvx/_generated/api"
+import { Id } from "@cvx/_generated/dataModel"
 
 const EventPage = ({
   preloadedEvent,
@@ -87,6 +99,16 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
     (key) => rowSelection[key]
   )
 
+  const updateRecordAmountDialog = useDialog()
+  const deleteRecordsDialog = useDialog()
+
+  const updateEventRecordAmount = useMutation(
+    api.events.mutations.updateEventRecordAmount
+  )
+  const deleteEventRecords = useMutation(
+    api.events.mutations.deleteEventRecords
+  )
+
   return (
     <Card className="flex-1 lg:col-span-2">
       <CardHeader className="flex flex-wrap items-start justify-between gap-4">
@@ -96,14 +118,64 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
         </div>
 
         {selectedIds.length !== 0 ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <UpdateEventRecordAmount ids={selectedIds} />
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button>
+                  <LayoutList />
+                  <span>Action(s)</span>
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DeleteEventRecords
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-52 rounded-lg"
+                side="bottom"
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel>
+                  {selectedIds.length} record(s) selected
+                </DropdownMenuLabel>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onSelect={updateRecordAmountDialog.trigger}>
+                  <Edit />
+                  Edit Amount
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={deleteRecordsDialog.trigger}
+                >
+                  <Trash2 />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <UpdateRecordAmount
               ids={selectedIds}
-              setRowSelection={setRowSelection}
+              handleUpdateAmount={async (amount) => {
+                await updateEventRecordAmount({
+                  ids: selectedIds as Id<"eventRecords">[],
+                  amount,
+                })
+              }}
+              {...updateRecordAmountDialog.props}
             />
-          </div>
+
+            <DeleteRecords
+              ids={selectedIds}
+              handleDeleteRecords={async () => {
+                await deleteEventRecords({
+                  ids: selectedIds as Id<"eventRecords">[],
+                })
+                setRowSelection({})
+              }}
+              {...deleteRecordsDialog.props}
+            />
+          </>
         ) : (
           <AddEventRecord categories={categories} />
         )}
