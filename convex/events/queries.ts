@@ -1,5 +1,6 @@
-import { convexToZod } from "convex-helpers/server/zod"
+import { convexToZod, zid } from "convex-helpers/server/zod"
 import { paginationOptsValidator } from "convex/server"
+import { ConvexError } from "convex/values"
 import { z } from "zod"
 
 import { authQuery } from "@cvx/utils/function"
@@ -44,5 +45,129 @@ export const list = authQuery({
       ...results,
       page: pageWithStats,
     }
+  },
+})
+
+export const get = authQuery({
+  args: {
+    _id: zid("events"),
+  },
+  handler: async (ctx, args) => {
+    const { _id } = args
+
+    const event = await ctx.db.get(_id)
+    if (!event) throw new ConvexError("Event not found")
+
+    const categories = (
+      await Promise.all(
+        event.categories.map((category) => ctx.db.get(category))
+      )
+    )
+      .filter((category) => !!category)
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    return {
+      ...event,
+      categories,
+    }
+  },
+})
+
+export const getName = authQuery({
+  args: {
+    _id: zid("events"),
+  },
+  handler: async (ctx, args) => {
+    const { _id } = args
+
+    const event = await ctx.db.get(_id)
+    if (!event) throw new ConvexError("Event not found")
+
+    return event.name
+  },
+})
+
+export const getStats = authQuery({
+  args: {
+    _id: zid("events"),
+  },
+  handler: async (ctx, args) => {
+    const { _id } = args
+
+    const event = await ctx.db.get(_id)
+    if (!event) throw new ConvexError("Event not found")
+
+    const records = await ctx.db
+      .query("eventRecords")
+      .withIndex("by_event", (q) => q.eq("eventId", _id))
+      .collect()
+
+    const totalAmount = records.reduce((acc, record) => acc + record.amount, 0)
+    const totalDonors = new Set(records.map((record) => record.name)).size
+    const totalRecords = records.length
+    const totalPaid = records.filter((record) => record.isPaid).length
+    const totalPaidPercentage =
+      totalPaid !== 0
+        ? Math.min(100, Math.max(0, (totalPaid / totalRecords) * 100))
+        : 0
+
+    const categories = (
+      await Promise.all(
+        event.categories.map((category) => ctx.db.get(category))
+      )
+    )
+      .filter((category) => !!category)
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    const categoryStats = categories.map((category) => {
+      const categoryRecords = records.filter(
+        (record) => record.category === category.name
+      )
+
+      const amount = categoryRecords.reduce(
+        (acc, record) => acc + record.amount,
+        0
+      )
+
+      const percentage =
+        amount !== 0
+          ? Math.min(100, Math.max(0, (amount / totalAmount) * 100))
+          : 0
+
+      return {
+        name: category.name,
+        amount,
+        percentage,
+      }
+    })
+
+    return {
+      totalAmount,
+      totalDonors,
+      totalRecords,
+      totalPaid,
+      totalPaidPercentage,
+      categoryStats,
+    }
+  },
+})
+
+export const getRecords = authQuery({
+  args: {
+    _id: zid("events"),
+  },
+  handler: async (ctx, args) => {
+    const { _id } = args
+
+    const event = await ctx.db.get(_id)
+    if (!event) throw new ConvexError("Event not found")
+
+    const records = await ctx.db
+      .query("eventRecords")
+      .withIndex("by_event", (q) => q.eq("eventId", _id))
+      .order("desc")
+      .collect()
+
+    return records
   },
 })

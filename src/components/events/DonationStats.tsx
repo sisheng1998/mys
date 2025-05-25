@@ -9,18 +9,21 @@ import { useQuery } from "@/hooks/use-query"
 import { CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
+import { CategoryInfo, OverallInfo } from "@/components/templates/DonationStats"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
 
 const DonationStats = ({ categories }: { categories: Category[] }) => {
-  const { _id } = useParams<{ _id: Id<"templates"> }>()
+  const { _id } = useParams<{ _id: Id<"events"> }>()
 
   const {
     data = {
       totalAmount: 0,
       totalDonors: 0,
       totalRecords: 0,
+      totalPaid: 0,
+      totalPaidPercentage: 0,
       categoryStats: categories.map((category) => ({
         name: category.name,
         amount: 0,
@@ -28,7 +31,7 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
       })),
     },
     status,
-  } = useQuery(api.templates.queries.getStats, {
+  } = useQuery(api.events.queries.getStats, {
     _id,
   })
 
@@ -54,6 +57,18 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
           value={data.totalRecords.toString()}
           isLoading={isLoading}
         />
+
+        <OverallInfo
+          title="Payment Status"
+          value={`${data.totalRecords !== 0 ? `${data.totalPaid} of ${data.totalRecords}` : 0} paid`}
+          isLoading={isLoading}
+        />
+
+        {isLoading ? (
+          <Skeleton className="h-2" />
+        ) : (
+          <Progress value={data.totalPaidPercentage} className="h-2" />
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -78,50 +93,3 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
 }
 
 export default DonationStats
-
-export const OverallInfo = ({
-  title,
-  value,
-  isLoading,
-}: {
-  title: string
-  value: string
-  isLoading: boolean
-}) =>
-  isLoading ? (
-    <Skeleton className="h-5" />
-  ) : (
-    <p className="flex flex-wrap items-center justify-between gap-1">
-      <span className="font-medium">{title}</span>
-      <span className="font-bold">{value}</span>
-    </p>
-  )
-
-export const CategoryInfo = ({
-  title,
-  value,
-  percentage,
-  isLoading,
-}: {
-  title: string
-  value: string
-  percentage: number
-  isLoading: boolean
-}) => (
-  <div className="flex flex-col gap-1.5">
-    {isLoading ? (
-      <Skeleton className="h-5" />
-    ) : (
-      <p className="flex flex-wrap items-center justify-between gap-1">
-        <span>{title}</span>
-        <span className="font-medium">{value}</span>
-      </p>
-    )}
-
-    {isLoading ? (
-      <Skeleton className="h-2" />
-    ) : (
-      <Progress value={percentage} className="h-2" />
-    )}
-  </div>
-)
