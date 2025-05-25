@@ -67,6 +67,26 @@ export const deleteCategory = authMutation({
     const category = await ctx.db.get(_id)
     if (!category) throw new ConvexError("Category not found")
 
+    const templates = await filter(ctx.db.query("templates"), (doc) =>
+      doc.categories.includes(_id)
+    ).collect()
+
+    for (const template of templates) {
+      await ctx.db.patch(template._id, {
+        categories: template.categories.filter((c) => c !== _id),
+      })
+    }
+
+    const events = await filter(ctx.db.query("events"), (doc) =>
+      doc.categories.includes(_id)
+    ).collect()
+
+    for (const event of events) {
+      await ctx.db.patch(event._id, {
+        categories: event.categories.filter((c) => c !== _id),
+      })
+    }
+
     return ctx.db.delete(_id)
   },
 })

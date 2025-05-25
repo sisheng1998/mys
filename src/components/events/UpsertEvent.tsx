@@ -10,16 +10,19 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { Event } from "@/types/event"
+import { Template } from "@/types/template"
 import {
   formatDate,
   formatISODate,
   getDateFromISODate,
   getLunarDateFromSolarDate,
   getLunarDateInChinese,
+  getNextSolarDateFromLunarList,
 } from "@/lib/date"
 import { handleFormError } from "@/lib/error"
 import { useQuery } from "@/hooks/use-query"
 import { Alert, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -48,6 +51,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { api } from "@cvx/_generated/api"
@@ -55,8 +65,6 @@ import { Id } from "@cvx/_generated/dataModel"
 import { upsertEventSchema } from "@cvx/events/mutations"
 
 type formSchema = z.infer<typeof upsertEventSchema>
-
-// TODO: For add event, implement select from template
 
 const UpsertEvent = ({
   event,
@@ -71,6 +79,8 @@ const UpsertEvent = ({
   const { data: categories = [], status } = useQuery(
     api.categories.queries.list
   )
+  const { data: templates = [] } = useQuery(api.templates.queries.list)
+
   const upsertEvent = useMutation(api.events.mutations.upsertEvent)
 
   const isEdit = !!event
@@ -92,7 +102,13 @@ const UpsertEvent = ({
 
   const onSubmit = async (values: formSchema) => {
     try {
-      await upsertEvent(values)
+      await upsertEvent({
+        ...values,
+        templateId:
+          !isEdit && values.templateId
+            ? JSON.parse(values.templateId)._id
+            : undefined,
+      })
       toast.success(isEdit ? "Event updated" : "New event added")
       setOpen(false)
     } catch (error) {
@@ -127,6 +143,77 @@ const UpsertEvent = ({
             </DialogHeader>
 
             <div className="flex flex-col gap-4">
+              {!isEdit && (
+                <FormField
+                  control={form.control}
+                  name="templateId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Template</FormLabel>
+
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value || undefined)
+
+                          if (!value) return
+
+                          const template = JSON.parse(value) as Template
+
+                          form.setValue("name", template.name)
+                          form.setValue(
+                            "date",
+                            getNextSolarDateFromLunarList(template.dates)
+                          )
+                          form.setValue(
+                            "categories",
+                            template.categories as typeof defaultValues.categories
+                          )
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full min-w-24">
+                            <SelectValue placeholder="Select">
+                              {field.value
+                                ? JSON.parse(field.value).name
+                                : "Select"}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
+
+                        <SelectContent>
+                          <SelectItem value={null!}>
+                            <span className="text-muted-foreground">
+                              Select
+                            </span>
+                          </SelectItem>
+
+                          {templates.map((template) => (
+                            <SelectItem
+                              key={template._id}
+                              value={JSON.stringify(template)}
+                              className="*:[span]:last:flex-col *:[span]:last:items-start"
+                            >
+                              <span>{template.name}</span>
+
+                              <div className="-mt-1 flex max-w-52 flex-wrap items-center gap-1 sm:max-w-xs">
+                                {template.dates.map((date) => (
+                                  <Badge key={date}>
+                                    {getLunarDateInChinese(date)}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <FormField
                 control={form.control}
                 name="name"
@@ -170,10 +257,15 @@ const UpsertEvent = ({
                       </PopoverTrigger>
 
                       <PopoverContent className="w-auto p-0" align="start">
-                        <PopoverClose ref={popOverRef} />
+                        <PopoverClose className="hidden" ref={popOverRef} />
 
                         <Calendar
                           mode="single"
+                          defaultMonth={
+                            field.value
+                              ? getDateFromISODate(field.value)
+                              : undefined
+                          }
                           selected={
                             field.value
                               ? getDateFromISODate(field.value)

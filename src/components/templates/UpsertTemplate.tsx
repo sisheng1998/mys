@@ -215,6 +215,11 @@ const UpsertTemplate = ({
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="multiple"
+                            defaultMonth={
+                              field.value.length > 0
+                                ? getSolarDateFromLunarDate(field.value[0])
+                                : undefined
+                            }
                             selected={field.value.map((date) =>
                               getSolarDateFromLunarDate(date)
                             )}

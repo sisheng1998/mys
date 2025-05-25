@@ -9,7 +9,6 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { Category } from "@/types/category"
-import { Title } from "@/types/nameList"
 import { TemplateRecord } from "@/types/template"
 import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
@@ -59,11 +58,28 @@ import { api } from "@cvx/_generated/api"
 import { TITLES } from "@cvx/nameLists/schemas"
 import { editTemplateRecordSchema } from "@cvx/templates/mutations"
 
-const extendedSchema = editTemplateRecordSchema.extend({
-  title: editTemplateRecordSchema.shape.title.nullable(),
-})
+const getExtendedSchema = (categories: Category[]) =>
+  editTemplateRecordSchema
+    .extend({
+      title: editTemplateRecordSchema.shape.title.nullable(),
+    })
+    .superRefine((data, ctx) => {
+      const selectedCategory = categories.find((c) => c.name === data.category)
 
-type formSchema = z.infer<typeof extendedSchema>
+      if (
+        !selectedCategory ||
+        !isCategoryDisabled(selectedCategory, data.title || undefined)
+      )
+        return
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Not allowed for this donor",
+        path: ["category"],
+      })
+    })
+
+type formSchema = z.infer<ReturnType<typeof getExtendedSchema>>
 
 const EditTemplateRecord = ({
   templateRecord,
@@ -81,7 +97,7 @@ const EditTemplateRecord = ({
   const defaultValues: formSchema = templateRecord
 
   const form = useForm<formSchema>({
-    resolver: zodResolver(extendedSchema),
+    resolver: zodResolver(getExtendedSchema(categories)),
     defaultValues,
   })
 
@@ -133,17 +149,11 @@ const EditTemplateRecord = ({
               control={form.control}
               name="name"
               render={({ field, fieldState }) => {
-                const resetCategoryIfDisabled = (title?: Title) => {
-                  const category = form.watch("category")
-                  const selectedCategory = categories.find(
-                    (c) => c.name === category
-                  )
+                const triggerCategory = async () => {
+                  const category = form.getValues("category")
 
-                  if (
-                    !selectedCategory ||
-                    isCategoryDisabled(selectedCategory, title)
-                  ) {
-                    form.setValue("category", null!)
+                  if (category) {
+                    await form.trigger(["category"])
                   }
                 }
 
@@ -161,15 +171,13 @@ const EditTemplateRecord = ({
                               value={titleField.value || ""}
                               onValueChange={(value) => {
                                 titleField.onChange(value)
-                                resetCategoryIfDisabled(
-                                  (value || undefined) as Title
-                                )
+                                triggerCategory()
                               }}
                             >
                               <FormControl>
                                 <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
                                   <SelectValue placeholder="Title">
-                                    {titleField.value}
+                                    {titleField.value || "Title"}
                                   </SelectValue>
                                 </SelectTrigger>
                               </FormControl>
@@ -198,7 +206,7 @@ const EditTemplateRecord = ({
                           onSelect={(data) => {
                             field.onChange(data.name)
                             form.setValue("title", data.title || null)
-                            resetCategoryIfDisabled(data.title)
+                            triggerCategory()
                           }}
                           isInvalid={!!fieldState.error}
                         />
@@ -236,7 +244,7 @@ const EditTemplateRecord = ({
                       <FormControl>
                         <SelectTrigger className="w-full min-w-24">
                           <SelectValue placeholder="Select">
-                            {field.value}
+                            {field.value || "Select"}
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
@@ -246,22 +254,18 @@ const EditTemplateRecord = ({
                           <span className="text-muted-foreground">Select</span>
                         </SelectItem>
 
-                        {categories
-                          .filter(
-                            (category) =>
-                              !isCategoryDisabled(
-                                category,
-                                form.watch("title") || undefined
-                              )
-                          )
-                          .map((category) => (
-                            <SelectItem
-                              key={category._id}
-                              value={category.name}
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ))}
+                        {categories.map((category) => (
+                          <SelectItem
+                            key={category._id}
+                            value={category.name}
+                            disabled={isCategoryDisabled(
+                              category,
+                              form.watch("title") || undefined
+                            )}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
 

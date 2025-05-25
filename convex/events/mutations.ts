@@ -1,7 +1,7 @@
 import { zid } from "convex-helpers/server/zod"
 import { ConvexError } from "convex/values"
 
-import { eventSchema } from "@cvx/events/schemas"
+import { eventRecordSchema, eventSchema } from "@cvx/events/schemas"
 import { authMutation } from "@cvx/utils/function"
 
 export const upsertEventSchema = eventSchema.extend({
@@ -21,17 +21,33 @@ export const upsertEvent = authMutation({
       return ctx.db.patch(_id, fields)
     }
 
+    const newEvent = eventSchema.parse(fields)
+    const eventId = await ctx.db.insert("events", newEvent)
+
     if (templateId) {
       const existingTemplate = await ctx.db.get(templateId)
       if (!existingTemplate) throw new ConvexError("Template not found")
 
-      // TODO: Handle copying from template
-      const newEvent = eventSchema.parse(fields)
-      return ctx.db.insert("events", newEvent)
+      const templateRecords = await ctx.db
+        .query("templateRecords")
+        .withIndex("by_template", (q) => q.eq("templateId", templateId))
+        .order("asc")
+        .collect()
+
+      for (const record of templateRecords) {
+        const newEventRecord = eventRecordSchema.parse({
+          eventId,
+          title: record.title,
+          name: record.name,
+          category: record.category,
+          amount: record.amount,
+        })
+
+        await ctx.db.insert("eventRecords", newEventRecord)
+      }
     }
 
-    const newEvent = eventSchema.parse(fields)
-    return ctx.db.insert("events", newEvent)
+    return eventId
   },
 })
 

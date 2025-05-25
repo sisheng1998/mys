@@ -180,7 +180,7 @@ const TemplateRecordFormByCategory = ({
                 <FormControl>
                   <SelectTrigger className="w-full min-w-24">
                     <SelectValue placeholder="Select">
-                      {field.value}
+                      {field.value || "Select"}
                     </SelectValue>
                   </SelectTrigger>
                 </FormControl>
@@ -258,7 +258,7 @@ const TemplateRecordFormByCategory = ({
                               <FormControl>
                                 <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
                                   <SelectValue placeholder="Title">
-                                    {titleField.value}
+                                    {titleField.value || "Title"}
                                   </SelectValue>
                                 </SelectTrigger>
                               </FormControl>

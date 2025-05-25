@@ -11,22 +11,23 @@ dayjs.tz.setDefault(TIMEZONE)
 
 export default dayjs
 
+type DateType = Date | string | number
+
 const DATE_FORMAT = "DD/MM/YYYY"
 const TIME_FORMAT = "HH:mm A"
 
-export const formatDate = (date: Date | string | number) =>
-  dayjs(date).format(DATE_FORMAT)
-export const formatTime = (date: Date | string | number) =>
-  dayjs(date).format(TIME_FORMAT)
+export const formatDate = (date: DateType) => dayjs(date).format(DATE_FORMAT)
+export const formatTime = (date: DateType) => dayjs(date).format(TIME_FORMAT)
 
-export const formatISODate = (date: Date) => date.toISOString().split("T")[0]
-export const getDateFromISODate = (date: string) => new Date(date)
+const ISO_DATE_FORMAT = "YYYY-MM-DD"
+
+export const formatISODate = (date: DateType) =>
+  dayjs(date).format(ISO_DATE_FORMAT)
+export const getDateFromISODate = (date: DateType) => dayjs(date).toDate()
 
 const SEPARATOR = "|"
 
-export const getLunarDateFromSolarDate = (
-  date: Date | string | number
-): string => {
+export const getLunarDateFromSolarDate = (date: DateType): string => {
   const dayjsDate = dayjs(date)
 
   const year = dayjsDate.toLunarYear().getYear()
@@ -71,7 +72,10 @@ export const sortLunarDates = (dates: string[]) =>
     return dayA - dayB
   })
 
-export const isSelectedLunarDate = (date: Date, selectedDates: string[]) => {
+export const isSelectedLunarDate = (
+  date: DateType,
+  selectedDates: string[]
+) => {
   const dayjsDate = dayjs(date)
 
   const year = dayjsDate.toLunarYear().getYear()
@@ -88,4 +92,46 @@ export const isSelectedLunarDate = (date: Date, selectedDates: string[]) => {
       Number(selectedDay) === day
     )
   })
+}
+
+export const getNextSolarDateFromLunarList = (lunarDates: string[]): string => {
+  const today = dayjs()
+
+  const todayLunarYear = today.toLunarYear().getYear()
+  const todayLunarMonth = today.toLunarMonth().getMonthWithLeap()
+  const todayLunarDay = today.toLunarDay().getDay()
+
+  const parsedLunarDates = lunarDates.map((date) => {
+    const [, month, day] = date.split(SEPARATOR).map(Number)
+    return { year: todayLunarYear, month, day }
+  })
+
+  const nextLunar = parsedLunarDates
+    .filter(
+      ({ month, day }) =>
+        month > todayLunarMonth ||
+        (month === todayLunarMonth && day >= todayLunarDay)
+    )
+    .sort((a, b) =>
+      a.month !== b.month ? a.month - b.month : a.day - b.day
+    )[0]
+
+  const targetLunar =
+    nextLunar ||
+    (() => {
+      const firstLunar = parsedLunarDates.sort((a, b) =>
+        a.month !== b.month ? a.month - b.month : a.day - b.day
+      )[0]
+
+      return {
+        year: firstLunar.year + 1,
+        month: firstLunar.month,
+        day: firstLunar.day,
+      }
+    })()
+
+  const lunarDateStr = `${targetLunar.year}|${targetLunar.month}|${targetLunar.day}`
+  const solarDate = getSolarDateFromLunarDate(lunarDateStr)
+
+  return formatISODate(solarDate)
 }
