@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import { RowSelectionState } from "@tanstack/react-table"
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
-import { Edit, LayoutList, Trash2 } from "lucide-react"
+import { Check, Edit, LayoutList, Loader2, Trash2, X } from "lucide-react"
+import { toast } from "sonner"
 
 import { Category } from "@/types/category"
 import { Event } from "@/types/event"
@@ -12,6 +13,8 @@ import {
   getLunarDateFromSolarDate,
   getLunarDateInChinese,
 } from "@/lib/date"
+import { handleMutationError } from "@/lib/error"
+import { cn } from "@/lib/utils"
 import { useDialog } from "@/hooks/use-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -99,15 +102,50 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
     (key) => rowSelection[key]
   )
 
+  const [isPaidLoading, setIsPaidLoading] = useState<boolean>(false)
+  const [isUnpaidLoading, setIsUnpaidLoading] = useState<boolean>(false)
+
   const updateRecordAmountDialog = useDialog()
   const deleteRecordsDialog = useDialog()
 
+  const updateEventRecordPaymentStatus = useMutation(
+    api.events.mutations.updateEventRecordPaymentStatus
+  )
   const updateEventRecordAmount = useMutation(
     api.events.mutations.updateEventRecordAmount
   )
   const deleteEventRecords = useMutation(
     api.events.mutations.deleteEventRecords
   )
+
+  const handleUpdatePaymentStatus = async (isPaid: boolean) => {
+    try {
+      if (isPaid) {
+        setIsPaidLoading(true)
+      } else {
+        setIsUnpaidLoading(true)
+      }
+
+      await updateEventRecordPaymentStatus({
+        ids: selectedIds as Id<"eventRecords">[],
+        isPaid,
+      })
+
+      toast.success(
+        `${selectedIds.length} record(s) marked as ${
+          isPaid ? "paid" : "unpaid"
+        }`
+      )
+    } catch (error) {
+      handleMutationError(error)
+    } finally {
+      if (isPaid) {
+        setIsPaidLoading(false)
+      } else {
+        setIsUnpaidLoading(false)
+      }
+    }
+  }
 
   return (
     <Card className="flex-1 lg:col-span-2">
@@ -123,7 +161,7 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
               <DropdownMenuTrigger asChild>
                 <Button>
                   <LayoutList />
-                  <span>Action(s)</span>
+                  <span>Bulk Action(s)</span>
                 </Button>
               </DropdownMenuTrigger>
 
@@ -139,10 +177,33 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
 
                 <DropdownMenuSeparator />
 
+                {[true, false].map((value, index) => {
+                  const isLoading = value ? isPaidLoading : isUnpaidLoading
+                  const Icon = isLoading ? Loader2 : value ? Check : X
+
+                  return (
+                    <DropdownMenuItem
+                      key={index}
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        handleUpdatePaymentStatus(value)
+                      }}
+                      disabled={isPaidLoading || isUnpaidLoading}
+                    >
+                      <Icon className={cn(isLoading && "animate-spin")} />
+                      Mark as {value ? "Paid" : "Unpaid"}
+                    </DropdownMenuItem>
+                  )
+                })}
+
+                <DropdownMenuSeparator />
+
                 <DropdownMenuItem onSelect={updateRecordAmountDialog.trigger}>
                   <Edit />
                   Edit Amount
                 </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
 
                 <DropdownMenuItem
                   variant="destructive"
@@ -150,6 +211,16 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
                 >
                   <Trash2 />
                   Delete
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  onSelect={() => setRowSelection({})}
+                  className="text-muted-foreground"
+                >
+                  <X />
+                  Clear Selection
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

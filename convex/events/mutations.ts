@@ -268,6 +268,28 @@ export const updateEventRecordAmount = authMutation({
   },
 })
 
+const updateEventRecordPaymentStatusSchema = eventRecordSchema
+  .pick({
+    isPaid: true,
+  })
+  .extend({
+    ids: z.array(zid("eventRecords")),
+  })
+
+export const updateEventRecordPaymentStatus = authMutation({
+  args: updateEventRecordPaymentStatusSchema.shape,
+  handler: async (ctx, args) => {
+    const { ids, isPaid } = args
+
+    for (const _id of ids) {
+      const existingEventRecord = await ctx.db.get(_id)
+      if (!existingEventRecord) throw new ConvexError("Record not found")
+
+      await ctx.db.patch(_id, { isPaid })
+    }
+  },
+})
+
 export const deleteEventRecords = authMutation({
   args: {
     ids: z.array(zid("eventRecords")),

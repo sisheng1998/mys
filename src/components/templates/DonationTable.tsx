@@ -103,24 +103,6 @@ const DonationTable = ({
         cellClassName: cn("text-right"),
       },
     },
-    // TODO: Move this to event donation table
-    // {
-    //   id: "date",
-    //   header: ({ column }) => <ColumnHeader column={column} title="Date" />,
-    //   accessorFn: (row) => formatDate(row._creationTime),
-    //   cell: ({ cell, row }) => (
-    //     <Tooltip>
-    //       <TooltipTrigger className="cursor-text">
-    //         {cell.getValue() as string}
-    //       </TooltipTrigger>
-
-    //       <TooltipContent side="bottom">
-    //         Recorded on {cell.getValue() as string}, at{" "}
-    //         {formatTime(row.original._creationTime)}
-    //       </TooltipContent>
-    //     </Tooltip>
-    //   ),
-    // },
     {
       id: "actions",
       cell: ({ row }) => (

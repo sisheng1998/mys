@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { RowSelectionState } from "@tanstack/react-table"
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
-import { Edit, LayoutList, Trash2 } from "lucide-react"
+import { Edit, LayoutList, Trash2, X } from "lucide-react"
 
 import { Category } from "@/types/category"
 import { Template } from "@/types/template"
@@ -121,7 +121,7 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
               <DropdownMenuTrigger asChild>
                 <Button>
                   <LayoutList />
-                  <span>Action(s)</span>
+                  <span>Bulk Action(s)</span>
                 </Button>
               </DropdownMenuTrigger>
 
@@ -142,12 +142,24 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
                   Edit Amount
                 </DropdownMenuItem>
 
+                <DropdownMenuSeparator />
+
                 <DropdownMenuItem
                   variant="destructive"
                   onSelect={deleteRecordsDialog.trigger}
                 >
                   <Trash2 />
                   Delete
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  onSelect={() => setRowSelection({})}
+                  className="text-muted-foreground"
+                >
+                  <X />
+                  Clear Selection
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

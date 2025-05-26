@@ -1,13 +1,17 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { useParams } from "next/navigation"
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
+import { useMutation } from "convex/react"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Category } from "@/types/category"
 import { EventRecord } from "@/types/event"
 import { getRowNumber } from "@/lib/data-table"
 import { formatDate, formatTime } from "@/lib/date"
+import { handleMutationError } from "@/lib/error"
 import { getNameWithTitle } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS, formatCurrency } from "@/lib/number"
 import { cn } from "@/lib/utils"
@@ -110,6 +114,21 @@ const DonationTable = ({
       },
     },
     {
+      accessorKey: "isPaid",
+      header: ({ column }) => <ColumnHeader column={column} title="Paid?" />,
+      cell: ({ cell, row }) => (
+        <PaymentStatusCheckbox
+          _id={row.original._id}
+          isPaid={cell.getValue() as boolean}
+        />
+      ),
+      enableSorting: false,
+      meta: {
+        headerClassName: cn("text-center"),
+        cellClassName: cn("pr-2! text-center"),
+      },
+    },
+    {
       id: "date",
       header: ({ column }) => <ColumnHeader column={column} title="Date" />,
       accessorFn: (row) => formatDate(row._creationTime),
@@ -119,8 +138,10 @@ const DonationTable = ({
             {cell.getValue() as string}
           </TooltipTrigger>
 
-          <TooltipContent side="bottom">
-            Recorded on {cell.getValue() as string}, at{" "}
+          <TooltipContent side="bottom" className="text-center">
+            Recorded at
+            <br />
+            {cell.getValue() as string},{" "}
             {formatTime(row.original._creationTime)}
           </TooltipContent>
         </Tooltip>
@@ -155,3 +176,42 @@ const DonationTable = ({
 }
 
 export default DonationTable
+
+const PaymentStatusCheckbox = ({
+  _id,
+  isPaid,
+}: {
+  _id: Id<"eventRecords">
+  isPaid: boolean
+}) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const updateEventRecordPaymentStatus = useMutation(
+    api.events.mutations.updateEventRecordPaymentStatus
+  )
+
+  const handleUpdatePaymentStatus = async (value: boolean) => {
+    try {
+      setIsLoading(true)
+
+      await updateEventRecordPaymentStatus({
+        ids: [_id],
+        isPaid: value as boolean,
+      })
+
+      toast.success(`Marked as ${value ? "paid" : "unpaid"}`)
+    } catch (error) {
+      handleMutationError(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return isLoading ? (
+    <div className="flex items-center justify-center">
+      <Loader2 className="text-muted-foreground size-4 animate-spin opacity-50" />
+    </div>
+  ) : (
+    <Checkbox checked={isPaid} onCheckedChange={handleUpdatePaymentStatus} />
+  )
+}
