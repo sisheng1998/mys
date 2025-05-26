@@ -8,7 +8,7 @@ import { Category } from "@/types/category"
 import { TemplateRecord } from "@/types/template"
 import { getRowNumber } from "@/lib/data-table"
 import { getNameWithTitle } from "@/lib/name"
-import { CURRENCY_FORMAT_OPTIONS, formatCurrency } from "@/lib/number"
+import { formatCurrency } from "@/lib/number"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -90,14 +90,10 @@ const DonationTable = ({
         <ColumnHeader
           className="-mr-2.5 ml-0 flex-row-reverse"
           column={column}
-          title="Amount (RM)"
+          title="Amount"
         />
       ),
-      cell: (info) =>
-        formatCurrency(info.getValue() as number, undefined, {
-          ...CURRENCY_FORMAT_OPTIONS,
-          style: "decimal",
-        }),
+      cell: (info) => formatCurrency(info.getValue() as number),
       meta: {
         headerClassName: cn("text-right"),
         cellClassName: cn("text-right"),

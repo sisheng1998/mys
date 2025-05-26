@@ -13,7 +13,7 @@ import { getRowNumber } from "@/lib/data-table"
 import { formatDate, formatTime } from "@/lib/date"
 import { handleMutationError } from "@/lib/error"
 import { getNameWithTitle } from "@/lib/name"
-import { CURRENCY_FORMAT_OPTIONS, formatCurrency } from "@/lib/number"
+import { formatCurrency } from "@/lib/number"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -28,7 +28,7 @@ import ColumnHeader, {
 import DataTable from "@/components/data-table/DataTable"
 import DeleteEventRecord from "@/components/events/DeleteEventRecord"
 import EditEventRecord from "@/components/events/EditEventRecord"
-import CategoryFilter from "@/components/templates/CategoryFilter"
+import TableFilters from "@/components/events/TableFilters"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -100,21 +100,19 @@ const DonationTable = ({
         <ColumnHeader
           className="-mr-2.5 ml-0 flex-row-reverse"
           column={column}
-          title="Amount (RM)"
+          title="Amount"
         />
       ),
-      cell: (info) =>
-        formatCurrency(info.getValue() as number, undefined, {
-          ...CURRENCY_FORMAT_OPTIONS,
-          style: "decimal",
-        }),
+      cell: (info) => formatCurrency(info.getValue() as number),
       meta: {
         headerClassName: cn("text-right"),
         cellClassName: cn("text-right"),
       },
     },
     {
+      id: "payment",
       accessorKey: "isPaid",
+      filterFn: multiSelectFilter,
       header: ({ column }) => <ColumnHeader column={column} title="Paid?" />,
       cell: ({ cell, row }) => (
         <PaymentStatusCheckbox
@@ -167,7 +165,7 @@ const DonationTable = ({
     <DataTable
       columns={columns}
       data={data}
-      filters={<CategoryFilter categories={categories} />}
+      filters={<TableFilters categories={categories} />}
       isLoading={status === "pending"}
       rowSelection={rowSelection}
       setRowSelection={setRowSelection}
