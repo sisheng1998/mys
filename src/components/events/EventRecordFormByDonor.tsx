@@ -213,6 +213,7 @@ const EventRecordFormByDonor = ({
                         triggerCategories()
                       }}
                       isInvalid={!!fieldState.error}
+                      autoFocus
                     />
                   </FormControl>
                 </div>

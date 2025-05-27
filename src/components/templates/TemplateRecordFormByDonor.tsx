@@ -215,6 +215,7 @@ const TemplateRecordFormByDonor = ({
                         triggerCategories()
                       }}
                       isInvalid={!!fieldState.error}
+                      autoFocus
                     />
                   </FormControl>
                 </div>

@@ -306,6 +306,7 @@ const TemplateRecordFormByCategory = ({
                             ])
                           }}
                           isInvalid={!!fieldState.error}
+                          autoFocus
                         />
                       </FormControl>
                     </div>

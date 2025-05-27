@@ -15,10 +15,12 @@ const NameAutocomplete = ({
   name,
   onSelect,
   isInvalid,
+  autoFocus = false,
 }: {
   name: string
   onSelect: (data: NameListRecord) => void
   isInvalid?: boolean
+  autoFocus?: boolean
 }) => {
   const { field } = useController({ name })
 
@@ -46,7 +48,7 @@ const NameAutocomplete = ({
       }))}
       isLoading={status === "pending"}
       isInvalid={isInvalid}
-      autoFocus
+      autoFocus={autoFocus}
     />
   )
 }
