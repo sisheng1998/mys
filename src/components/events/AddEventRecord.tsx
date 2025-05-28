@@ -32,8 +32,8 @@ const AddEventRecord = ({ categories }: { categories: Category[] }) => {
       </DialogTrigger>
 
       <DialogContent
+        className="max-h-screen overflow-y-auto"
         onCloseAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-xl"
       >
         <DialogHeader>
           <DialogTitle>New Record(s)</DialogTitle>

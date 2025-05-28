@@ -14,6 +14,7 @@ import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogClose,
@@ -32,6 +33,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Label } from "@/components/ui/label"
 import { LoaderButton } from "@/components/ui/loader-button"
 import {
   NumberField,
@@ -300,6 +302,33 @@ const EditEventRecord = ({
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="isPaid"
+              render={({ field }) => (
+                <FormItem>
+                  <Label>Payment Status</Label>
+
+                  <Label
+                    htmlFor={`checkbox-${field.name}`}
+                    className="cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
+                  >
+                    <FormControl>
+                      <Checkbox
+                        id={`checkbox-${field.name}`}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+
+                    <FormLabel className="pointer-events-none h-4.5 font-normal">
+                      Mark as Paid
+                    </FormLabel>
+                  </Label>
+                </FormItem>
+              )}
+            />
 
             <DialogFooter>
               <DialogClose asChild>

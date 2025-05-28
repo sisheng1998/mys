@@ -13,8 +13,8 @@ import { Category } from "@/types/category"
 import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
@@ -23,6 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Label } from "@/components/ui/label"
 import {
   NumberField,
   NumberFieldDecrement,
@@ -58,6 +59,7 @@ const getExtendedSchema = (categories: Category[]) =>
       records: z.array(
         addEventRecordByDonorSchema.shape.records.element.extend({
           id: z.number(),
+          isPaid: z.boolean(),
         })
       ),
     })
@@ -98,7 +100,7 @@ const EventRecordFormByDonor = ({
     eventId: _id,
     title: null,
     name: "",
-    records: [{ id: Date.now(), category: "", amount: NaN }],
+    records: [{ id: Date.now(), category: "", amount: NaN, isPaid: false }],
   }
 
   const form = useForm<formSchema>({
@@ -225,7 +227,7 @@ const EventRecordFormByDonor = ({
         />
 
         <div className="-mt-1 flex flex-col gap-4">
-          <div className="-mb-1 flex flex-wrap items-center justify-between gap-2 sm:-mb-2">
+          <div className="-mb-1 flex flex-wrap items-center justify-between gap-2">
             <FormLabel>Donation(s)</FormLabel>
 
             <Button
@@ -249,21 +251,14 @@ const EventRecordFormByDonor = ({
               key={field.id}
               className="grid items-start gap-4 sm:grid-cols-2"
             >
-              {index === 0 && <Separator className="-mb-2 sm:hidden" />}
+              {index === 0 && <Separator className="-mb-2 sm:col-span-2" />}
 
               <FormField
                 control={form.control}
                 name={`records.${index}.category`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel
-                      className={cn(
-                        "sm:mb-1 sm:hidden",
-                        index === 0 && "flex!"
-                      )}
-                    >
-                      Category
-                    </FormLabel>
+                    <FormLabel>Category</FormLabel>
 
                     <Select
                       value={field.value}
@@ -315,38 +310,56 @@ const EventRecordFormByDonor = ({
                 )}
               />
 
-              <div className="flex items-start gap-4">
+              <FormField
+                control={form.control}
+                name={`records.${index}.amount`}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+
+                    <FormControl>
+                      <NumberField
+                        placeholder="Enter amount"
+                        formatOptions={CURRENCY_FORMAT_OPTIONS}
+                        minValue={1}
+                        isInvalid={!!fieldState.error}
+                        {...field}
+                      >
+                        <NumberFieldGroup>
+                          <NumberFieldDecrement />
+                          <NumberFieldInput />
+                          <NumberFieldIncrement />
+                        </NumberFieldGroup>
+                      </NumberField>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-start justify-between gap-4 sm:col-span-2 sm:-mt-1.5 sm:-mb-2">
                 <FormField
                   control={form.control}
-                  name={`records.${index}.amount`}
-                  render={({ field, fieldState }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel
-                        className={cn(
-                          "sm:mb-1 sm:hidden",
-                          index === 0 && "flex!"
-                        )}
+                  name={`records.${index}.isPaid`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label
+                        htmlFor={`checkbox-${field.name}`}
+                        className="min-h-9 cursor-pointer"
                       >
-                        Amount
-                      </FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            id={`checkbox-${field.name}`}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
 
-                      <FormControl>
-                        <NumberField
-                          placeholder="Enter amount"
-                          formatOptions={CURRENCY_FORMAT_OPTIONS}
-                          minValue={1}
-                          isInvalid={!!fieldState.error}
-                          {...field}
-                        >
-                          <NumberFieldGroup>
-                            <NumberFieldDecrement />
-                            <NumberFieldInput />
-                            <NumberFieldIncrement />
-                          </NumberFieldGroup>
-                        </NumberField>
-                      </FormControl>
-
-                      <FormMessage />
+                        <FormLabel className="pointer-events-none font-normal">
+                          Mark as Paid
+                        </FormLabel>
+                      </Label>
                     </FormItem>
                   )}
                 />
@@ -357,10 +370,7 @@ const EventRecordFormByDonor = ({
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className={cn(
-                        "-mx-2 mt-[1.375rem] transition-colors sm:mt-0",
-                        index === 0 && "sm:mt-[1.625rem]"
-                      )}
+                      className="-mx-2 transition-colors"
                       onClick={() => fields.length > 1 && remove(index)}
                       disabled={fields.length === 1}
                     >
@@ -372,7 +382,7 @@ const EventRecordFormByDonor = ({
                 </Tooltip>
               </div>
 
-              <Separator className="-mb-2 sm:hidden" />
+              <Separator className="-mb-2 sm:col-span-2" />
             </div>
           ))}
         </div>

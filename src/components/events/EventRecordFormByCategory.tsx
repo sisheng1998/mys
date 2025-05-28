@@ -13,8 +13,8 @@ import { Category } from "@/types/category"
 import { handleFormError } from "@/lib/error"
 import { isTitleDisabled } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
@@ -23,6 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Label } from "@/components/ui/label"
 import {
   NumberField,
   NumberFieldDecrement,
@@ -59,6 +60,7 @@ const getExtendedSchema = (categories: Category[]) =>
           id: z.number(),
           title:
             addEventRecordByCategorySchema.shape.records.element.shape.title.nullable(),
+          isPaid: z.boolean(),
         })
       ),
     })
@@ -98,7 +100,9 @@ const EventRecordFormByCategory = ({
     eventId: _id,
     category: "",
     amount: NaN,
-    records: [{ id: Date.now(), title: null, name: "", amount: NaN }],
+    records: [
+      { id: Date.now(), title: null, name: "", amount: NaN, isPaid: false },
+    ],
   }
 
   const form = useForm<formSchema>({
@@ -204,7 +208,7 @@ const EventRecordFormByCategory = ({
         />
 
         <div className="-mt-1 flex flex-col gap-4">
-          <div className="-mb-1 flex flex-wrap items-center justify-between gap-2 sm:-mb-2">
+          <div className="-mb-1 flex flex-wrap items-center justify-between gap-2">
             <FormLabel>Donation(s)</FormLabel>
 
             <Button
@@ -229,21 +233,14 @@ const EventRecordFormByCategory = ({
               key={field.id}
               className="grid items-start gap-4 sm:grid-cols-2"
             >
-              {index === 0 && <Separator className="-mb-2 sm:hidden" />}
+              {index === 0 && <Separator className="-mb-2 sm:col-span-2" />}
 
               <FormField
                 control={form.control}
                 name={`records.${index}.name`}
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel
-                      className={cn(
-                        "sm:mb-1 sm:hidden",
-                        index === 0 && "flex!"
-                      )}
-                    >
-                      Donor
-                    </FormLabel>
+                    <FormLabel>Donor</FormLabel>
 
                     <div className="flex items-stretch">
                       <FormField
@@ -316,48 +313,66 @@ const EventRecordFormByCategory = ({
                 )}
               />
 
-              <div className="flex items-start gap-4">
+              <FormField
+                control={form.control}
+                name={`records.${index}.amount`}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+
+                    <FormControl>
+                      <NumberField
+                        placeholder="Enter amount"
+                        formatOptions={CURRENCY_FORMAT_OPTIONS}
+                        minValue={1}
+                        isInvalid={!!fieldState.error}
+                        {...field}
+                        onChange={(value) => {
+                          field.onChange(value)
+
+                          if (
+                            !form.watch("amount") ||
+                            form.watch("records").length === 1
+                          ) {
+                            form.setValue("amount", value)
+                          }
+                        }}
+                      >
+                        <NumberFieldGroup>
+                          <NumberFieldDecrement />
+                          <NumberFieldInput />
+                          <NumberFieldIncrement />
+                        </NumberFieldGroup>
+                      </NumberField>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-start justify-between gap-4 sm:col-span-2 sm:-mt-1.5 sm:-mb-2">
                 <FormField
                   control={form.control}
-                  name={`records.${index}.amount`}
-                  render={({ field, fieldState }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel
-                        className={cn(
-                          "sm:mb-1 sm:hidden",
-                          index === 0 && "flex!"
-                        )}
+                  name={`records.${index}.isPaid`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label
+                        htmlFor={`checkbox-${field.name}`}
+                        className="min-h-9 cursor-pointer"
                       >
-                        Amount
-                      </FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            id={`checkbox-${field.name}`}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
 
-                      <FormControl>
-                        <NumberField
-                          placeholder="Enter amount"
-                          formatOptions={CURRENCY_FORMAT_OPTIONS}
-                          minValue={1}
-                          isInvalid={!!fieldState.error}
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value)
-
-                            if (
-                              !form.watch("amount") ||
-                              form.watch("records").length === 1
-                            ) {
-                              form.setValue("amount", value)
-                            }
-                          }}
-                        >
-                          <NumberFieldGroup>
-                            <NumberFieldDecrement />
-                            <NumberFieldInput />
-                            <NumberFieldIncrement />
-                          </NumberFieldGroup>
-                        </NumberField>
-                      </FormControl>
-
-                      <FormMessage />
+                        <FormLabel className="pointer-events-none font-normal">
+                          Mark as Paid
+                        </FormLabel>
+                      </Label>
                     </FormItem>
                   )}
                 />
@@ -368,10 +383,7 @@ const EventRecordFormByCategory = ({
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className={cn(
-                        "-mx-2 mt-[1.375rem] transition-colors sm:mt-0",
-                        index === 0 && "sm:mt-[1.625rem]"
-                      )}
+                      className="-mx-2 transition-colors"
                       onClick={() => fields.length > 1 && remove(index)}
                       disabled={fields.length === 1}
                     >
@@ -383,7 +395,7 @@ const EventRecordFormByCategory = ({
                 </Tooltip>
               </div>
 
-              <Separator className="-mb-2 sm:hidden" />
+              <Separator className="-mb-2 sm:col-span-2" />
             </div>
           ))}
         </div>
