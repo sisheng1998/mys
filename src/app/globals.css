@@ -152,7 +152,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply border-border bg-foreground/5 border border-solid;
+    @apply bg-foreground/5 border-border border border-solid;
   }
 
   ::-webkit-scrollbar-thumb {
