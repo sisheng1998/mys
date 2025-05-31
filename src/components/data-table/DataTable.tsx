@@ -106,7 +106,7 @@ const DataTable = <TData extends WithId, TValue>({
         className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
       >
         <Table>
-          <TableHeader className="bg-card sticky top-0 z-10 shadow-[inset_0_-1px_0_0_var(--color-border)] [&_tr]:border-b-0">
+          <TableHeader className="bg-card sticky top-0 z-10 [&_tr]:border-b-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -123,6 +123,10 @@ const DataTable = <TData extends WithId, TValue>({
                 ))}
               </TableRow>
             ))}
+
+            <TableRow>
+              <TableHead colSpan={columns.length} className="bg-border h-px" />
+            </TableRow>
           </TableHeader>
 
           <TableBody className="[&_tr:last-child]:border-b">
