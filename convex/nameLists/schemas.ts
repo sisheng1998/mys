@@ -4,7 +4,7 @@ import { v } from "convex/values"
 import { z } from "zod"
 
 export const TITLES = [
-  "义子",
+  "義子",
   "弟子",
   "信女",
   "合家",

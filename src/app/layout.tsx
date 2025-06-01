@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Noto_Sans_SC as FontSans } from "next/font/google"
+import { Noto_Sans_TC as FontSans } from "next/font/google"
 
 import { cn } from "@/lib/utils"
 import Providers from "@/app/providers"
