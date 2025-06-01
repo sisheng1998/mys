@@ -1,8 +1,10 @@
+import { filter } from "convex-helpers/server/filter"
 import { convexToZod, zid } from "convex-helpers/server/zod"
 import { paginationOptsValidator } from "convex/server"
 import { ConvexError } from "convex/values"
 import { z } from "zod"
 
+import { eventRecordSchema } from "@cvx/events/schemas"
 import { authQuery } from "@cvx/utils/function"
 
 export const list = authQuery({
@@ -169,5 +171,43 @@ export const getRecords = authQuery({
       .collect()
 
     return records
+  },
+})
+
+export const exportEventSchema = eventRecordSchema
+  .pick({
+    category: true,
+  })
+  .extend({
+    _id: zid("events"),
+    withAmount: z.boolean(),
+  })
+
+export const getRecordsForExport = authQuery({
+  args: exportEventSchema.shape,
+  handler: async (ctx, args) => {
+    const { _id, category, withAmount } = args
+
+    const event = await ctx.db.get(_id)
+    if (!event) throw new ConvexError("Event not found")
+
+    const records = await filter(
+      ctx.db
+        .query("eventRecords")
+        .withIndex("by_event", (q) => q.eq("eventId", _id))
+        .order("asc"),
+      (q) => q.category === category
+    ).collect()
+
+    return {
+      name: event.name,
+      date: event.date,
+      category,
+      records: records.map((record) => ({
+        name: record.name,
+        title: record.title,
+        amount: withAmount ? record.amount : undefined,
+      })),
+    }
   },
 })

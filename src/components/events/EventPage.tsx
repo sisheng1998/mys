@@ -37,6 +37,7 @@ import AddEventRecord from "@/components/events/AddEventRecord"
 import DonationStats from "@/components/events/DonationStats"
 import DonationTable from "@/components/events/DonationTable"
 import EditEvent from "@/components/events/EditEvent"
+import ExportEvent from "@/components/events/ExportEvent"
 import DeleteRecords from "@/components/records/DeleteRecords"
 import UpdateRecordAmount from "@/components/records/UpdateRecordAmount"
 import { Breadcrumb } from "@/contexts/breadcrumb"
@@ -71,7 +72,7 @@ const EventPage = ({
               </div>
             </div>
 
-            <div className="-m-2">
+            <div className="-m-2 flex items-center">
               <EditEvent
                 event={
                   {
@@ -82,6 +83,8 @@ const EventPage = ({
                   } as Event
                 }
               />
+
+              <ExportEvent _id={event._id} categories={event.categories} />
             </div>
           </CardHeader>
 
