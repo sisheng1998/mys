@@ -5,6 +5,7 @@ import { z } from "zod"
 
 export const TITLES = [
   "義子",
+  "義女",
   "弟子",
   "信女",
   "合家",
