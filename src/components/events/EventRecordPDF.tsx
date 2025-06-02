@@ -53,17 +53,17 @@ const splitPageIntoColumns = (
 }
 
 Font.register({
-  family: "Noto Sans TC",
+  family: "Noto Sans SC",
   fonts: [
-    { src: "/fonts/NotoSansTC-Regular.ttf" },
-    { src: "/fonts/NotoSansTC-Medium.ttf", fontWeight: 500 },
-    { src: "/fonts/NotoSansTC-SemiBold.ttf", fontWeight: 600 },
+    { src: "/fonts/NotoSansSC-Regular.ttf" },
+    { src: "/fonts/NotoSansSC-Medium.ttf", fontWeight: 500 },
+    { src: "/fonts/NotoSansSC-SemiBold.ttf", fontWeight: 600 },
   ],
 })
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Noto Sans TC",
+    fontFamily: "Noto Sans SC",
     padding: 24,
     fontSize: 12,
     lineHeight: 1.25,
