@@ -9,7 +9,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
@@ -20,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import CommandSearch from "@/components/data-table/CommandSearch"
 
 interface Option {
   value: string
@@ -125,7 +125,7 @@ export const MultiSelect = ({
         align="start"
       >
         <Command>
-          <CommandInput placeholder="Search" />
+          <CommandSearch />
 
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>

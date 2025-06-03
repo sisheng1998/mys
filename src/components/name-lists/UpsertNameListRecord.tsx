@@ -10,6 +10,7 @@ import { z } from "zod"
 import { NameListRecord } from "@/types/nameList"
 import { handleFormError } from "@/lib/error"
 import { Button } from "@/components/ui/button"
+import ControlledInput from "@/components/ui/controlled-input"
 import {
   Dialog,
   DialogClose,
@@ -27,7 +28,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { LoaderButton } from "@/components/ui/loader-button"
 import {
   Select,
@@ -152,7 +152,11 @@ const UpsertNameListRecord = ({
                     <FormLabel>Name</FormLabel>
 
                     <FormControl>
-                      <Input placeholder="John Doe" autoFocus {...field} />
+                      <ControlledInput
+                        placeholder="John Doe"
+                        autoFocus
+                        {...field}
+                      />
                     </FormControl>
 
                     <FormMessage />

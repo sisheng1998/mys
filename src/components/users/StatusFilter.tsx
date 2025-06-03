@@ -10,7 +10,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
@@ -21,6 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import CommandSearch from "@/components/data-table/CommandSearch"
 
 const KEY = "status"
 
@@ -68,7 +68,7 @@ const StatusFilter = () => {
 
       <PopoverContent className="w-48 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search" />
+          <CommandSearch />
 
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>

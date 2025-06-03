@@ -25,6 +25,7 @@ import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import ControlledInput from "@/components/ui/controlled-input"
 import {
   Dialog,
   DialogClose,
@@ -42,7 +43,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { LoaderButton } from "@/components/ui/loader-button"
 import { MultiSelect } from "@/components/ui/multi-select"
 import {
@@ -222,7 +222,7 @@ const UpsertEvent = ({
                     <FormLabel>Name</FormLabel>
 
                     <FormControl>
-                      <Input placeholder="Donation" {...field} />
+                      <ControlledInput placeholder="Donation" {...field} />
                     </FormControl>
 
                     <FormMessage />

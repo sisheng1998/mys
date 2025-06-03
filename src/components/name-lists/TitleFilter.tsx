@@ -10,7 +10,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
@@ -21,6 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import CommandSearch from "@/components/data-table/CommandSearch"
 
 import { TITLES } from "@cvx/nameLists/schemas"
 
@@ -70,15 +70,12 @@ const TitleFilter = () => {
 
       <PopoverContent className="w-48 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search" />
+          <CommandSearch />
 
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup
-              heading="Title"
-              className="max-h-80 overflow-x-hidden overflow-y-auto"
-            >
+            <CommandGroup heading="Title">
               <CommandItem onSelect={() => handleSelect(undefined)}>
                 <Checkbox
                   className="pointer-events-none"

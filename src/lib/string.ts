@@ -1,3 +1,5 @@
+import * as OpenCC from "opencc-js"
+
 export const getValidFilename = (
   input: string,
   replacementChar = "_"
@@ -49,3 +51,7 @@ export const getValidFilename = (
 
   return sanitized
 }
+
+const converter = OpenCC.Converter({ from: "cn", to: "tw" })
+
+export const convertSCToTC = (text: string): string => converter(text)

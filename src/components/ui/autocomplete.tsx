@@ -15,6 +15,7 @@ import { Input, InputIcon, InputRoot } from "@/components/ui/input"
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 
 type AutocompleteProps<T> = {
+  inputRef?: React.RefObject<HTMLInputElement | null>
   options: { data: T; value: string; label: string }[]
   onSelectValue: (data: T) => void
   isLoading?: boolean
@@ -23,6 +24,7 @@ type AutocompleteProps<T> = {
 }
 
 export function Autocomplete<T>({
+  inputRef,
   value,
   options,
   onSelectValue,
@@ -38,6 +40,8 @@ export function Autocomplete<T>({
 
     const selectedOption = options.find((option) => option.value === value)
     if (selectedOption) onSelectValue(selectedOption.data)
+
+    setOpen(false)
   }
 
   return (
@@ -64,7 +68,7 @@ export function Autocomplete<T>({
               onBlur={handleBlur}
               asChild
             >
-              <Input aria-invalid={isInvalid} />
+              <Input ref={inputRef} aria-invalid={isInvalid} />
             </CommandPrimitive.Input>
           </InputRoot>
         </PopoverAnchor>

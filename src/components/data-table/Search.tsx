@@ -3,7 +3,8 @@
 import React from "react"
 import { SearchIcon } from "lucide-react"
 
-import { Input, InputIcon, InputRoot } from "@/components/ui/input"
+import ControlledInput from "@/components/ui/controlled-input"
+import { InputIcon, InputRoot } from "@/components/ui/input"
 
 interface SearchProps {
   search: string
@@ -16,7 +17,7 @@ const Search = ({ search, setSearch }: SearchProps) => (
       <SearchIcon />
     </InputIcon>
 
-    <Input
+    <ControlledInput
       placeholder="Search"
       value={search}
       onChange={(e) => setSearch(e.target.value)}
