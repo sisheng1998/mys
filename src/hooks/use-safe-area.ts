@@ -7,10 +7,7 @@ export const useSafeArea = (ref: React.RefObject<HTMLElement | null>) => {
     const handleResize = () => {
       if (!ref.current) return
 
-      ref.current.style.setProperty(
-        "padding-bottom",
-        "env(safe-area-inset-bottom)"
-      )
+      ref.current.style.setProperty("bottom", "env(safe-area-inset-bottom)")
     }
 
     if (!window.visualViewport) return
