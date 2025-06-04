@@ -5,9 +5,14 @@ import { useEffect } from "react"
 export const useSafeArea = (ref: React.RefObject<HTMLElement | null>) => {
   useEffect(() => {
     const handleResize = () => {
-      if (!ref.current) return
+      if (!ref.current || !window.visualViewport) return
 
-      ref.current.style.setProperty("bottom", "env(safe-area-inset-bottom)")
+      const vh = window.visualViewport.height
+      const fullHeight = window.innerHeight
+
+      const keyboardHeight = fullHeight - vh
+
+      ref.current.style.setProperty("bottom", `${keyboardHeight}px`)
     }
 
     if (!window.visualViewport) return
