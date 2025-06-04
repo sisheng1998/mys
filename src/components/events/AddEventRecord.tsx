@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { Plus } from "lucide-react"
 
 import { Category } from "@/types/category"
+import { useSafeArea } from "@/hooks/use-safe-area"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,6 +19,9 @@ import EventRecordFormByCategory from "@/components/events/EventRecordFormByCate
 import EventRecordFormByDonor from "@/components/events/EventRecordFormByDonor"
 
 const AddEventRecord = ({ categories }: { categories: Category[] }) => {
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  useSafeArea(contentRef)
+
   const [open, setOpen] = useState<boolean>(false)
 
   const handleClose = () => setOpen(false)
@@ -31,7 +35,10 @@ const AddEventRecord = ({ categories }: { categories: Category[] }) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <DialogContent
+        ref={contentRef}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>New Record(s)</DialogTitle>
           <DialogDescription>

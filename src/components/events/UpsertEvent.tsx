@@ -21,6 +21,7 @@ import {
 } from "@/lib/date"
 import { handleFormError } from "@/lib/error"
 import { useQuery } from "@/hooks/use-query"
+import { useSafeArea } from "@/hooks/use-safe-area"
 import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -73,6 +74,9 @@ const UpsertEvent = ({
   event?: Event
   children: React.ReactNode
 }) => {
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  useSafeArea(contentRef)
+
   const [open, setOpen] = useState<boolean>(false)
   const popOverRef = useRef<HTMLButtonElement>(null)
 
@@ -121,6 +125,7 @@ const UpsertEvent = ({
       {children}
 
       <DialogContent
+        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)

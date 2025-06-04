@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
@@ -20,6 +20,7 @@ import {
 import { handleFormError } from "@/lib/error"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@/hooks/use-query"
+import { useSafeArea } from "@/hooks/use-safe-area"
 import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -65,6 +66,9 @@ const UpsertTemplate = ({
   template?: Template
   children: React.ReactNode
 }) => {
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  useSafeArea(contentRef)
+
   const [open, setOpen] = useState<boolean>(false)
 
   const { data: categories = [], status } = useQuery(
@@ -104,6 +108,7 @@ const UpsertTemplate = ({
       {children}
 
       <DialogContent
+        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)

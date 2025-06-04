@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
 import { HelpCircle } from "lucide-react"
@@ -11,6 +11,7 @@ import { z } from "zod"
 import { Category } from "@/types/category"
 import { handleFormError } from "@/lib/error"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
+import { useSafeArea } from "@/hooks/use-safe-area"
 import { Button } from "@/components/ui/button"
 import ControlledInput from "@/components/ui/controlled-input"
 import {
@@ -65,6 +66,9 @@ const UpsertCategory = ({
   category?: Category
   children: React.ReactNode
 }) => {
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  useSafeArea(contentRef)
+
   const [open, setOpen] = useState<boolean>(false)
 
   const upsertCategory = useMutation(api.categories.mutations.upsertCategory)
@@ -99,6 +103,7 @@ const UpsertCategory = ({
       {children}
 
       <DialogContent
+        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)

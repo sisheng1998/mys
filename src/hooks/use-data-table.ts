@@ -1,3 +1,5 @@
+"use client"
+
 import { ColumnFilter, SortingState } from "@tanstack/react-table"
 import {
   createParser,

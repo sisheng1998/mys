@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
 import { Edit } from "lucide-react"
@@ -13,6 +13,7 @@ import { EventRecord } from "@/types/event"
 import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
+import { useSafeArea } from "@/hooks/use-safe-area"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -90,6 +91,9 @@ const EditEventRecord = ({
   eventRecord: EventRecord
   categories: Category[]
 }) => {
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  useSafeArea(contentRef)
+
   const [open, setOpen] = useState<boolean>(false)
 
   const editEventRecord = useMutation(api.events.mutations.editEventRecord)
@@ -126,6 +130,7 @@ const EditEventRecord = ({
       </Tooltip>
 
       <DialogContent
+        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)
