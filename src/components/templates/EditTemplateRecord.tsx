@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
 import { Edit } from "lucide-react"
@@ -13,7 +13,6 @@ import { TemplateRecord } from "@/types/template"
 import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
-import { useSafeArea } from "@/hooks/use-safe-area"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -89,9 +88,6 @@ const EditTemplateRecord = ({
   templateRecord: TemplateRecord
   categories: Category[]
 }) => {
-  const contentRef = useRef<HTMLDivElement | null>(null)
-  useSafeArea(contentRef)
-
   const [open, setOpen] = useState<boolean>(false)
 
   const editTemplateRecord = useMutation(
@@ -130,7 +126,6 @@ const EditTemplateRecord = ({
       </Tooltip>
 
       <DialogContent
-        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)

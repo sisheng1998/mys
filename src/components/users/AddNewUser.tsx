@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
 import { Plus } from "lucide-react"
@@ -9,7 +9,6 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { handleFormError } from "@/lib/error"
-import { useSafeArea } from "@/hooks/use-safe-area"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -38,9 +37,6 @@ import { createUserSchema } from "@cvx/users/mutations"
 type formSchema = z.infer<typeof createUserSchema>
 
 const AddNewUser = () => {
-  const contentRef = useRef<HTMLDivElement | null>(null)
-  useSafeArea(contentRef)
-
   const [open, setOpen] = useState<boolean>(false)
 
   const createUser = useMutation(api.users.mutations.createUser)
@@ -73,7 +69,6 @@ const AddNewUser = () => {
       </DialogTrigger>
 
       <DialogContent
-        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)

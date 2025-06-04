@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef } from "react"
+import React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { pdf } from "@react-pdf/renderer"
 import { useConvex } from "convex/react"
@@ -18,7 +18,6 @@ import {
 } from "@/lib/date"
 import { handleFormError } from "@/lib/error"
 import { getValidFilename } from "@/lib/string"
-import { useSafeArea } from "@/hooks/use-safe-area"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -68,9 +67,6 @@ const ExportEvent = ({
   _id: Id<"events">
   categories: Category[]
 }) => {
-  const contentRef = useRef<HTMLDivElement | null>(null)
-  useSafeArea(contentRef)
-
   const convex = useConvex()
 
   const defaultValues: formSchema = {
@@ -130,7 +126,6 @@ const ExportEvent = ({
       </Tooltip>
 
       <DialogContent
-        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)

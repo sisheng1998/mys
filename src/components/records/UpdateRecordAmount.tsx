@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef } from "react"
+import React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Info } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -9,7 +9,6 @@ import { z } from "zod"
 
 import { handleFormError } from "@/lib/error"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
-import { useSafeArea } from "@/hooks/use-safe-area"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -54,9 +53,6 @@ const UpdateRecordAmount = ({
   ids: string[]
   handleUpdateAmount: (amount: number) => Promise<void>
 }) => {
-  const contentRef = useRef<HTMLDivElement | null>(null)
-  useSafeArea(contentRef)
-
   const defaultValues: z.infer<typeof formSchema> = {
     amount: NaN,
   }
@@ -79,7 +75,6 @@ const UpdateRecordAmount = ({
   return (
     <Dialog {...props}>
       <DialogContent
-        ref={contentRef}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           form.reset(defaultValues)

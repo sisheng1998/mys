@@ -1,11 +1,10 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { Plus } from "lucide-react"
 
 import { Category } from "@/types/category"
 import { formatCurrency } from "@/lib/number"
-import { useSafeArea } from "@/hooks/use-safe-area"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -23,9 +22,6 @@ import TemplateRecordFormByCategory from "@/components/templates/TemplateRecordF
 import TemplateRecordFormByDonor from "@/components/templates/TemplateRecordFormByDonor"
 
 const AddTemplateRecord = ({ categories }: { categories: Category[] }) => {
-  const contentRef = useRef<HTMLDivElement | null>(null)
-  useSafeArea(contentRef)
-
   const [open, setOpen] = useState<boolean>(false)
 
   const handleClose = () => setOpen(false)
@@ -40,7 +36,6 @@ const AddTemplateRecord = ({ categories }: { categories: Category[] }) => {
       </DialogTrigger>
 
       <DialogContent
-        ref={contentRef}
         onCloseAutoFocus={(e) => e.preventDefault()}
         className="sm:max-w-xl"
       >
