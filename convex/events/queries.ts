@@ -167,7 +167,7 @@ export const getRecords = authQuery({
     const records = await ctx.db
       .query("eventRecords")
       .withIndex("by_event", (q) => q.eq("eventId", _id))
-      .order("desc")
+      .order("asc")
       .collect()
 
     return records
