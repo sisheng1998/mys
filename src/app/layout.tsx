@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Noto_Sans_SC as FontSans } from "next/font/google"
 
 import { cn } from "@/lib/utils"
@@ -17,6 +17,14 @@ export const metadata: Metadata = {
     default: "妙音寺",
   },
   description: "心正 - 修菩提",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  minimumScale: 1,
+  interactiveWidget: "resizes-content",
 }
 
 const RootLayout = ({
