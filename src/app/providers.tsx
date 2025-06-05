@@ -7,6 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { Toaster } from "@/components/ui/sonner"
 import BackgroundPattern from "@/components/layouts/BackgroundPattern"
 import Preloader from "@/components/layouts/Preloader"
+import ScrollToTopOnRouteChange from "@/components/layouts/ScrollToTopOnRouteChange"
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider"
 import ThemeProvider from "@/components/providers/ThemeProvider"
 
@@ -38,6 +39,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => (
             {children}
 
             <Toaster />
+
+            <ScrollToTopOnRouteChange />
           </ThemeProvider>
         </NuqsAdapter>
       </ConvexQueryCacheProvider>
