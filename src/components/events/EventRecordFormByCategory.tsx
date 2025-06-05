@@ -303,7 +303,6 @@ const EventRecordFormByCategory = ({
                             ])
                           }}
                           isInvalid={!!fieldState.error}
-                          autoFocus
                         />
                       </FormControl>
                     </div>

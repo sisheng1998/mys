@@ -61,6 +61,7 @@ function DialogContent({
             className
           )}
           onInteractOutside={(e) => e.preventDefault()}
+          onOpenAutoFocus={(e) => e.preventDefault()}
           {...props}
         >
           {children}

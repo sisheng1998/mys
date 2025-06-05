@@ -39,30 +39,7 @@ function InputIcon({
   )
 }
 
-function Input({
-  className,
-  type,
-  onFocus,
-  ...props
-}: React.ComponentProps<"input">) {
-  const handleFocus = React.useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      onFocus?.(e)
-
-      const target = e.currentTarget
-
-      setTimeout(() => {
-        if (target && document.body.contains(target)) {
-          target.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          })
-        }
-      }, 100)
-    },
-    [onFocus]
-  )
-
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
       type={type}
@@ -73,7 +50,6 @@ function Input({
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         className
       )}
-      onFocus={handleFocus}
       {...props}
     />
   )

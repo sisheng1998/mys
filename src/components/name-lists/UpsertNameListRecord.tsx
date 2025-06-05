@@ -152,11 +152,7 @@ const UpsertNameListRecord = ({
                     <FormLabel>Name</FormLabel>
 
                     <FormControl>
-                      <ControlledInput
-                        placeholder="John Doe"
-                        autoFocus
-                        {...field}
-                      />
+                      <ControlledInput placeholder="John Doe" {...field} />
                     </FormControl>
 
                     <FormMessage />
