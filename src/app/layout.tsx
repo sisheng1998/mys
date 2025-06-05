@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   },
   description: "心正 - 修菩提",
   icons: {
+    icon: "/icon",
     apple: "/icons/apple-touch-icon.png",
   },
   manifest: "/manifest.json",
