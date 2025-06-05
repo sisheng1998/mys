@@ -20,7 +20,7 @@ const Icon = () =>
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: "rgb(255, 32, 86)", // primary
-          borderRadius: 40,
+          borderRadius: size.width / 6,
         }}
       >
         <Logo

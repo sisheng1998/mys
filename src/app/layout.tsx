@@ -17,6 +17,10 @@ export const metadata: Metadata = {
     default: "妙音寺",
   },
   description: "心正 - 修菩提",
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
 }
 
 export const viewport: Viewport = {
