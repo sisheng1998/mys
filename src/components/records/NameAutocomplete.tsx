@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useLayoutEffect, useRef } from "react"
+import React, { useLayoutEffect, useRef, useState } from "react"
 import { useController } from "react-hook-form"
 import { useDebounceValue } from "usehooks-ts"
 
@@ -22,8 +22,11 @@ const NameAutocomplete = ({
   isInvalid?: boolean
 }) => {
   const { field } = useController({ name })
+
   const inputRef = useRef<HTMLInputElement | null>(null)
   const selectionRef = useRef<{ start: number; end: number } | null>(null)
+
+  const [isComposing, setIsComposing] = useState<boolean>(false)
 
   const [debouncedValue] = useDebounceValue(field.value, 300)
 
@@ -34,8 +37,9 @@ const NameAutocomplete = ({
     }
   )
 
-  const handleValueChange = (value: string) => {
+  const handleValueChange = (value: string, forceConvert = false) => {
     const input = inputRef.current
+
     if (input) {
       selectionRef.current = {
         start: input.selectionStart ?? 0,
@@ -43,8 +47,8 @@ const NameAutocomplete = ({
       }
     }
 
-    const converted = convertSCToTC(value)
-    field.onChange(converted)
+    const shouldConvert = forceConvert || !isComposing
+    field.onChange(shouldConvert ? convertSCToTC(value) : value)
   }
 
   useLayoutEffect(() => {
@@ -65,6 +69,11 @@ const NameAutocomplete = ({
       value={field.value}
       onValueChange={handleValueChange}
       onSelectValue={onSelect}
+      onCompositionStart={() => setIsComposing(true)}
+      onCompositionEnd={(e) => {
+        setIsComposing(false)
+        handleValueChange(e.currentTarget.value, true)
+      }}
       options={options.map((option) => ({
         data: option,
         value: option.name,
