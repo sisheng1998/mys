@@ -24,10 +24,12 @@ export const createNameListRecord = async (
   const newNameListRecord = nameListSchema.parse({
     title,
     name,
-    searchText: convertChineseToUnicode(name),
   })
 
-  await ctx.db.insert("nameLists", newNameListRecord)
+  await ctx.db.insert("nameLists", {
+    ...newNameListRecord,
+    searchText: convertChineseToUnicode(name),
+  })
 }
 
 export const upsertNameListRecordSchema = nameListSchema
@@ -77,10 +79,12 @@ export const upsertNameListRecord = authMutation({
     const newNameListRecord = nameListSchema.parse({
       title,
       name,
-      searchText: convertChineseToUnicode(name),
     })
 
-    return ctx.db.insert("nameLists", newNameListRecord)
+    return ctx.db.insert("nameLists", {
+      ...newNameListRecord,
+      searchText: convertChineseToUnicode(name),
+    })
   },
 })
 
