@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import { authQuery } from "@cvx/utils/function"
+import { convertChineseToUnicode } from "@cvx/utils/name"
 
 export const list = authQuery({
   args: {},
@@ -18,7 +19,9 @@ export const search = authQuery({
 
     return (
       name
-        ? query.withSearchIndex("search_name", (q) => q.search("name", name))
+        ? query.withSearchIndex("search_text", (q) =>
+            q.search("searchText", convertChineseToUnicode(name))
+          )
         : query.withIndex("by_name").order("asc")
     ).take(10)
   },

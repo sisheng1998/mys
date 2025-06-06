@@ -6,6 +6,7 @@ import { z } from "zod"
 import { MutationCtx } from "@cvx/_generated/server"
 import { nameListSchema } from "@cvx/nameLists/schemas"
 import { authMutation } from "@cvx/utils/function"
+import { convertChineseToUnicode } from "@cvx/utils/name"
 
 export const createNameListRecord = async (
   ctx: MutationCtx,
@@ -23,6 +24,7 @@ export const createNameListRecord = async (
   const newNameListRecord = nameListSchema.parse({
     title,
     name,
+    searchText: convertChineseToUnicode(name),
   })
 
   await ctx.db.insert("nameLists", newNameListRecord)
@@ -56,7 +58,11 @@ export const upsertNameListRecord = authMutation({
       if (existingWithSameName)
         throw new ConvexError("Another record with this name already exists")
 
-      return ctx.db.patch(_id, { title, name })
+      return ctx.db.patch(_id, {
+        title,
+        name,
+        searchText: convertChineseToUnicode(name),
+      })
     }
 
     const existingNameListRecord = await filter(
@@ -71,6 +77,7 @@ export const upsertNameListRecord = authMutation({
     const newNameListRecord = nameListSchema.parse({
       title,
       name,
+      searchText: convertChineseToUnicode(name),
     })
 
     return ctx.db.insert("nameLists", newNameListRecord)

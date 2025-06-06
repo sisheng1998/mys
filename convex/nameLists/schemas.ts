@@ -18,6 +18,7 @@ export const TITLES = [
 export const nameListFields = {
   title: v.optional(v.union(...TITLES.map((title) => v.literal(title)))),
   name: v.string(),
+  searchText: v.optional(v.string()),
 }
 
 const zodFields = convexToZodFields(nameListFields)
@@ -32,5 +33,8 @@ export const nameListTables = {
     .index("by_name", ["name"])
     .searchIndex("search_name", {
       searchField: "name",
+    })
+    .searchIndex("search_text", {
+      searchField: "searchText",
     }),
 }

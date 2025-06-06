@@ -25,6 +25,7 @@ const NameAutocomplete = ({
 
   const inputRef = useRef<HTMLInputElement | null>(null)
   const selectionRef = useRef<{ start: number; end: number } | null>(null)
+  const skipRestoreSelectionRef = useRef<boolean>(false)
 
   const [isComposing, setIsComposing] = useState<boolean>(false)
 
@@ -51,13 +52,32 @@ const NameAutocomplete = ({
     field.onChange(shouldConvert ? convertSCToTC(value) : value)
   }
 
+  const handleOnSelectValue = (data: NameListRecord) => {
+    onSelect(data)
+
+    const input = inputRef.current
+
+    if (input) {
+      const length = input.value.length
+      input.setSelectionRange(length, length)
+
+      skipRestoreSelectionRef.current = true
+    }
+  }
+
   useLayoutEffect(() => {
-    if (inputRef.current && selectionRef.current) {
+    if (
+      inputRef.current &&
+      selectionRef.current &&
+      !skipRestoreSelectionRef.current
+    ) {
       inputRef.current.setSelectionRange(
         selectionRef.current.start,
         selectionRef.current.end
       )
     }
+
+    skipRestoreSelectionRef.current = false
   }, [field.value])
 
   return (
@@ -68,7 +88,7 @@ const NameAutocomplete = ({
       placeholder="John Doe"
       value={field.value}
       onValueChange={handleValueChange}
-      onSelectValue={onSelect}
+      onSelectValue={handleOnSelectValue}
       onCompositionStart={() => setIsComposing(true)}
       onCompositionEnd={(e) => {
         setIsComposing(false)
