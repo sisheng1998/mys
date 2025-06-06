@@ -175,7 +175,7 @@ const EditEventRecord = ({
                               }}
                             >
                               <FormControl>
-                                <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 [&_svg]:hidden">
+                                <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 px-2 [&_svg]:hidden">
                                   <SelectValue placeholder="Title">
                                     {titleField.value || "Title"}
                                   </SelectValue>

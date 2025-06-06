@@ -11,6 +11,7 @@ export const TITLES = [
   "合家",
   "花男",
   "花女",
+  "佛弟子",
   "已故",
 ] as const
 
