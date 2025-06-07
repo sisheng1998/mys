@@ -33,9 +33,7 @@ const NameAutocomplete = ({
 
   const { data: options = [], status } = useQuery(
     api.nameLists.queries.search,
-    {
-      name: debouncedValue,
-    }
+    !isComposing ? { name: debouncedValue } : "skip"
   )
 
   const handleValueChange = (value: string, forceConvert = false) => {
