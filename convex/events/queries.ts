@@ -206,7 +206,10 @@ export const getRecordsForExport = authQuery({
       records: records.map((record) => ({
         name: record.name,
         title: record.title,
-        amount: withAmount ? record.amount : undefined,
+        ...(withAmount && {
+          amount: record.amount,
+          isPaid: record.isPaid,
+        }),
       })),
     }
   },

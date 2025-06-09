@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   },
   recordsSection: {
     flexDirection: "row",
-    gap: 8,
+    gap: 10,
   },
   column: {
     flex: 1,
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   columnWithBorder: {
     borderRight: "1pt solid lightgray",
-    paddingRight: 8,
+    paddingRight: 10,
   },
   record: {
     flexDirection: "row",
@@ -105,6 +105,12 @@ const styles = StyleSheet.create({
   },
   donor: {
     flex: 1,
+  },
+  recordAmount: {
+    marginLeft: 4,
+    marginRight: -4,
+    flexDirection: "row",
+    gap: 4,
   },
   textRight: {
     textAlign: "right",
@@ -129,9 +135,14 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   totalLabel: {
+    flexShrink: 0,
     flexDirection: "row",
     justifyContent: "flex-end",
-    minWidth: 68,
+    minWidth: 70,
+  },
+  totalLabelText: {
+    textAlign: "right",
+    marginRight: 2,
   },
   totalAmount: {
     fontWeight: 500,
@@ -219,12 +230,22 @@ const EventRecordPDF = ({
                         </Text>
 
                         {withAmount && (
-                          <Text style={styles.textRight}>
-                            {formatCurrency(record.amount || 0, undefined, {
-                              ...CURRENCY_FORMAT_OPTIONS,
-                              style: "decimal",
-                            })}
-                          </Text>
+                          <View style={styles.recordAmount}>
+                            <Text style={styles.textRight}>
+                              {formatCurrency(record.amount || 0, undefined, {
+                                ...CURRENCY_FORMAT_OPTIONS,
+                                style: "decimal",
+                              })}
+                            </Text>
+
+                            <Text
+                              style={{
+                                color: record.isPaid ? "black" : "transparent",
+                              }}
+                            >
+                              ✓
+                            </Text>
+                          </View>
                         )}
                       </View>
                     )
@@ -244,7 +265,7 @@ const EventRecordPDF = ({
                           : undefined
                       }
                     >
-                      <Text style={styles.textRight}>Page Total:</Text>
+                      <Text style={styles.totalLabelText}>Page Total:</Text>
                     </View>
 
                     <Text style={styles.totalAmount}>
@@ -253,14 +274,24 @@ const EventRecordPDF = ({
                           (sum, record) => sum + (record.amount || 0),
                           0
                         )
-                      )}
+                      )}{" "}
+                      (
+                      {formatCurrency(
+                        pageRecords
+                          .filter((record) => record.isPaid)
+                          .reduce(
+                            (sum, record) => sum + (record.amount || 0),
+                            0
+                          )
+                      )}{" "}
+                      Paid)
                     </Text>
                   </View>
 
                   {pageIndex === pages.length - 1 && (
                     <View style={styles.total}>
                       <View style={styles.totalLabel}>
-                        <Text style={styles.textRight}>Grand Total:</Text>
+                        <Text style={styles.totalLabelText}>Grand Total:</Text>
                       </View>
 
                       <Text style={styles.totalAmount}>
@@ -269,7 +300,17 @@ const EventRecordPDF = ({
                             (sum, record) => sum + (record.amount || 0),
                             0
                           )
-                        )}
+                        )}{" "}
+                        (
+                        {formatCurrency(
+                          data.records
+                            .filter((record) => record.isPaid)
+                            .reduce(
+                              (sum, record) => sum + (record.amount || 0),
+                              0
+                            )
+                        )}{" "}
+                        Paid)
                       </Text>
                     </View>
                   )}
