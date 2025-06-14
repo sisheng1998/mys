@@ -10,6 +10,7 @@ import Preloader from "@/components/layouts/Preloader"
 import ScrollToTopOnRouteChange from "@/components/layouts/ScrollToTopOnRouteChange"
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider"
 import ThemeProvider from "@/components/providers/ThemeProvider"
+import { PrinterProvider } from "@/contexts/printer"
 
 export const CONVEX_AUTH_API_ROUTE = "/api/convex-auth"
 
@@ -18,30 +19,32 @@ const Providers = ({ children }: { children: React.ReactNode }) => (
     <ConvexClientProvider>
       <ConvexQueryCacheProvider>
         <NuqsAdapter>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Preloader />
+          <PrinterProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Preloader />
 
-            <BackgroundPattern />
+              <BackgroundPattern />
 
-            <TopLoader
-              height={2}
-              color="var(--primary)"
-              shadow={false}
-              showSpinner={false}
-              showForHashAnchor={false}
-            />
+              <TopLoader
+                height={2}
+                color="var(--primary)"
+                shadow={false}
+                showSpinner={false}
+                showForHashAnchor={false}
+              />
 
-            {children}
+              {children}
 
-            <Toaster />
+              <Toaster />
 
-            <ScrollToTopOnRouteChange />
-          </ThemeProvider>
+              <ScrollToTopOnRouteChange />
+            </ThemeProvider>
+          </PrinterProvider>
         </NuqsAdapter>
       </ConvexQueryCacheProvider>
     </ConvexClientProvider>
