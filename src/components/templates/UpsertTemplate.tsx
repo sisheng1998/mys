@@ -78,10 +78,9 @@ const UpsertTemplate = ({
     _id: template?._id,
     name: template?.name || "",
     dates: (template?.dates || []) as [string, ...string[]],
-    categories: (template?.categories || []) as [
-      Id<"categories">,
-      ...Id<"categories">[],
-    ],
+    categories: (template?.categories || []).map(
+      (category) => category._id
+    ) as [Id<"categories">, ...Id<"categories">[]],
   }
 
   const form = useForm<formSchema>({

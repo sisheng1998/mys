@@ -25,6 +25,18 @@ export const list = authQuery({
 
     const pageWithStats = await Promise.all(
       results.page.map(async (event) => {
+        const categories = (
+          await Promise.all(
+            event.categories.map((category) => ctx.db.get(category))
+          )
+        )
+          .filter((category) => !!category)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((category) => ({
+            _id: category._id,
+            name: category.name,
+          }))
+
         const records = await ctx.db
           .query("eventRecords")
           .withIndex("by_event", (q) => q.eq("eventId", event._id))
@@ -36,6 +48,7 @@ export const list = authQuery({
 
         return {
           ...event,
+          categories,
           totalAmount,
           totalDonors,
           totalRecords,

@@ -77,9 +77,10 @@ const EventPage = ({
                 event={
                   {
                     ...event,
-                    categories: event.categories.map(
-                      (category) => category._id
-                    ),
+                    categories: event.categories.map((category) => ({
+                      _id: category._id,
+                      name: category.name,
+                    })),
                   } as Event
                 }
               />

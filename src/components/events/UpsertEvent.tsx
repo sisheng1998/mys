@@ -89,7 +89,7 @@ const UpsertEvent = ({
     _id: event?._id,
     name: event?.name || "",
     date: event?.date || "",
-    categories: (event?.categories || []) as [
+    categories: (event?.categories || []).map((category) => category._id) as [
       Id<"categories">,
       ...Id<"categories">[],
     ],
@@ -166,7 +166,9 @@ const UpsertEvent = ({
                           )
                           form.setValue(
                             "categories",
-                            template.categories as typeof defaultValues.categories
+                            template.categories.map(
+                              (category) => category._id
+                            ) as typeof defaultValues.categories
                           )
                         }}
                         defaultValue={field.value}

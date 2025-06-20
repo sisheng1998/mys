@@ -102,9 +102,17 @@ const EventList = () => {
                     )}
                   </Badge>
                 </div>
+
+                <div className="flex flex-wrap items-center gap-1">
+                  {event.categories.map((category) => (
+                    <Badge key={category._id} variant="secondary">
+                      {category.name}
+                    </Badge>
+                  ))}
+                </div>
               </CardHeader>
 
-              <CardFooter className="flex-wrap gap-x-4 gap-y-2 text-sm">
+              <CardFooter className="mt-auto flex-wrap gap-x-4 gap-y-2 text-sm">
                 <IconWithText
                   icon={CircleDollarSign}
                   text={formatCurrency(event.totalAmount)}
@@ -128,7 +136,7 @@ const EventList = () => {
         ) : !past ? (
           <UpsertEvent>
             <DialogTrigger className="bg-background rounded-lg">
-              <Card className="bg-primary/10 border-primary text-primary hover:bg-primary/15 shadow-primary/10 min-h-36 justify-center border-dashed text-sm transition-colors">
+              <Card className="bg-primary/10 border-primary text-primary hover:bg-primary/15 shadow-primary/10 min-h-44 justify-center border-dashed text-sm transition-colors">
                 <CardContent className="flex flex-col items-center gap-1">
                   <Plus className="size-5" />
                   <span>New Event</span>
@@ -153,9 +161,9 @@ const EventList = () => {
 
 export default EventList
 
-const LoadingSkeletons = () =>
+export const LoadingSkeletons = () =>
   Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
     <div key={i} className="bg-card rounded-lg">
-      <Skeleton className="min-h-36 rounded-lg" />
+      <Skeleton className="min-h-44 rounded-lg" />
     </div>
   ))

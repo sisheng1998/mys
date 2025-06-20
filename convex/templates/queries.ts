@@ -14,6 +14,18 @@ export const list = authQuery({
 
     const templatesWithStats = await Promise.all(
       templates.map(async (template) => {
+        const categories = (
+          await Promise.all(
+            template.categories.map((category) => ctx.db.get(category))
+          )
+        )
+          .filter((category) => !!category)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((category) => ({
+            _id: category._id,
+            name: category.name,
+          }))
+
         const records = await ctx.db
           .query("templateRecords")
           .withIndex("by_template", (q) => q.eq("templateId", template._id))
@@ -25,6 +37,7 @@ export const list = authQuery({
 
         return {
           ...template,
+          categories,
           totalAmount,
           totalDonors,
           totalRecords,

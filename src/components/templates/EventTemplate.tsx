@@ -71,9 +71,10 @@ const EventTemplate = ({
                 template={
                   {
                     ...template,
-                    categories: template.categories.map(
-                      (category) => category._id
-                    ),
+                    categories: template.categories.map((category) => ({
+                      _id: category._id,
+                      name: category.name,
+                    })),
                   } as Template
                 }
               />
