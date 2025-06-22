@@ -4,8 +4,8 @@ export const PRINTER_CHARACTERISTIC = "49535343-8841-43f4-a8d4-ecbe34729bb3"
 
 const DOTS_PER_MM = 8
 const GAP_HEIGHT_MM = 2
-const LABEL_WIDTH_MM = 50
-const LABEL_HEIGHT_MM = 30
+const LABEL_WIDTH_MM = 35
+const LABEL_HEIGHT_MM = 25
 const LABEL_WIDTH_DOTS = LABEL_WIDTH_MM * DOTS_PER_MM
 const LABEL_HEIGHT_DOTS = LABEL_HEIGHT_MM * DOTS_PER_MM
 const PADDING = 12
@@ -32,6 +32,7 @@ export const getCanvas = (lines: [string, number][]): HTMLCanvasElement => {
   )
 
   renderWrappedLines(ctx, canvas, wrappedLines, maxHeight)
+
   return canvas
 }
 
@@ -134,7 +135,13 @@ const renderWrappedLines = (
   const totalHeight = lines.reduce((sum, line) => sum + line.lineHeight, 0)
   let currentY = PADDING + Math.floor((maxHeight - totalHeight) / 2)
 
-  for (const { text, fontSize, lineHeight } of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const { text, fontSize, lineHeight } = lines[i]
+
+    if (i === lines.length - 1 && lines.length > 1) {
+      currentY += PADDING
+    }
+
     ctx.font = `${fontSize}px "Noto Sans SC", sans-serif`
     ctx.fillText(text, canvas.width / 2, currentY)
     currentY += lineHeight
