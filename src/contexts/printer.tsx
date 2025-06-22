@@ -8,14 +8,23 @@ import React, {
   useState,
 } from "react"
 
+import {
+  getBitmapBytesFromCanvas,
+  getCanvas,
+  getTSPLCommands,
+  PRINTER_CHARACTERISTIC,
+  PRINTER_NAME,
+  PRINTER_SERVICE,
+  writeInChunks,
+} from "@/lib/printer"
+
 type PrinterContextType = {
   device: BluetoothDevice | null
   isSupported: boolean
   connect: () => Promise<void>
   disconnect: () => void
+  print: (text: string[]) => Promise<void>
 }
-
-const PRINTER_NAME = "CT221B"
 
 const Printer = createContext<PrinterContextType | undefined>(undefined)
 
@@ -36,6 +45,7 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
           namePrefix: PRINTER_NAME,
         },
       ],
+      optionalServices: [PRINTER_SERVICE],
     })
 
     await device.gatt?.connect()
@@ -56,6 +66,41 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
 
   const handleDisconnect = () => setDevice(null)
 
+  const print = async (lines: string[]) => {
+    if (!device || lines.length === 0) return
+
+    const server = await device.gatt?.connect()
+    const service = await server?.getPrimaryService(PRINTER_SERVICE)
+    const characteristic = await service?.getCharacteristic(
+      PRINTER_CHARACTERISTIC
+    )
+    if (!characteristic) return
+
+    const canvas = getCanvas(lines)
+    const bitmapBytes = await getBitmapBytesFromCanvas(canvas)
+    const widthInBytes = Math.ceil(canvas.width / 8)
+    const height = canvas.height
+
+    const tsplHeader = getTSPLCommands([]).join("\r\n")
+    const tsplFooter = ["PRINT 1", "END"].join("\r\n")
+
+    const bitmapCmdPrefix = `BITMAP 0,0,${widthInBytes},${height},0,`
+    const encoder = new TextEncoder()
+
+    const headerBuf = encoder.encode(tsplHeader + "\r\n" + bitmapCmdPrefix)
+    const footerBuf = encoder.encode("\r\n" + tsplFooter + "\r\n")
+
+    const fullBuf = new Uint8Array(
+      headerBuf.length + bitmapBytes.length + footerBuf.length
+    )
+
+    fullBuf.set(headerBuf, 0)
+    fullBuf.set(bitmapBytes, headerBuf.length)
+    fullBuf.set(footerBuf, headerBuf.length + bitmapBytes.length)
+
+    await writeInChunks(characteristic, fullBuf)
+  }
+
   return (
     <Printer.Provider
       value={{
@@ -63,6 +108,7 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
         isSupported,
         connect,
         disconnect,
+        print,
       }}
     >
       {children}

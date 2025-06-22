@@ -28,7 +28,9 @@ import ColumnHeader, {
 import DataTable from "@/components/data-table/DataTable"
 import DeleteEventRecord from "@/components/events/DeleteEventRecord"
 import EditEventRecord from "@/components/events/EditEventRecord"
+import PrintEventRecord from "@/components/events/PrintEventRecord"
 import TableFilters from "@/components/events/TableFilters"
+import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -42,6 +44,8 @@ const DonationTable = ({
   rowSelection: RowSelectionState
   setRowSelection: React.Dispatch<React.SetStateAction<RowSelectionState>>
 }) => {
+  const { isSupported } = usePrinter()
+
   const { _id } = useParams<{ _id: Id<"events"> }>()
 
   const { data = [], status } = useQuery(api.events.queries.getRecords, {
@@ -150,12 +154,13 @@ const DonationTable = ({
       cell: ({ row }) => (
         <>
           <EditEventRecord eventRecord={row.original} categories={categories} />
+          {isSupported && <PrintEventRecord eventRecord={row.original} />}
           <DeleteEventRecord eventRecord={row.original} />
         </>
       ),
       enableHiding: false,
       meta: {
-        headerClassName: cn("w-24"),
+        headerClassName: cn("w-32"),
         cellClassName: cn("text-center"),
       },
     },
