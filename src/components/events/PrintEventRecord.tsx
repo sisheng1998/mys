@@ -5,7 +5,7 @@ import { CircleAlert, Printer } from "lucide-react"
 import { toast } from "sonner"
 
 import { EventRecord } from "@/types/event"
-import { getNameWithTitle } from "@/lib/name"
+import { getLabelText, getNameWithTitle } from "@/lib/name"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   AlertDialog,
@@ -36,29 +36,7 @@ const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
     setIsLoading(true)
 
     try {
-      let record: [string, number][] = []
-
-      if (eventRecord.title === "合家") {
-        record = [
-          [eventRecord.name, 40],
-          ["合家平安", 32],
-        ]
-      } else if (eventRecord.title) {
-        record = [
-          [eventRecord.title, 32],
-          [eventRecord.name, 40],
-          ["出入平安", 32],
-        ]
-      } else {
-        record = [
-          [eventRecord.name, 40],
-          ["出入平安", 32],
-        ]
-      }
-
-      // TODO: Add special text for company
-
-      await print([record])
+      await print([getLabelText(eventRecord.name, eventRecord.title)])
       toast.success("Sticker printed")
       setOpen(false)
     } catch (error) {

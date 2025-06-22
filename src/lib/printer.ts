@@ -9,10 +9,16 @@ const LABEL_HEIGHT_MM = 25
 const LABEL_WIDTH_DOTS = LABEL_WIDTH_MM * DOTS_PER_MM
 const LABEL_HEIGHT_DOTS = LABEL_HEIGHT_MM * DOTS_PER_MM
 const PADDING = 12
+const OFFSET_X = 16
 
 export const getTSPLCommands = (commands: string[] = []): string[] => [
   `SIZE ${LABEL_WIDTH_MM} mm,${LABEL_HEIGHT_MM} mm`,
   `GAP ${GAP_HEIGHT_MM} mm,0 mm`,
+  "DIRECTION 0,0",
+  "REFERENCE 0,0",
+  "DENSITY 9",
+  "OFFSET 0 mm",
+  "SPEED 3",
   "CLS",
   ...commands,
 ]
@@ -175,7 +181,7 @@ export const trimCanvas = (canvas: HTMLCanvasElement) => {
   }
 
   if (top > bottom || left > right) {
-    return { trimmedCanvas: canvas, offsetX: 0, offsetY: 0 }
+    return { trimmedCanvas: canvas, offsetX: 0 + OFFSET_X, offsetY: 0 }
   }
 
   const trimmedWidth = right - left + 1
@@ -193,7 +199,7 @@ export const trimCanvas = (canvas: HTMLCanvasElement) => {
     0
   )
 
-  return { trimmedCanvas, offsetX: left, offsetY: top }
+  return { trimmedCanvas, offsetX: left + OFFSET_X, offsetY: top }
 }
 
 export const getBitmapBytesFromCanvas = async (
