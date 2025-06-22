@@ -15,6 +15,7 @@ import {
   PRINTER_CHARACTERISTIC,
   PRINTER_NAME,
   PRINTER_SERVICE,
+  trimCanvas,
   writeInChunks,
 } from "@/lib/printer"
 
@@ -23,7 +24,7 @@ type PrinterContextType = {
   isSupported: boolean
   connect: () => Promise<void>
   disconnect: () => void
-  print: (text: string[]) => Promise<void>
+  print: (records: [string, number][][]) => Promise<void>
 }
 
 const Printer = createContext<PrinterContextType | undefined>(undefined)
@@ -66,8 +67,8 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
 
   const handleDisconnect = () => setDevice(null)
 
-  const print = async (lines: string[]) => {
-    if (!device || lines.length === 0) return
+  const print = async (records: [string, number][][]) => {
+    if (!device || records.length === 0) return
 
     const server = await device.gatt?.connect()
     const service = await server?.getPrimaryService(PRINTER_SERVICE)
@@ -76,27 +77,41 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
     )
     if (!characteristic) return
 
-    const canvas = getCanvas(lines)
-    const bitmapBytes = await getBitmapBytesFromCanvas(canvas)
-    const widthInBytes = Math.ceil(canvas.width / 8)
-    const height = canvas.height
-
-    const tsplHeader = getTSPLCommands([]).join("\r\n")
-    const tsplFooter = ["PRINT 1", "END"].join("\r\n")
-
-    const bitmapCmdPrefix = `BITMAP 0,0,${widthInBytes},${height},0,`
     const encoder = new TextEncoder()
+    const tsplHeader = getTSPLCommands().join("\r\n")
 
-    const headerBuf = encoder.encode(tsplHeader + "\r\n" + bitmapCmdPrefix)
-    const footerBuf = encoder.encode("\r\n" + tsplFooter + "\r\n")
+    const fullBufParts: Uint8Array[] = [encoder.encode(tsplHeader + "\r\n")]
 
-    const fullBuf = new Uint8Array(
-      headerBuf.length + bitmapBytes.length + footerBuf.length
-    )
+    for (const record of records) {
+      const canvas = getCanvas(record)
+      const { trimmedCanvas, offsetX, offsetY } = trimCanvas(canvas)
 
-    fullBuf.set(headerBuf, 0)
-    fullBuf.set(bitmapBytes, headerBuf.length)
-    fullBuf.set(footerBuf, headerBuf.length + bitmapBytes.length)
+      const bitmapBytes = await getBitmapBytesFromCanvas(trimmedCanvas)
+      const widthInBytes = Math.ceil(trimmedCanvas.width / 8)
+      const height = trimmedCanvas.height
+
+      const bitmapCmdPrefix = `BITMAP ${offsetX},${offsetY},${widthInBytes},${height},0,`
+
+      const bitmapHeader = encoder.encode(bitmapCmdPrefix)
+      const bitmapFooter = encoder.encode("\r\n")
+      const printCmd = encoder.encode("PRINT 1\r\n")
+
+      fullBufParts.push(bitmapHeader)
+      fullBufParts.push(bitmapBytes)
+      fullBufParts.push(bitmapFooter)
+      fullBufParts.push(printCmd)
+    }
+
+    fullBufParts.push(encoder.encode("END\r\n"))
+
+    const totalLength = fullBufParts.reduce((sum, part) => sum + part.length, 0)
+    const fullBuf = new Uint8Array(totalLength)
+
+    let offset = 0
+    for (const part of fullBufParts) {
+      fullBuf.set(part, offset)
+      offset += part.length
+    }
 
     await writeInChunks(characteristic, fullBuf)
   }

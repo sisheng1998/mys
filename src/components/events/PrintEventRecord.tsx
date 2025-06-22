@@ -36,17 +36,29 @@ const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
     setIsLoading(true)
 
     try {
-      let lines: string[] = []
+      let record: [string, number][] = []
 
       if (eventRecord.title === "合家") {
-        lines = [eventRecord.name, "合家平安"]
+        record = [
+          [eventRecord.name, 40],
+          ["合家平安", 32],
+        ]
       } else if (eventRecord.title) {
-        lines = [eventRecord.title, eventRecord.name, "出入平安"]
+        record = [
+          [eventRecord.title, 32],
+          [eventRecord.name, 40],
+          ["出入平安", 32],
+        ]
       } else {
-        lines = [eventRecord.name, "出入平安"]
+        record = [
+          [eventRecord.name, 40],
+          ["出入平安", 32],
+        ]
       }
 
-      await print(lines)
+      // TODO: Add special text for company
+
+      await print([record])
       toast.success("Sticker printed")
       setOpen(false)
     } catch (error) {
