@@ -10,6 +10,7 @@ const LABEL_WIDTH_DOTS = LABEL_WIDTH_MM * DOTS_PER_MM
 const LABEL_HEIGHT_DOTS = LABEL_HEIGHT_MM * DOTS_PER_MM
 const PADDING = 12
 const OFFSET_X = 16
+const FONT_WEIGHT = 200
 
 export const getTSPLCommands = (commands: string[] = []): string[] => [
   `SIZE ${LABEL_WIDTH_MM} mm,${LABEL_HEIGHT_MM} mm`,
@@ -64,7 +65,7 @@ const wrapTextToFit = (
   let fontSize = targetFontSize
 
   while (fontSize >= minFontSize) {
-    ctx.font = `${fontSize}px "Noto Sans SC", sans-serif`
+    ctx.font = `${FONT_WEIGHT} ${fontSize}px "Noto Sans SC", sans-serif`
     const lineHeight = Math.floor(fontSize * 1.25)
     const lines = wrapWords(ctx, text, maxWidth)
 
@@ -147,7 +148,7 @@ const renderWrappedLines = (
       currentY += PADDING
     }
 
-    ctx.font = `${fontSize}px "Noto Sans SC", sans-serif`
+    ctx.font = `${FONT_WEIGHT} ${fontSize}px "Noto Sans SC", sans-serif`
     ctx.fillText(text, canvas.width / 2, currentY)
     currentY += lineHeight
   }
