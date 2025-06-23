@@ -56,7 +56,7 @@ const DeleteRecords = ({
           variant="destructive"
           className="border-destructive bg-destructive/10"
         >
-          <Info className="size-4" />
+          <Info />
           <AlertTitle>{ids.length} record(s) selected</AlertTitle>
           <AlertDescription>
             All selected record(s) will be deleted.

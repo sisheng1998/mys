@@ -3,7 +3,15 @@
 import React, { useState } from "react"
 import { RowSelectionState } from "@tanstack/react-table"
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
-import { Check, Edit, LayoutList, Loader2, Trash2, X } from "lucide-react"
+import {
+  Check,
+  Edit,
+  LayoutList,
+  Loader2,
+  Printer,
+  Trash2,
+  X,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { Category } from "@/types/category"
@@ -38,9 +46,11 @@ import DonationStats from "@/components/events/DonationStats"
 import DonationTable from "@/components/events/DonationTable"
 import EditEvent from "@/components/events/EditEvent"
 import ExportEvent from "@/components/events/ExportEvent"
+import PrintRecords from "@/components/events/PrintRecords"
 import DeleteRecords from "@/components/records/DeleteRecords"
 import UpdateRecordAmount from "@/components/records/UpdateRecordAmount"
 import { Breadcrumb } from "@/contexts/breadcrumb"
+import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -101,6 +111,8 @@ const EventPage = ({
 export default EventPage
 
 const DonationList = ({ categories }: { categories: Category[] }) => {
+  const { isSupported } = usePrinter()
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const selectedIds = Object.keys(rowSelection).filter(
     (key) => rowSelection[key]
@@ -110,6 +122,7 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
   const [isUnpaidLoading, setIsUnpaidLoading] = useState<boolean>(false)
 
   const updateRecordAmountDialog = useDialog()
+  const printRecordsDialog = useDialog()
   const deleteRecordsDialog = useDialog()
 
   const updateEventRecordPaymentStatus = useMutation(
@@ -207,6 +220,13 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
                   Edit Amount
                 </DropdownMenuItem>
 
+                {isSupported && (
+                  <DropdownMenuItem onSelect={printRecordsDialog.trigger}>
+                    <Printer />
+                    Print Sticker
+                  </DropdownMenuItem>
+                )}
+
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem
@@ -239,6 +259,8 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
               }}
               {...updateRecordAmountDialog.props}
             />
+
+            <PrintRecords ids={selectedIds} {...printRecordsDialog.props} />
 
             <DeleteRecords
               ids={selectedIds}

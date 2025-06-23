@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useState } from "react"
-import { CircleAlert, Printer } from "lucide-react"
+import { useConvex } from "convex/react"
+import { CircleAlert, Info } from "lucide-react"
 import { toast } from "sonner"
 
-import { EventRecord } from "@/types/event"
-import { getLabelText, getNameWithTitle } from "@/lib/name"
+import { handleMutationError } from "@/lib/error"
+import { getLabelText } from "@/lib/name"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   AlertDialog,
@@ -15,65 +16,59 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { LoaderButton } from "@/components/ui/loader-button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { usePrinter } from "@/contexts/printer"
 
-const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
+import { api } from "@cvx/_generated/api"
+import { Id } from "@cvx/_generated/dataModel"
+
+const PrintRecords = ({
+  ids,
+  ...props
+}: React.ComponentProps<typeof AlertDialog> & {
+  ids: string[]
+}) => {
+  const convex = useConvex()
   const { device, print } = usePrinter()
 
-  const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handlePrint = async () => {
     setIsLoading(true)
 
     try {
-      await print([getLabelText(eventRecord.name, eventRecord.title)])
-      toast.success("Sticker printed")
-      setOpen(false)
+      const data = await convex.query(api.events.queries.getRecordsForPrint, {
+        ids: ids as Id<"eventRecords">[],
+      })
+
+      const records = data.map((record) =>
+        getLabelText(record.name, record.title)
+      )
+
+      await print(records)
+
+      toast.success(`${data.length} sticker(s) printed`)
+      props.onOpenChange?.(false)
     } catch (error) {
-      toast.error(String(error))
+      handleMutationError(error)
     }
 
     setIsLoading(false)
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <AlertDialogTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <Printer />
-            </Button>
-          </AlertDialogTrigger>
-        </TooltipTrigger>
-
-        <TooltipContent side="bottom">Print</TooltipContent>
-      </Tooltip>
-
+    <AlertDialog {...props}>
       <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <AlertDialogHeader>
-          <AlertDialogTitle>Print Sticker</AlertDialogTitle>
+          <AlertDialogTitle>Print Sticker(s)</AlertDialogTitle>
 
           <AlertDialogDescription>
-            Confirm to print a sticker for{" "}
-            <strong className="text-foreground">
-              {getNameWithTitle(eventRecord.name, eventRecord.title)}
-            </strong>
-            .
+            The selected record(s) will be printed.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        {!device && (
+        {!device ? (
           <Alert
             variant="destructive"
             className="border-destructive bg-destructive/10"
@@ -82,6 +77,14 @@ const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
             <AlertTitle>Printer Not Connected</AlertTitle>
             <AlertDescription>
               Please connect to the printer before printing.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert className="bg-primary/10 border-primary text-primary">
+            <Info />
+            <AlertTitle>{ids.length} record(s) selected</AlertTitle>
+            <AlertDescription className="text-primary">
+              All selected record(s) will be printed.
             </AlertDescription>
           </Alert>
         )}
@@ -102,4 +105,4 @@ const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
   )
 }
 
-export default PrintEventRecord
+export default PrintRecords

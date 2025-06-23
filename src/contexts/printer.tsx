@@ -91,11 +91,12 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
       const height = trimmedCanvas.height
 
       const bitmapCmdPrefix = `BITMAP ${offsetX},${offsetY},${widthInBytes},${height},0,`
-
       const bitmapHeader = encoder.encode(bitmapCmdPrefix)
       const bitmapFooter = encoder.encode("\r\n")
+      const clearCmd = encoder.encode("CLS\r\n")
       const printCmd = encoder.encode("PRINT 1\r\n")
 
+      fullBufParts.push(clearCmd)
       fullBufParts.push(bitmapHeader)
       fullBufParts.push(bitmapBytes)
       fullBufParts.push(bitmapFooter)

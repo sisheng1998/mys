@@ -19,7 +19,6 @@ export const getTSPLCommands = (commands: string[] = []): string[] => [
   "DENSITY 9",
   "OFFSET 0 mm",
   "SPEED 3",
-  "CLS",
   ...commands,
 ]
 

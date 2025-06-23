@@ -227,3 +227,34 @@ export const getRecordsForExport = authQuery({
     }
   },
 })
+
+export const getRecordsForPrint = authQuery({
+  args: {
+    ids: z.array(zid("eventRecords")),
+  },
+  handler: async (ctx, args) => {
+    const { ids } = args
+
+    const allRecords = await Promise.all(ids.map((id) => ctx.db.get(id)))
+
+    const mapped = allRecords
+      .filter((record) => record !== null)
+      .map((record) => ({
+        name: record.name,
+        title: record.title,
+      }))
+
+    const records = []
+    const seen = new Set()
+
+    for (const rec of mapped) {
+      const key = `${rec.name}|${rec.title}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        records.push(rec)
+      }
+    }
+
+    return records
+  },
+})

@@ -95,7 +95,7 @@ const UpdateRecordAmount = ({
             </DialogHeader>
 
             <Alert className="bg-primary/10 border-primary text-primary -my-1.5">
-              <Info className="size-4" />
+              <Info />
               <AlertTitle>{ids.length} record(s) selected</AlertTitle>
               <AlertDescription className="text-primary">
                 The amount will be applied to all selected record(s).
