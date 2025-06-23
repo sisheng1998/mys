@@ -246,6 +246,6 @@ export const writeInChunks = async (
 ): Promise<void> => {
   for (let i = 0; i < data.length; i += chunkSize) {
     const chunk = data.slice(i, i + chunkSize)
-    await characteristic.writeValue(chunk)
+    await characteristic.writeValueWithResponse(chunk)
   }
 }
