@@ -15,7 +15,7 @@ import {
   getLunarDateInChinese,
 } from "@/lib/date"
 import { getNameWithTitle } from "@/lib/name"
-import { CURRENCY_FORMAT_OPTIONS, formatCurrency } from "@/lib/number"
+import { formatCurrency, formatNumber } from "@/lib/number"
 
 const NUM_COLUMNS = 3
 const RECORDS_PER_COLUMN = 30
@@ -232,10 +232,7 @@ const EventRecordPDF = ({
                         {withAmount && (
                           <View style={styles.recordAmount}>
                             <Text style={styles.textRight}>
-                              {formatCurrency(record.amount || 0, undefined, {
-                                ...CURRENCY_FORMAT_OPTIONS,
-                                style: "decimal",
-                              })}
+                              {formatNumber(record.amount || 0)}
                             </Text>
 
                             <Text

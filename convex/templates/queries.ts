@@ -132,6 +132,7 @@ export const getStats = authQuery({
 
       return {
         name: category.name,
+        donors: categoryRecords.length,
         amount,
         percentage,
       }

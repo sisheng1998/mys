@@ -17,7 +17,7 @@ import {
   getLunarDateFromSolarDate,
   getLunarDateInChinese,
 } from "@/lib/date"
-import { formatCurrency } from "@/lib/number"
+import { formatCurrency, formatNumber } from "@/lib/number"
 import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -121,13 +121,13 @@ const EventList = () => {
 
                 <IconWithText
                   icon={Users}
-                  text={event.totalDonors.toString()}
+                  text={formatNumber(event.totalDonors)}
                   title="Total Donors"
                 />
 
                 <IconWithText
                   icon={LayoutList}
-                  text={event.totalRecords.toString()}
+                  text={formatNumber(event.totalRecords)}
                   title="Total Records"
                 />
               </CardFooter>

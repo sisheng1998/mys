@@ -11,7 +11,7 @@ import {
 } from "lucide-react"
 
 import { getLunarDateInChinese } from "@/lib/date"
-import { formatCurrency } from "@/lib/number"
+import { formatCurrency, formatNumber } from "@/lib/number"
 import { useQuery } from "@/hooks/use-query"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -86,13 +86,13 @@ const TemplateList = () => {
 
               <IconWithText
                 icon={Users}
-                text={template.totalDonors.toString()}
+                text={formatNumber(template.totalDonors)}
                 title="Total Donors"
               />
 
               <IconWithText
                 icon={LayoutList}
-                text={template.totalRecords.toString()}
+                text={formatNumber(template.totalRecords)}
                 title="Total Records"
               />
             </CardFooter>

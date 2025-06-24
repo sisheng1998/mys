@@ -4,7 +4,7 @@ import React from "react"
 import { useParams } from "next/navigation"
 
 import { Category } from "@/types/category"
-import { formatCurrency } from "@/lib/number"
+import { formatCurrency, formatNumber } from "@/lib/number"
 import { useQuery } from "@/hooks/use-query"
 import { CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -26,6 +26,7 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
       totalPaidPercentage: 0,
       categoryStats: categories.map((category) => ({
         name: category.name,
+        donors: 0,
         amount: 0,
         percentage: 0,
       })),
@@ -48,13 +49,13 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
 
         <OverallInfo
           title="Total Donors"
-          value={data.totalDonors.toString()}
+          value={formatNumber(data.totalDonors)}
           isLoading={isLoading}
         />
 
         <OverallInfo
           title="Total Records"
-          value={data.totalRecords.toString()}
+          value={formatNumber(data.totalRecords)}
           isLoading={isLoading}
         />
 
@@ -82,7 +83,8 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
           <CategoryInfo
             key={category.name}
             title={category.name}
-            value={formatCurrency(category.amount)}
+            donors={formatNumber(category.donors)}
+            amount={formatCurrency(category.amount)}
             percentage={category.percentage}
             isLoading={isLoading}
           />

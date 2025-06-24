@@ -2,13 +2,19 @@
 
 import React from "react"
 import { useParams } from "next/navigation"
+import { CircleDollarSign, Users } from "lucide-react"
 
 import { Category } from "@/types/category"
-import { formatCurrency } from "@/lib/number"
+import { formatCurrency, formatNumber } from "@/lib/number"
 import { useQuery } from "@/hooks/use-query"
 import { CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -23,6 +29,7 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
       totalRecords: 0,
       categoryStats: categories.map((category) => ({
         name: category.name,
+        donors: 0,
         amount: 0,
         percentage: 0,
       })),
@@ -45,13 +52,13 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
 
         <OverallInfo
           title="Total Donors"
-          value={data.totalDonors.toString()}
+          value={formatNumber(data.totalDonors)}
           isLoading={isLoading}
         />
 
         <OverallInfo
           title="Total Records"
-          value={data.totalRecords.toString()}
+          value={formatNumber(data.totalRecords)}
           isLoading={isLoading}
         />
       </div>
@@ -67,7 +74,8 @@ const DonationStats = ({ categories }: { categories: Category[] }) => {
           <CategoryInfo
             key={category.name}
             title={category.name}
-            value={formatCurrency(category.amount)}
+            donors={formatNumber(category.donors)}
+            amount={formatCurrency(category.amount)}
             percentage={category.percentage}
             isLoading={isLoading}
           />
@@ -99,12 +107,14 @@ export const OverallInfo = ({
 
 export const CategoryInfo = ({
   title,
-  value,
+  donors,
+  amount,
   percentage,
   isLoading,
 }: {
   title: string
-  value: string
+  donors: string
+  amount: string
   percentage: number
   isLoading: boolean
 }) => (
@@ -112,10 +122,35 @@ export const CategoryInfo = ({
     {isLoading ? (
       <Skeleton className="h-5" />
     ) : (
-      <p className="flex flex-wrap items-center justify-between gap-1">
-        <span>{title}</span>
-        <span className="font-medium">{value}</span>
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-1">
+        <p>{title}</p>
+
+        <div className="flex flex-wrap items-center gap-1 font-medium">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="flex flex-wrap items-center gap-1">
+                <span>{donors}</span>
+                <Users className="size-3.5" />
+              </p>
+            </TooltipTrigger>
+
+            <TooltipContent side="left">Donors</TooltipContent>
+          </Tooltip>
+
+          <span>-</span>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="flex flex-wrap items-center gap-1">
+                <span>{amount}</span>
+                <CircleDollarSign className="size-3.5" />
+              </p>
+            </TooltipTrigger>
+
+            <TooltipContent side="right">Amount</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
     )}
 
     {isLoading ? (
