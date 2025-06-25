@@ -12,7 +12,9 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
+import { TableVirtuoso, VirtuosoHandle } from "react-virtuoso"
 
+import { cn } from "@/lib/utils"
 import {
   useFilterParams,
   usePaginationParams,
@@ -24,7 +26,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableHeader,
   TableRow,
@@ -44,6 +45,8 @@ interface DataTableProps<TData, TValue> {
   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>
 }
 
+// TODO: Fix cell width changes when content changes
+
 const DataTable = <TData extends WithId, TValue>({
   columns,
   data,
@@ -52,7 +55,7 @@ const DataTable = <TData extends WithId, TValue>({
   rowSelection,
   setRowSelection,
 }: DataTableProps<TData, TValue>) => {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<VirtuosoHandle>(null)
 
   const [pagination, setPagination] = usePaginationParams()
   const [search, setSearch] = useSearchParams()
@@ -85,10 +88,10 @@ const DataTable = <TData extends WithId, TValue>({
   })
 
   useEffect(() => {
-    if (!ref.current) return
-
-    ref.current.scrollTop = 0
+    ref.current?.scrollToIndex({ index: 0, align: "start" })
   }, [pagination.pageIndex])
+
+  const { rows } = table.getRowModel()
 
   return !isLoading ? (
     <div className="flex flex-1 flex-col gap-4">
@@ -101,18 +104,59 @@ const DataTable = <TData extends WithId, TValue>({
         <Search search={search} setSearch={setSearch} />
       </div>
 
-      <TableContainer
+      <TableVirtuoso
         ref={ref}
         className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
-      >
-        <Table>
-          <TableHeader className="bg-card sticky top-0 z-10 [&_tr]:border-b-0">
+        totalCount={rows.length}
+        components={{
+          Table: (props) => <Table {...props} />,
+          TableHead: (props) => (
+            <TableHeader
+              className="bg-card sticky top-0 z-10 [&_tr]:border-b-0"
+              {...props}
+            />
+          ),
+          TableBody: ({ className, ...props }) => (
+            <TableBody
+              className={cn("[&_tr:last-child]:border-b", className)}
+              {...props}
+            />
+          ),
+          TableRow: (props) => {
+            const index = props["data-index"]
+            const row = rows[index]
+
+            if (!row) return null
+
+            return (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+                {...props}
+              />
+            )
+          },
+          EmptyPlaceholder: () => (
+            <TableBody className="[&_tr:last-child]:border-b">
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-center">
+                  <p className="flex h-9 items-center justify-center">
+                    No results
+                  </p>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          ),
+        }}
+        fixedHeaderContent={() => (
+          <>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
                     className={header.column.columnDef.meta?.headerClassName}
+                    colSpan={header.colSpan}
                   >
                     {!header.isPlaceholder &&
                       flexRender(
@@ -127,40 +171,22 @@ const DataTable = <TData extends WithId, TValue>({
             <TableRow>
               <TableHead colSpan={columns.length} className="bg-border h-px" />
             </TableRow>
-          </TableHeader>
-
-          <TableBody className="[&_tr:last-child]:border-b">
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={cell.column.columnDef.meta?.cellClassName}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  <p className="flex h-9 items-center justify-center">
-                    No results
-                  </p>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </>
+        )}
+        itemContent={(index) =>
+          rows[index].getVisibleCells().map((cell) => (
+            <TableCell
+              key={cell.id}
+              className={cn(
+                "break-words whitespace-normal",
+                cell.column.columnDef.meta?.cellClassName
+              )}
+            >
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))
+        }
+      />
 
       <Pagination table={table} />
     </div>
