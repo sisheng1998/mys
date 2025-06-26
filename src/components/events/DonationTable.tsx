@@ -170,7 +170,9 @@ const DonationTable = ({
     <DataTable
       columns={columns}
       data={data}
-      filters={<TableFilters categories={categories} />}
+      filters={(table) => (
+        <TableFilters table={table} categories={categories} />
+      )}
       isLoading={status === "pending"}
       rowSelection={rowSelection}
       setRowSelection={setRowSelection}

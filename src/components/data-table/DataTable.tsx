@@ -9,6 +9,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   RowSelectionState,
+  Table as TableType,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
@@ -39,7 +40,7 @@ type WithId = { _id: string }
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  filters?: React.ReactNode
+  filters?: (table: TableType<TData>) => React.ReactNode
   isLoading?: boolean
   rowSelection?: RowSelectionState
   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>
@@ -50,7 +51,7 @@ interface DataTableProps<TData, TValue> {
 const DataTable = <TData extends WithId, TValue>({
   columns,
   data,
-  filters,
+  filters = () => null,
   isLoading,
   rowSelection,
   setRowSelection,
@@ -80,16 +81,39 @@ const DataTable = <TData extends WithId, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
-    onGlobalFilterChange: setSearch,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: (value) => {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+      setSearch(value)
+    },
+    onSortingChange: (value) => {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+      setSorting(value)
+    },
+    onColumnFiltersChange: (value) => {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+      setColumnFilters(value)
+    },
     onColumnVisibilityChange: setColumnVisibility,
     ...(setRowSelection && { onRowSelectionChange: setRowSelection }),
+    autoResetPageIndex: false,
   })
 
   useEffect(() => {
     ref.current?.scrollToIndex({ index: 0, align: "start" })
   }, [pagination.pageIndex])
+
+  useEffect(() => {
+    if (data.length === 0) return
+
+    const currentPageIndex = table.getState().pagination.pageIndex
+    const lastPageIndex = table.getPageCount() - 1
+
+    if (currentPageIndex > lastPageIndex) {
+      table.setPageIndex(lastPageIndex)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.length])
 
   const { rows } = table.getRowModel()
 
@@ -98,10 +122,10 @@ const DataTable = <TData extends WithId, TValue>({
       <div className="flex flex-wrap items-center gap-2">
         <div className="mr-auto flex flex-wrap items-center gap-2">
           <ColumnToggle table={table} />
-          {filters}
+          {filters(table)}
         </div>
 
-        <Search search={search} setSearch={setSearch} />
+        <Search search={search} setSearch={table.setGlobalFilter} />
       </div>
 
       <TableVirtuoso
@@ -177,10 +201,7 @@ const DataTable = <TData extends WithId, TValue>({
           rows[index].getVisibleCells().map((cell) => (
             <TableCell
               key={cell.id}
-              className={cn(
-                "break-words whitespace-normal",
-                cell.column.columnDef.meta?.cellClassName
-              )}
+              className={cell.column.columnDef.meta?.cellClassName}
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>

@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { Table } from "@tanstack/react-table"
 import { ListFilter, X } from "lucide-react"
 
 import { Category } from "@/types/category"
@@ -26,8 +27,14 @@ import CommandSearch from "@/components/data-table/CommandSearch"
 const CATEGORY_KEY = "category"
 const PAYMENT_KEY = "payment"
 
-const TableFilters = ({ categories }: { categories: Category[] }) => {
-  const [columnFilters, setColumnFilters] = useFilterParams()
+const TableFilters = <TData,>({
+  table,
+  categories,
+}: {
+  table: Table<TData>
+  categories: Category[]
+}) => {
+  const [columnFilters] = useFilterParams()
 
   const selectedCategory = columnFilters.find((f) => f.id === CATEGORY_KEY)
   const selectedPayment = columnFilters.find((f) => f.id === PAYMENT_KEY)
@@ -51,18 +58,18 @@ const TableFilters = ({ categories }: { categories: Category[] }) => {
               value,
             ]
 
-      setColumnFilters((prev) =>
+      table.setColumnFilters((prev) =>
         prev
           .map((f) => (f.id === key ? { ...f, value: newValues } : f))
           .filter((f) => !(f.id === key && (f.value as unknown[]).length === 0))
       )
     } else {
-      setColumnFilters((prev) => [...prev, { id: key, value: [value] }])
+      table.setColumnFilters((prev) => [...prev, { id: key, value: [value] }])
     }
   }
 
   const handleReset = () =>
-    setColumnFilters((prev) =>
+    table.setColumnFilters((prev) =>
       prev.filter((f) => f.id !== CATEGORY_KEY && f.id !== PAYMENT_KEY)
     )
 

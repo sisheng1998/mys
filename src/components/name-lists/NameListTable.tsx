@@ -86,7 +86,7 @@ const NameListTable = () => {
     <DataTable
       columns={columns}
       data={data}
-      filters={<TitleFilter />}
+      filters={(table) => <TitleFilter table={table} />}
       isLoading={status === "pending"}
     />
   )

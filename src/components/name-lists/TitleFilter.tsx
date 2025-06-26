@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { Table } from "@tanstack/react-table"
 import { ListFilter, X } from "lucide-react"
 
 import { useFilterParams } from "@/hooks/use-data-table"
@@ -26,8 +27,8 @@ import { TITLES } from "@cvx/nameLists/schemas"
 
 const KEY = "title"
 
-const TitleFilter = () => {
-  const [columnFilters, setColumnFilters] = useFilterParams()
+const TitleFilter = <TData,>({ table }: { table: Table<TData> }) => {
+  const [columnFilters] = useFilterParams()
   const selectedItem = columnFilters.find((f) => f.id === KEY)
 
   const handleSelect = (value?: string) => {
@@ -40,18 +41,18 @@ const TitleFilter = () => {
               value,
             ]
 
-      setColumnFilters((prev) =>
+      table.setColumnFilters((prev) =>
         prev
           .map((f) => (f.id === KEY ? { ...f, value: newValues } : f))
           .filter((f) => !(f.id === KEY && (f.value as unknown[]).length === 0))
       )
     } else {
-      setColumnFilters((prev) => [...prev, { id: KEY, value: [value] }])
+      table.setColumnFilters((prev) => [...prev, { id: KEY, value: [value] }])
     }
   }
 
   const handleReset = () =>
-    setColumnFilters((prev) => prev.filter((f) => f.id !== KEY))
+    table.setColumnFilters((prev) => prev.filter((f) => f.id !== KEY))
 
   return (
     <Popover>
