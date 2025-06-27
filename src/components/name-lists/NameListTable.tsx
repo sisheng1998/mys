@@ -35,8 +35,9 @@ const NameListTable = () => {
       cell: ({ row, table }) => getRowNumber(row, table),
       enableSorting: false,
       enableHiding: false,
+      size: 64,
       meta: {
-        headerClassName: cn("w-16 text-center"),
+        headerClassName: cn("text-center"),
         cellClassName: cn("text-center"),
       },
     },
@@ -45,13 +46,12 @@ const NameListTable = () => {
       filterFn: multiSelectFilter,
       header: ({ column }) => <ColumnHeader column={column} title="Title" />,
       cell: (info) => info.getValue() || "-",
-      meta: {
-        headerClassName: cn("w-32"),
-      },
+      size: 128,
     },
     {
       accessorKey: "name",
       header: ({ column }) => <ColumnHeader column={column} title="Name" />,
+      minSize: 160,
     },
     {
       id: "actions",
@@ -75,8 +75,8 @@ const NameListTable = () => {
         </>
       ),
       enableHiding: false,
+      size: 96,
       meta: {
-        headerClassName: cn("w-24"),
         cellClassName: cn("text-center"),
       },
     },

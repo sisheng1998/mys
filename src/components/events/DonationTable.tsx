@@ -72,8 +72,9 @@ const DonationTable = ({
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 32,
       meta: {
-        headerClassName: cn("w-8 text-center"),
+        headerClassName: cn("text-center"),
         cellClassName: cn("text-center"),
       },
     },
@@ -83,8 +84,9 @@ const DonationTable = ({
       cell: ({ row, table }) => getRowNumber(row, table),
       enableSorting: false,
       enableHiding: false,
+      size: 64,
       meta: {
-        headerClassName: cn("w-16 text-center"),
+        headerClassName: cn("text-center"),
         cellClassName: cn("text-center"),
       },
     },
@@ -92,11 +94,13 @@ const DonationTable = ({
       id: "donor",
       header: ({ column }) => <ColumnHeader column={column} title="Donor" />,
       accessorFn: (row) => getNameWithTitle(row.name, row.title),
+      minSize: 160,
     },
     {
       accessorKey: "category",
       filterFn: multiSelectFilter,
       header: ({ column }) => <ColumnHeader column={column} title="Category" />,
+      size: 128,
     },
     {
       accessorKey: "amount",
@@ -108,6 +112,7 @@ const DonationTable = ({
         />
       ),
       cell: (info) => formatCurrency(info.getValue() as number),
+      size: 96,
       meta: {
         headerClassName: cn("text-right"),
         cellClassName: cn("text-right"),
@@ -125,6 +130,7 @@ const DonationTable = ({
         />
       ),
       enableSorting: false,
+      size: 64,
       meta: {
         headerClassName: cn("text-center"),
         cellClassName: cn("pr-2! text-center"),
@@ -148,6 +154,7 @@ const DonationTable = ({
           </TooltipContent>
         </Tooltip>
       ),
+      size: 96,
     },
     {
       id: "actions",
@@ -159,8 +166,8 @@ const DonationTable = ({
         </>
       ),
       enableHiding: false,
+      size: 128,
       meta: {
-        headerClassName: cn("w-32"),
         cellClassName: cn("text-center"),
       },
     },

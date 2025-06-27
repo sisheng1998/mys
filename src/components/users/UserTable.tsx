@@ -30,8 +30,9 @@ const UserTable = () => {
       cell: ({ row, table }) => getRowNumber(row, table),
       enableSorting: false,
       enableHiding: false,
+      size: 64,
       meta: {
-        headerClassName: cn("w-16 text-center"),
+        headerClassName: cn("text-center"),
         cellClassName: cn("text-center"),
       },
     },
@@ -39,10 +40,12 @@ const UserTable = () => {
       accessorKey: "name",
       header: ({ column }) => <ColumnHeader column={column} title="Name" />,
       cell: (info) => info.getValue() || "-",
+      minSize: 160,
     },
     {
       accessorKey: "email",
       header: ({ column }) => <ColumnHeader column={column} title="Email" />,
+      minSize: 160,
     },
     {
       id: "status",
@@ -56,6 +59,7 @@ const UserTable = () => {
           disabled={info.row.original._id === user._id}
         />
       ),
+      size: 128,
     },
     {
       id: "actions",
@@ -66,8 +70,8 @@ const UserTable = () => {
         />
       ),
       enableHiding: false,
+      size: 64,
       meta: {
-        headerClassName: cn("w-20"),
         cellClassName: cn("text-center"),
       },
     },

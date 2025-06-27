@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-table"
 import { TableVirtuoso, VirtuosoHandle } from "react-virtuoso"
 
+import { getColumnSize } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
 import {
   useFilterParams,
@@ -45,8 +46,6 @@ interface DataTableProps<TData, TValue> {
   rowSelection?: RowSelectionState
   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>
 }
-
-// TODO: Fix cell width changes when content changes
 
 const DataTable = <TData extends WithId, TValue>({
   columns,
@@ -181,6 +180,7 @@ const DataTable = <TData extends WithId, TValue>({
                     key={header.id}
                     className={header.column.columnDef.meta?.headerClassName}
                     colSpan={header.colSpan}
+                    style={getColumnSize(header)}
                   >
                     {!header.isPlaceholder &&
                       flexRender(
@@ -201,7 +201,11 @@ const DataTable = <TData extends WithId, TValue>({
           rows[index].getVisibleCells().map((cell) => (
             <TableCell
               key={cell.id}
-              className={cell.column.columnDef.meta?.cellClassName}
+              className={cn(
+                "whitespace-normal",
+                cell.column.columnDef.meta?.cellClassName
+              )}
+              style={getColumnSize(cell)}
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
