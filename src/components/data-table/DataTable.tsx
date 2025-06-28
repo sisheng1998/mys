@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -8,12 +8,14 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  HeaderGroup,
+  Row,
   RowSelectionState,
   Table as TableType,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
-import { TableVirtuoso, VirtuosoHandle } from "react-virtuoso"
+import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso"
 
 import { getColumnSize } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
@@ -55,7 +57,9 @@ const DataTable = <TData extends WithId, TValue>({
   rowSelection,
   setRowSelection,
 }: DataTableProps<TData, TValue>) => {
-  const ref = useRef<VirtuosoHandle>(null)
+  const ref = useRef<TableVirtuosoHandle>(null)
+  const scrollerRef = useRef<HTMLElement | Window>(null)
+  const [hasScrollbar, setHasScrollbar] = useState(false)
 
   const [pagination, setPagination] = usePaginationParams()
   const [search, setSearch] = useSearchParams()
@@ -110,11 +114,49 @@ const DataTable = <TData extends WithId, TValue>({
     if (currentPageIndex > lastPageIndex) {
       table.setPageIndex(lastPageIndex)
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.length])
+  }, [table, data.length])
 
   const { rows } = table.getRowModel()
+
+  useEffect(() => {
+    const scroller = scrollerRef.current
+    if (!(scroller instanceof HTMLElement)) return
+
+    const checkHasScrollbar = () =>
+      setHasScrollbar(scroller.scrollHeight > scroller.clientHeight)
+
+    const resizeObserver = new ResizeObserver(checkHasScrollbar)
+    resizeObserver.observe(scroller)
+
+    checkHasScrollbar()
+
+    return () => resizeObserver.disconnect()
+  }, [rows.length])
+
+  const columnSizeMap = useMemo(() => {
+    const map = new Map<string, React.CSSProperties>()
+
+    if (rows.length > 0) {
+      rows[0].getVisibleCells().forEach((cell) => {
+        map.set(cell.column.id, getColumnSize(cell))
+      })
+    }
+
+    return map
+  }, [rows])
+
+  const headerColumnSizeMap = useMemo(() => {
+    const map = new Map<string, React.CSSProperties>()
+
+    const headerGroups = table.getHeaderGroups()
+    if (headerGroups.length > 0) {
+      headerGroups[0].headers.forEach((header) => {
+        map.set(header.column.id, getColumnSize(header))
+      })
+    }
+
+    return map
+  }, [table])
 
   return !isLoading ? (
     <div className="flex flex-1 flex-col gap-4">
@@ -129,22 +171,17 @@ const DataTable = <TData extends WithId, TValue>({
 
       <TableVirtuoso
         ref={ref}
+        scrollerRef={(ref) => (scrollerRef.current = ref)}
         className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
         totalCount={rows.length}
         components={{
-          Table: (props) => <Table {...props} />,
+          Table: (props) => (
+            <Table className="border-separate border-spacing-0" {...props} />
+          ),
           TableHead: (props) => (
-            <TableHeader
-              className="bg-card sticky top-0 z-10 [&_tr]:border-b-0"
-              {...props}
-            />
+            <TableHeader className="bg-card sticky top-0 z-10" {...props} />
           ),
-          TableBody: ({ className, ...props }) => (
-            <TableBody
-              className={cn("[&_tr:last-child]:border-b", className)}
-              {...props}
-            />
-          ),
+          TableBody: (props) => <TableBody {...props} />,
           TableRow: (props) => {
             const index = props["data-index"]
             const row = rows[index]
@@ -160,9 +197,12 @@ const DataTable = <TData extends WithId, TValue>({
             )
           },
           EmptyPlaceholder: () => (
-            <TableBody className="[&_tr:last-child]:border-b">
+            <TableBody>
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="border-b text-center"
+                >
                   <p className="flex h-9 items-center justify-center">
                     No results
                   </p>
@@ -172,45 +212,19 @@ const DataTable = <TData extends WithId, TValue>({
           ),
         }}
         fixedHeaderContent={() => (
-          <>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className={header.column.columnDef.meta?.headerClassName}
-                    colSpan={header.colSpan}
-                    style={getColumnSize(header)}
-                  >
-                    {!header.isPlaceholder &&
-                      flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-
-            <TableRow>
-              <TableHead colSpan={columns.length} className="bg-border h-px" />
-            </TableRow>
-          </>
+          <MemoizedHeader
+            headerGroups={table.getHeaderGroups() as HeaderGroup<unknown>[]}
+            columnSizeMap={headerColumnSizeMap}
+          />
         )}
-        itemContent={(index) =>
-          rows[index].getVisibleCells().map((cell) => (
-            <TableCell
-              key={cell.id}
-              className={cn(
-                "whitespace-normal",
-                cell.column.columnDef.meta?.cellClassName
-              )}
-              style={getColumnSize(cell)}
-            >
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </TableCell>
-          ))
-        }
+        itemContent={(index) => (
+          <MemoizedRow
+            row={rows[index] as Row<unknown>}
+            columnSizeMap={columnSizeMap}
+            isLastRow={index === rows.length - 1}
+            hasScrollbar={hasScrollbar}
+          />
+        )}
       />
 
       <Pagination table={table} />
@@ -225,3 +239,60 @@ const DataTable = <TData extends WithId, TValue>({
 }
 
 export default DataTable
+
+const MemoizedHeader = memo(
+  ({
+    headerGroups,
+    columnSizeMap,
+  }: {
+    headerGroups: HeaderGroup<unknown>[]
+    columnSizeMap: Map<string, React.CSSProperties>
+  }) =>
+    headerGroups.map((headerGroup) => (
+      <TableRow key={headerGroup.id}>
+        {headerGroup.headers.map((header) => (
+          <TableHead
+            key={header.id}
+            className={cn(
+              "border-b",
+              header.column.columnDef.meta?.headerClassName
+            )}
+            colSpan={header.colSpan}
+            style={columnSizeMap.get(header.column.id)}
+          >
+            {!header.isPlaceholder &&
+              flexRender(header.column.columnDef.header, header.getContext())}
+          </TableHead>
+        ))}
+      </TableRow>
+    ))
+)
+MemoizedHeader.displayName = "MemoizedHeader"
+
+const MemoizedRow = memo(
+  ({
+    row,
+    columnSizeMap,
+    isLastRow,
+    hasScrollbar,
+  }: {
+    row: Row<unknown>
+    columnSizeMap: Map<string, React.CSSProperties>
+    isLastRow: boolean
+    hasScrollbar: boolean
+  }) =>
+    row.getVisibleCells().map((cell) => (
+      <TableCell
+        key={cell.id}
+        className={cn(
+          "border-b whitespace-normal",
+          isLastRow && hasScrollbar && "border-b-0",
+          cell.column.columnDef.meta?.cellClassName
+        )}
+        style={columnSizeMap.get(cell.column.id)}
+      >
+        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      </TableCell>
+    ))
+)
+MemoizedRow.displayName = "MemoizedRow"
