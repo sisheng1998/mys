@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
+import { Slot as SlotPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
@@ -25,7 +25,7 @@ function InputIcon({
   className?: string
 }) {
   return (
-    <Slot
+    <SlotPrimitive.Slot
       role="presentation"
       className={cn(
         "pointer-events-none absolute size-4",
@@ -35,7 +35,7 @@ function InputIcon({
       )}
     >
       {children}
-    </Slot>
+    </SlotPrimitive.Slot>
   )
 }
 
