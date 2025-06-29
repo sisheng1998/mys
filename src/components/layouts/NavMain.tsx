@@ -50,7 +50,7 @@ const NavMain = () => {
                 isActive={
                   page.url !== "/"
                     ? pathname.startsWith(page.url)
-                    : pathname === page.url
+                    : pathname === page.url || pathname.startsWith("/events")
                 }
                 onClick={() => setOpenMobile(false)}
                 asChild
