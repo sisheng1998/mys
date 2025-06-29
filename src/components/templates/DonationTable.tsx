@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 import { Edit, Trash2 } from "lucide-react"
@@ -51,118 +51,125 @@ const DonationTable = ({
   const editTemplateRecordDialog = useDialog()
   const deleteTemplateRecordDialog = useDialog()
 
-  const columns: ColumnDef<TemplateRecord>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 32,
-      meta: {
-        headerClassName: cn("text-center"),
-        cellClassName: cn("text-center"),
+  const columns = useMemo(
+    (): ColumnDef<TemplateRecord>[] => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 32,
+        meta: {
+          headerClassName: cn("text-center"),
+          cellClassName: cn("text-center"),
+        },
       },
-    },
-    {
-      accessorKey: "index",
-      header: ({ column }) => <ColumnHeader column={column} title="No." />,
-      cell: ({ row, table }) => getRowNumber(row, table),
-      enableSorting: false,
-      enableHiding: false,
-      size: 64,
-      meta: {
-        headerClassName: cn("text-center"),
-        cellClassName: cn("text-center"),
+      {
+        accessorKey: "index",
+        header: ({ column }) => <ColumnHeader column={column} title="No." />,
+        cell: ({ row, table }) => getRowNumber(row, table),
+        enableSorting: false,
+        enableHiding: false,
+        size: 64,
+        meta: {
+          headerClassName: cn("text-center"),
+          cellClassName: cn("text-center"),
+        },
       },
-    },
-    {
-      id: "donor",
-      header: ({ column }) => <ColumnHeader column={column} title="Donor" />,
-      accessorFn: (row) => getNameWithTitle(row.name, row.title),
-      minSize: 160,
-    },
-    {
-      accessorKey: "category",
-      filterFn: multiSelectFilter,
-      header: ({ column }) => <ColumnHeader column={column} title="Category" />,
-      size: 128,
-    },
-    {
-      accessorKey: "amount",
-      header: ({ column }) => (
-        <ColumnHeader
-          className="-mr-2.5 ml-0 flex-row-reverse"
-          column={column}
-          title="Amount"
-        />
-      ),
-      cell: (info) => formatCurrency(info.getValue() as number),
-      size: 96,
-      meta: {
-        headerClassName: cn("text-right"),
-        cellClassName: cn("text-right"),
+      {
+        id: "donor",
+        header: ({ column }) => <ColumnHeader column={column} title="Donor" />,
+        accessorFn: (row) => getNameWithTitle(row.name, row.title),
+        minSize: 160,
       },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => (
-        <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  setSelectedRecord(row.original)
-                  editTemplateRecordDialog.trigger()
-                }}
-              >
-                <Edit />
-              </Button>
-            </TooltipTrigger>
+      {
+        accessorKey: "category",
+        filterFn: multiSelectFilter,
+        header: ({ column }) => (
+          <ColumnHeader column={column} title="Category" />
+        ),
+        size: 128,
+      },
+      {
+        accessorKey: "amount",
+        header: ({ column }) => (
+          <ColumnHeader
+            className="-mr-2.5 ml-0 flex-row-reverse"
+            column={column}
+            title="Amount"
+          />
+        ),
+        cell: (info) => formatCurrency(info.getValue() as number),
+        size: 96,
+        meta: {
+          headerClassName: cn("text-right"),
+          cellClassName: cn("text-right"),
+        },
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setSelectedRecord(row.original)
+                    editTemplateRecordDialog.trigger()
+                  }}
+                >
+                  <Edit />
+                </Button>
+              </TooltipTrigger>
 
-            <TooltipContent side="bottom">Edit</TooltipContent>
-          </Tooltip>
+              <TooltipContent side="bottom">Edit</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  setSelectedRecord(row.original)
-                  deleteTemplateRecordDialog.trigger()
-                }}
-              >
-                <Trash2 className="text-destructive" />
-              </Button>
-            </TooltipTrigger>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setSelectedRecord(row.original)
+                    deleteTemplateRecordDialog.trigger()
+                  }}
+                >
+                  <Trash2 className="text-destructive" />
+                </Button>
+              </TooltipTrigger>
 
-            <TooltipContent side="bottom">Delete</TooltipContent>
-          </Tooltip>
-        </>
-      ),
-      enableHiding: false,
-      size: 96,
-      meta: {
-        cellClassName: cn("text-center"),
+              <TooltipContent side="bottom">Delete</TooltipContent>
+            </Tooltip>
+          </>
+        ),
+        enableHiding: false,
+        size: 96,
+        meta: {
+          cellClassName: cn("text-center"),
+        },
       },
-    },
-  ]
+    ],
+    [editTemplateRecordDialog, deleteTemplateRecordDialog]
+  )
 
   return (
     <>

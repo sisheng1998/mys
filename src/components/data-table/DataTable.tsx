@@ -59,7 +59,8 @@ const DataTable = <TData extends WithId, TValue>({
 }: DataTableProps<TData, TValue>) => {
   const ref = useRef<TableVirtuosoHandle>(null)
   const scrollerRef = useRef<HTMLElement | Window>(null)
-  const [hasScrollbar, setHasScrollbar] = useState(false)
+
+  const [hasScrollbar, setHasScrollbar] = useState<boolean>(false)
 
   const [pagination, setPagination] = usePaginationParams()
   const [search, setSearch] = useSearchParams()
@@ -174,6 +175,7 @@ const DataTable = <TData extends WithId, TValue>({
         scrollerRef={(ref) => (scrollerRef.current = ref)}
         className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
         totalCount={rows.length}
+        defaultItemHeight={53}
         components={{
           Table: (props) => (
             <Table className="border-separate border-spacing-0" {...props} />
@@ -190,7 +192,6 @@ const DataTable = <TData extends WithId, TValue>({
 
             return (
               <TableRow
-                key={row.id}
                 data-state={row.getIsSelected() && "selected"}
                 {...props}
               />
