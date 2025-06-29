@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { CircleAlert, Printer } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { toast } from "sonner"
 
 import { EventRecord } from "@/types/event"
@@ -15,30 +15,29 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { LoaderButton } from "@/components/ui/loader-button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { usePrinter } from "@/contexts/printer"
 
-const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
+const PrintEventRecord = ({
+  eventRecord,
+  ...props
+}: React.ComponentProps<typeof AlertDialog> & {
+  eventRecord?: EventRecord
+}) => {
   const { device, print } = usePrinter()
 
-  const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handlePrint = async () => {
+    if (!eventRecord) return
+
     setIsLoading(true)
 
     try {
       await print([getLabelText(eventRecord.name, eventRecord.title)])
       toast.success("Sticker printed")
-      setOpen(false)
+      props.onOpenChange?.(false)
     } catch (error) {
       toast.error(String(error))
     }
@@ -47,19 +46,7 @@ const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <AlertDialogTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <Printer />
-            </Button>
-          </AlertDialogTrigger>
-        </TooltipTrigger>
-
-        <TooltipContent side="bottom">Print</TooltipContent>
-      </Tooltip>
-
+    <AlertDialog {...props}>
       <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Print Sticker</AlertDialogTitle>
@@ -67,7 +54,7 @@ const PrintEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
           <AlertDialogDescription>
             Confirm to print a sticker for{" "}
             <strong className="text-foreground">
-              {getNameWithTitle(eventRecord.name, eventRecord.title)}
+              {getNameWithTitle(eventRecord?.name || "", eventRecord?.title)}
             </strong>
             .
           </AlertDialogDescription>

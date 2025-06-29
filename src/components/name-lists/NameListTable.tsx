@@ -1,15 +1,15 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import { Edit } from "lucide-react"
+import { Edit, Trash2 } from "lucide-react"
 
 import { NameListRecord } from "@/types/nameList"
 import { getRowNumber } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
+import { useDialog } from "@/hooks/use-dialog"
 import { useQuery } from "@/hooks/use-query"
 import { Button } from "@/components/ui/button"
-import { DialogTrigger } from "@/components/ui/dialog"
 import {
   Tooltip,
   TooltipContent,
@@ -27,6 +27,11 @@ import { api } from "@cvx/_generated/api"
 
 const NameListTable = () => {
   const { data = [], status } = useQuery(api.nameLists.queries.list)
+
+  const [selectedRecord, setSelectedRecord] = useState<NameListRecord>()
+
+  const upsertNameListRecordDialog = useDialog()
+  const deleteNameListRecordDialog = useDialog()
 
   const columns: ColumnDef<NameListRecord>[] = [
     {
@@ -57,21 +62,39 @@ const NameListTable = () => {
       id: "actions",
       cell: ({ row }) => (
         <>
-          <UpsertNameListRecord nameListRecord={row.original}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DialogTrigger asChild>
-                  <Button size="icon" variant="ghost">
-                    <Edit />
-                  </Button>
-                </DialogTrigger>
-              </TooltipTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedRecord(row.original)
+                  upsertNameListRecordDialog.trigger()
+                }}
+              >
+                <Edit />
+              </Button>
+            </TooltipTrigger>
 
-              <TooltipContent side="bottom">Edit</TooltipContent>
-            </Tooltip>
-          </UpsertNameListRecord>
+            <TooltipContent side="bottom">Edit</TooltipContent>
+          </Tooltip>
 
-          <DeleteNameListRecord nameListRecord={row.original} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedRecord(row.original)
+                  deleteNameListRecordDialog.trigger()
+                }}
+              >
+                <Trash2 className="text-destructive" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent side="bottom">Delete</TooltipContent>
+          </Tooltip>
         </>
       ),
       enableHiding: false,
@@ -83,12 +106,24 @@ const NameListTable = () => {
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      filters={(table) => <TitleFilter table={table} />}
-      isLoading={status === "pending"}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={data}
+        filters={(table) => <TitleFilter table={table} />}
+        isLoading={status === "pending"}
+      />
+
+      <UpsertNameListRecord
+        nameListRecord={selectedRecord}
+        {...upsertNameListRecordDialog.props}
+      />
+
+      <DeleteNameListRecord
+        nameListRecord={selectedRecord}
+        {...deleteNameListRecordDialog.props}
+      />
+    </>
   )
 }
 

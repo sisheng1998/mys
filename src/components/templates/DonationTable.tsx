@@ -1,8 +1,9 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { useParams } from "next/navigation"
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
+import { Edit, Trash2 } from "lucide-react"
 
 import { Category } from "@/types/category"
 import { TemplateRecord } from "@/types/template"
@@ -10,8 +11,15 @@ import { getRowNumber } from "@/lib/data-table"
 import { getNameWithTitle } from "@/lib/name"
 import { formatCurrency } from "@/lib/number"
 import { cn } from "@/lib/utils"
+import { useDialog } from "@/hooks/use-dialog"
 import { useQuery } from "@/hooks/use-query"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import ColumnHeader, {
   multiSelectFilter,
 } from "@/components/data-table/ColumnHeader"
@@ -37,6 +45,11 @@ const DonationTable = ({
   const { data = [], status } = useQuery(api.templates.queries.getRecords, {
     _id,
   })
+
+  const [selectedRecord, setSelectedRecord] = useState<TemplateRecord>()
+
+  const editTemplateRecordDialog = useDialog()
+  const deleteTemplateRecordDialog = useDialog()
 
   const columns: ColumnDef<TemplateRecord>[] = [
     {
@@ -108,11 +121,39 @@ const DonationTable = ({
       id: "actions",
       cell: ({ row }) => (
         <>
-          <EditTemplateRecord
-            templateRecord={row.original}
-            categories={categories}
-          />
-          <DeleteTemplateRecord templateRecord={row.original} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedRecord(row.original)
+                  editTemplateRecordDialog.trigger()
+                }}
+              >
+                <Edit />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent side="bottom">Edit</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedRecord(row.original)
+                  deleteTemplateRecordDialog.trigger()
+                }}
+              >
+                <Trash2 className="text-destructive" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent side="bottom">Delete</TooltipContent>
+          </Tooltip>
         </>
       ),
       enableHiding: false,
@@ -124,16 +165,29 @@ const DonationTable = ({
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      filters={(table) => (
-        <CategoryFilter table={table} categories={categories} />
-      )}
-      isLoading={status === "pending"}
-      rowSelection={rowSelection}
-      setRowSelection={setRowSelection}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={data}
+        filters={(table) => (
+          <CategoryFilter table={table} categories={categories} />
+        )}
+        isLoading={status === "pending"}
+        rowSelection={rowSelection}
+        setRowSelection={setRowSelection}
+      />
+
+      <EditTemplateRecord
+        templateRecord={selectedRecord}
+        categories={categories}
+        {...editTemplateRecordDialog.props}
+      />
+
+      <DeleteTemplateRecord
+        templateRecord={selectedRecord}
+        {...deleteTemplateRecordDialog.props}
+      />
+    </>
   )
 }
 

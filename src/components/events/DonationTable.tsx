@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useParams } from "next/navigation"
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 import { useMutation } from "convex/react"
-import { Loader2 } from "lucide-react"
+import { Edit, Loader2, Printer, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Category } from "@/types/category"
@@ -15,7 +15,9 @@ import { handleMutationError } from "@/lib/error"
 import { getNameWithTitle } from "@/lib/name"
 import { formatCurrency } from "@/lib/number"
 import { cn } from "@/lib/utils"
+import { useDialog } from "@/hooks/use-dialog"
 import { useQuery } from "@/hooks/use-query"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Tooltip,
@@ -51,6 +53,12 @@ const DonationTable = ({
   const { data = [], status } = useQuery(api.events.queries.getRecords, {
     _id,
   })
+
+  const [selectedRecord, setSelectedRecord] = useState<EventRecord>()
+
+  const editEventRecordDialog = useDialog()
+  const printEventRecordDialog = useDialog()
+  const deleteEventRecordDialog = useDialog()
 
   const columns: ColumnDef<EventRecord>[] = [
     {
@@ -160,9 +168,58 @@ const DonationTable = ({
       id: "actions",
       cell: ({ row }) => (
         <>
-          <EditEventRecord eventRecord={row.original} categories={categories} />
-          {isSupported && <PrintEventRecord eventRecord={row.original} />}
-          <DeleteEventRecord eventRecord={row.original} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedRecord(row.original)
+                  editEventRecordDialog.trigger()
+                }}
+              >
+                <Edit />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent side="bottom">Edit</TooltipContent>
+          </Tooltip>
+
+          {isSupported && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setSelectedRecord(row.original)
+                    printEventRecordDialog.trigger()
+                  }}
+                >
+                  <Printer />
+                </Button>
+              </TooltipTrigger>
+
+              <TooltipContent side="bottom">Print</TooltipContent>
+            </Tooltip>
+          )}
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedRecord(row.original)
+                  deleteEventRecordDialog.trigger()
+                }}
+              >
+                <Trash2 className="text-destructive" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent side="bottom">Delete</TooltipContent>
+          </Tooltip>
         </>
       ),
       enableHiding: false,
@@ -174,16 +231,34 @@ const DonationTable = ({
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      filters={(table) => (
-        <TableFilters table={table} categories={categories} />
-      )}
-      isLoading={status === "pending"}
-      rowSelection={rowSelection}
-      setRowSelection={setRowSelection}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={data}
+        filters={(table) => (
+          <TableFilters table={table} categories={categories} />
+        )}
+        isLoading={status === "pending"}
+        rowSelection={rowSelection}
+        setRowSelection={setRowSelection}
+      />
+
+      <EditEventRecord
+        eventRecord={selectedRecord}
+        categories={categories}
+        {...editEventRecordDialog.props}
+      />
+
+      <PrintEventRecord
+        eventRecord={selectedRecord}
+        {...printEventRecordDialog.props}
+      />
+
+      <DeleteEventRecord
+        eventRecord={selectedRecord}
+        {...deleteEventRecordDialog.props}
+      />
+    </>
   )
 }
 

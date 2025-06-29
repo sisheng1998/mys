@@ -1,9 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
-import { Edit } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -22,7 +21,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -47,11 +45,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import NameAutocomplete from "@/components/records/NameAutocomplete"
 
 import { api } from "@cvx/_generated/api"
@@ -84,47 +77,50 @@ type formSchema = z.infer<ReturnType<typeof getExtendedSchema>>
 const EditTemplateRecord = ({
   templateRecord,
   categories,
-}: {
-  templateRecord: TemplateRecord
+  ...props
+}: React.ComponentProps<typeof Dialog> & {
+  templateRecord?: TemplateRecord
   categories: Category[]
 }) => {
-  const [open, setOpen] = useState<boolean>(false)
-
   const editTemplateRecord = useMutation(
     api.templates.mutations.editTemplateRecord
   )
 
-  const defaultValues: formSchema = templateRecord
+  const defaultValues: formSchema = useMemo(
+    () =>
+      templateRecord ??
+      ({
+        _id: "",
+        templateId: "",
+        title: null,
+        name: "",
+        category: "",
+        amount: NaN,
+      } as formSchema),
+    [templateRecord]
+  )
 
   const form = useForm<formSchema>({
     resolver: zodResolver(getExtendedSchema(categories)),
     defaultValues,
   })
 
+  useEffect(() => {
+    form.reset(defaultValues)
+  }, [form, defaultValues])
+
   const onSubmit = async (values: formSchema) => {
     try {
       await editTemplateRecord({ ...values, title: values.title || undefined })
       toast.success("Record updated")
-      setOpen(false)
+      props.onOpenChange?.(false)
     } catch (error) {
       handleFormError(error, form.setError)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <Edit />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-
-        <TooltipContent side="bottom">Edit</TooltipContent>
-      </Tooltip>
-
+    <Dialog {...props}>
       <DialogContent
         onCloseAutoFocus={(e) => {
           e.preventDefault()

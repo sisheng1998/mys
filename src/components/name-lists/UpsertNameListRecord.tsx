@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "convex/react"
 import { useForm } from "react-hook-form"
@@ -45,44 +45,46 @@ type formSchema = z.infer<typeof upsertNameListRecordSchema>
 
 const UpsertNameListRecord = ({
   nameListRecord,
-  children,
-}: {
+  ...props
+}: React.ComponentProps<typeof Dialog> & {
   nameListRecord?: NameListRecord
-  children: React.ReactNode
 }) => {
-  const [open, setOpen] = useState<boolean>(false)
-
   const upsertNameListRecord = useMutation(
     api.nameLists.mutations.upsertNameListRecord
   )
 
   const isEdit = !!nameListRecord
 
-  const defaultValues: formSchema = {
-    _id: nameListRecord?._id,
-    title: nameListRecord?.title ?? undefined,
-    name: nameListRecord?.name || "",
-  }
+  const defaultValues: formSchema = useMemo(
+    () => ({
+      _id: nameListRecord?._id,
+      title: nameListRecord?.title ?? undefined,
+      name: nameListRecord?.name || "",
+    }),
+    [nameListRecord]
+  )
 
   const form = useForm<formSchema>({
     resolver: zodResolver(upsertNameListRecordSchema),
     defaultValues,
   })
 
+  useEffect(() => {
+    form.reset(defaultValues)
+  }, [form, defaultValues])
+
   const onSubmit = async (values: formSchema) => {
     try {
       await upsertNameListRecord(values)
       toast.success(isEdit ? "Record updated" : "New record added")
-      setOpen(false)
+      props.onOpenChange?.(false)
     } catch (error) {
       handleFormError(error, form.setError)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {children}
-
+    <Dialog {...props}>
       <DialogContent
         onCloseAutoFocus={(e) => {
           e.preventDefault()

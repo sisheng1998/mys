@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import { useMutation } from "convex/react"
-import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { EventRecord } from "@/types/event"
@@ -15,20 +14,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { LoaderButton } from "@/components/ui/loader-button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { api } from "@cvx/_generated/api"
 
-const DeleteEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
-  const [open, setOpen] = useState<boolean>(false)
+const DeleteEventRecord = ({
+  eventRecord,
+  ...props
+}: React.ComponentProps<typeof AlertDialog> & {
+  eventRecord?: EventRecord
+}) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const deleteEventRecords = useMutation(
@@ -36,12 +32,14 @@ const DeleteEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
   )
 
   const handleDelete = async () => {
+    if (!eventRecord) return
+
     setIsLoading(true)
 
     try {
       await deleteEventRecords({ ids: [eventRecord._id] })
       toast.success("Record deleted")
-      setOpen(false)
+      props.onOpenChange?.(false)
     } catch (error) {
       handleMutationError(error)
     }
@@ -50,19 +48,7 @@ const DeleteEventRecord = ({ eventRecord }: { eventRecord: EventRecord }) => {
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <AlertDialogTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <Trash2 className="text-destructive" />
-            </Button>
-          </AlertDialogTrigger>
-        </TooltipTrigger>
-
-        <TooltipContent side="bottom">Delete</TooltipContent>
-      </Tooltip>
-
+    <AlertDialog {...props}>
       <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

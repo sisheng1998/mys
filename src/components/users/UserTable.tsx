@@ -1,12 +1,20 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
+import { Trash2 } from "lucide-react"
 
 import { User } from "@/types/user"
 import { getRowNumber } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
+import { useDialog } from "@/hooks/use-dialog"
 import { useQuery } from "@/hooks/use-query"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import ColumnHeader, {
   multiSelectFilter,
 } from "@/components/data-table/ColumnHeader"
@@ -22,6 +30,10 @@ const UserTable = () => {
   const { user } = useAuth()
 
   const { data = [], status } = useQuery(api.users.queries.list)
+
+  const [selectedUser, setSelectedUser] = useState<User>()
+
+  const deleteUserDialog = useDialog()
 
   const columns: ColumnDef<User>[] = [
     {
@@ -64,10 +76,23 @@ const UserTable = () => {
     {
       id: "actions",
       cell: ({ row }) => (
-        <DeleteUser
-          user={row.original}
-          disabled={row.original._id === user._id}
-        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                setSelectedUser(row.original)
+                deleteUserDialog.trigger()
+              }}
+              disabled={row.original._id === user._id}
+            >
+              <Trash2 className="text-destructive" />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent side="bottom">Delete</TooltipContent>
+        </Tooltip>
       ),
       enableHiding: false,
       size: 64,
@@ -78,12 +103,16 @@ const UserTable = () => {
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      filters={(table) => <StatusFilter table={table} />}
-      isLoading={status === "pending"}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={data}
+        filters={(table) => <StatusFilter table={table} />}
+        isLoading={status === "pending"}
+      />
+
+      <DeleteUser user={selectedUser} {...deleteUserDialog.props} />
+    </>
   )
 }
 

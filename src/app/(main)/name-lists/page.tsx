@@ -1,7 +1,5 @@
 import React from "react"
-import { Plus } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -9,9 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { DialogTrigger } from "@/components/ui/dialog"
+import AddNewNameListRecord from "@/components/name-lists/AddNewNameListRecord"
 import NameListTable from "@/components/name-lists/NameListTable"
-import UpsertNameListRecord from "@/components/name-lists/UpsertNameListRecord"
 import { Breadcrumb } from "@/contexts/breadcrumb"
 
 export const metadata = {
@@ -29,14 +26,7 @@ const NameLists = () => (
           <CardDescription>Master list of donors</CardDescription>
         </div>
 
-        <UpsertNameListRecord>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus />
-              <span>New Record</span>
-            </Button>
-          </DialogTrigger>
-        </UpsertNameListRecord>
+        <AddNewNameListRecord />
       </CardHeader>
     </Card>
 

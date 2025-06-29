@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import { useMutation } from "convex/react"
-import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { TemplateRecord } from "@/types/template"
@@ -15,24 +14,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { LoaderButton } from "@/components/ui/loader-button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { api } from "@cvx/_generated/api"
 
 const DeleteTemplateRecord = ({
   templateRecord,
-}: {
-  templateRecord: TemplateRecord
+  ...props
+}: React.ComponentProps<typeof AlertDialog> & {
+  templateRecord?: TemplateRecord
 }) => {
-  const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const deleteTemplateRecords = useMutation(
@@ -40,12 +32,14 @@ const DeleteTemplateRecord = ({
   )
 
   const handleDelete = async () => {
+    if (!templateRecord) return
+
     setIsLoading(true)
 
     try {
       await deleteTemplateRecords({ ids: [templateRecord._id] })
       toast.success("Record deleted")
-      setOpen(false)
+      props.onOpenChange?.(false)
     } catch (error) {
       handleMutationError(error)
     }
@@ -54,19 +48,7 @@ const DeleteTemplateRecord = ({
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <AlertDialogTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <Trash2 className="text-destructive" />
-            </Button>
-          </AlertDialogTrigger>
-        </TooltipTrigger>
-
-        <TooltipContent side="bottom">Delete</TooltipContent>
-      </Tooltip>
-
+    <AlertDialog {...props}>
       <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
