@@ -59,6 +59,23 @@ const UserTable = () => {
         accessorKey: "email",
         header: ({ column }) => <ColumnHeader column={column} title="Email" />,
         minSize: 160,
+        cell: (info) => {
+          const email = info.getValue() as string
+
+          if (!email.includes("@")) return email
+
+          const [username, domain] = email.split("@")
+
+          return (
+            <>
+              {username}
+              <wbr />@{domain}
+            </>
+          )
+        },
+        meta: {
+          cellClassName: cn("break-words"),
+        },
       },
       {
         id: "status",
