@@ -54,11 +54,13 @@ const UserTable = () => {
         header: ({ column }) => <ColumnHeader column={column} title="Name" />,
         cell: (info) => info.getValue() || "-",
         minSize: 160,
+        meta: {
+          flex: 1,
+        },
       },
       {
         accessorKey: "email",
         header: ({ column }) => <ColumnHeader column={column} title="Email" />,
-        minSize: 160,
         cell: (info) => {
           const email = info.getValue() as string
 
@@ -73,8 +75,10 @@ const UserTable = () => {
             </>
           )
         },
+        minSize: 160,
         meta: {
           cellClassName: cn("break-words"),
+          flex: 1,
         },
       },
       {
@@ -89,7 +93,10 @@ const UserTable = () => {
             disabled={info.row.original._id === user._id}
           />
         ),
-        size: 128,
+        minSize: 160,
+        meta: {
+          flex: 0.5,
+        },
       },
       {
         id: "actions",

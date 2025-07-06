@@ -24,7 +24,10 @@ const ColumnHeader = <TData, TValue>({
     <Button
       variant="ghost"
       size="sm"
-      className={cn("-ml-2.5", className)}
+      className={cn(
+        "-ml-2.5 h-full w-full justify-start hover:bg-transparent",
+        className
+      )}
       onClick={() => {
         const currentSort = column.getIsSorted()
 

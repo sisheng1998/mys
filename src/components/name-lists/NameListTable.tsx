@@ -52,12 +52,18 @@ const NameListTable = () => {
         filterFn: multiSelectFilter,
         header: ({ column }) => <ColumnHeader column={column} title="Title" />,
         cell: (info) => info.getValue() || "-",
-        size: 128,
+        minSize: 128,
+        meta: {
+          flex: 0.25,
+        },
       },
       {
         accessorKey: "name",
         header: ({ column }) => <ColumnHeader column={column} title="Name" />,
         minSize: 160,
+        meta: {
+          flex: 1,
+        },
       },
       {
         id: "actions",

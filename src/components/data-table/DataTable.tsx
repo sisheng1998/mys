@@ -1,6 +1,6 @@
 "use client"
 
-import React, { memo, useEffect, useRef, useState } from "react"
+import React, { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -17,7 +17,7 @@ import {
 } from "@tanstack/react-table"
 import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso"
 
-import { getColumnSize } from "@/lib/data-table"
+import { calculateColumnSizing } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
 import {
   useFilterParams,
@@ -108,26 +108,30 @@ const DataTable = <TData extends WithId, TValue>({
     }
   }, [table, data.length])
 
-  return isLoading ? (
-    <div className="flex flex-1 flex-col gap-4">
-      <Skeleton className="h-9" />
-      <Skeleton className="min-h-96 flex-1" />
-      <Skeleton className="h-9" />
-    </div>
-  ) : (
-    <div className="flex flex-1 flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="mr-auto flex flex-wrap items-center gap-2">
-          <ColumnToggle table={table} />
-          {filters(table)}
+  return (
+    <div className="relative flex flex-1 flex-col">
+      {isLoading && (
+        <div className="bg-card absolute inset-0 z-10 flex flex-1 flex-col gap-4">
+          <Skeleton className="h-9" />
+          <Skeleton className="min-h-96 flex-1" />
+          <Skeleton className="h-9" />
+        </div>
+      )}
+
+      <div className="flex flex-1 flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="mr-auto flex flex-wrap items-center gap-2">
+            <ColumnToggle table={table} />
+            {filters(table)}
+          </div>
+
+          <Search search={search} setSearch={table.setGlobalFilter} />
         </div>
 
-        <Search search={search} setSearch={table.setGlobalFilter} />
+        <VirtualizedDataTable table={table} />
+
+        <Pagination table={table} />
       </div>
-
-      <VirtualizedDataTable table={table} />
-
-      <Pagination table={table} />
     </div>
   )
 }
@@ -141,11 +145,30 @@ const VirtualizedDataTable = <TData,>({
 }) => {
   const ref = useRef<TableVirtuosoHandle>(null)
   const scrollerRef = useRef<HTMLElement | Window>(null)
+  const lastWidthRef = useRef<number>(0)
 
   const [hasScrollbar, setHasScrollbar] = useState<boolean>(false)
 
   const { rows } = table.getRowModel()
-  const pageIndex = table.getState().pagination.pageIndex
+  const {
+    pagination: { pageIndex },
+    columnSizingInfo,
+    columnSizing,
+  } = table.getState()
+
+  const columnSizeVars = useMemo(() => {
+    const headers = table.getFlatHeaders()
+    const colSizes: { [key: string]: number } = {}
+
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i]
+      colSizes[`--header-${header.id}-size`] = header.getSize()
+      colSizes[`--column-${header.column.id}-size`] = header.column.getSize()
+    }
+
+    return colSizes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnSizingInfo, columnSizing])
 
   useEffect(() => {
     ref.current?.scrollToIndex({ index: 0, align: "start" })
@@ -155,15 +178,23 @@ const VirtualizedDataTable = <TData,>({
     const scroller = scrollerRef.current
     if (!(scroller instanceof HTMLElement)) return
 
-    const handleResize = () =>
-      setHasScrollbar(scroller.scrollHeight > scroller.clientHeight)
+    const resizeObserver = new ResizeObserver(() => {
+      const hasScrollbar = scroller.scrollHeight > scroller.clientHeight
+      setHasScrollbar(hasScrollbar)
 
-    const resizeObserver = new ResizeObserver(handleResize)
+      const width = scroller.clientWidth - (hasScrollbar ? 0 : 12)
+      if (width === lastWidthRef.current) return
+      lastWidthRef.current = width
+
+      const headers = table.getFlatHeaders()
+      const columnSizing = calculateColumnSizing(headers, width)
+      table.setColumnSizing(columnSizing)
+    })
+
     resizeObserver.observe(scroller)
 
-    handleResize()
-
     return () => resizeObserver.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -173,9 +204,20 @@ const VirtualizedDataTable = <TData,>({
       className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
       totalCount={rows.length}
       defaultItemHeight={53}
+      increaseViewportBy={150}
       components={{
-        Table: (props) => (
-          <Table className="border-separate border-spacing-0" {...props} />
+        Table: ({ style, ...props }) => (
+          <Table
+            className={cn(
+              "table-fixed border-separate border-spacing-0",
+              hasScrollbar && "[&_tr:last-child_td]:border-b-transparent"
+            )}
+            style={{
+              ...style,
+              ...columnSizeVars,
+            }}
+            {...props}
+          />
         ),
         TableHead: (props) => (
           <TableHeader className="bg-card sticky top-0 z-10" {...props} />
@@ -214,13 +256,7 @@ const VirtualizedDataTable = <TData,>({
           headerGroups={table.getHeaderGroups() as HeaderGroup<unknown>[]}
         />
       )}
-      itemContent={(index) => (
-        <MemoizedRow
-          row={rows[index] as Row<unknown>}
-          isLastRow={index === rows.length - 1}
-          hasScrollbar={hasScrollbar}
-        />
-      )}
+      itemContent={(index) => <MemoizedRow row={rows[index] as Row<unknown>} />}
     />
   )
 }
@@ -228,7 +264,7 @@ const VirtualizedDataTable = <TData,>({
 const MemoizedHeader = memo(
   ({ headerGroups }: { headerGroups: HeaderGroup<unknown>[] }) =>
     headerGroups.map((headerGroup) => (
-      <TableRow key={headerGroup.id}>
+      <TableRow key={headerGroup.id} className="hover:bg-transparent">
         {headerGroup.headers.map((header) => (
           <TableHead
             key={header.id}
@@ -237,7 +273,9 @@ const MemoizedHeader = memo(
               header.column.columnDef.meta?.headerClassName
             )}
             colSpan={header.colSpan}
-            style={getColumnSize(header)}
+            style={{
+              width: `calc(var(--header-${header.id}-size) * 1px)`,
+            }}
           >
             {!header.isPlaceholder &&
               flexRender(header.column.columnDef.header, header.getContext())}
@@ -248,28 +286,18 @@ const MemoizedHeader = memo(
 )
 MemoizedHeader.displayName = "MemoizedHeader"
 
-const MemoizedRow = memo(
-  ({
-    row,
-    isLastRow,
-    hasScrollbar,
-  }: {
-    row: Row<unknown>
-    isLastRow: boolean
-    hasScrollbar: boolean
-  }) =>
-    row.getVisibleCells().map((cell) => (
-      <TableCell
-        key={cell.id}
-        className={cn(
-          "border-b whitespace-normal",
-          isLastRow && hasScrollbar && "border-b-0",
-          cell.column.columnDef.meta?.cellClassName
-        )}
-        style={getColumnSize(cell)}
-      >
-        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-      </TableCell>
-    ))
+const MemoizedRow = memo(({ row }: { row: Row<unknown> }) =>
+  row.getVisibleCells().map((cell) => (
+    <TableCell
+      key={cell.id}
+      className={cn(
+        "border-b whitespace-normal",
+        cell.column.columnDef.meta?.cellClassName
+      )}
+      style={{ width: `calc(var(--column-${cell.column.id}-size) * 1px)` }}
+    >
+      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+    </TableCell>
+  ))
 )
 MemoizedRow.displayName = "MemoizedRow"

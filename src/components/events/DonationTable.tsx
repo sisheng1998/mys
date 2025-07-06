@@ -106,6 +106,9 @@ const DonationTable = ({
         header: ({ column }) => <ColumnHeader column={column} title="Donor" />,
         accessorFn: (row) => getNameWithTitle(row.name, row.title),
         minSize: 160,
+        meta: {
+          flex: 1,
+        },
       },
       {
         accessorKey: "category",
@@ -113,7 +116,10 @@ const DonationTable = ({
         header: ({ column }) => (
           <ColumnHeader column={column} title="Category" />
         ),
-        size: 128,
+        minSize: 128,
+        meta: {
+          flex: 0.5,
+        },
       },
       {
         accessorKey: "amount",
@@ -125,10 +131,11 @@ const DonationTable = ({
           />
         ),
         cell: (info) => formatCurrency(info.getValue() as number),
-        size: 96,
+        minSize: 96,
         meta: {
           headerClassName: cn("text-right"),
           cellClassName: cn("text-right"),
+          flex: 0.25,
         },
       },
       {
@@ -143,10 +150,11 @@ const DonationTable = ({
           />
         ),
         enableSorting: false,
-        size: 64,
+        minSize: 64,
         meta: {
           headerClassName: cn("text-center"),
           cellClassName: cn("pr-2! text-center"),
+          flex: 0.25,
         },
       },
       {
@@ -167,7 +175,10 @@ const DonationTable = ({
             </TooltipContent>
           </Tooltip>
         ),
-        size: 96,
+        minSize: 96,
+        meta: {
+          flex: 0.25,
+        },
       },
       {
         id: "actions",
