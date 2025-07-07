@@ -52,6 +52,20 @@ export const getValidFilename = (
   return sanitized
 }
 
+export const normalizeSymbol = (input: string): string => {
+  let text = input.trim()
+
+  if (text.startsWith("（")) {
+    text = "(" + text.slice(1)
+  }
+
+  if (text.endsWith("）")) {
+    text = text.slice(0, -1) + ")"
+  }
+
+  return text.replace(/\s{2,}/g, " ").trim()
+}
+
 const converter = OpenCC.Converter({ from: "cn", to: "tw" })
 
 export const convertSCToTC = (text: string): string => converter(text)

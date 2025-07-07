@@ -18,6 +18,7 @@ import {
   trimCanvas,
   writeInChunks,
 } from "@/lib/printer"
+import { normalizeSymbol } from "@/lib/string"
 
 type PrinterContextType = {
   device: BluetoothDevice | null
@@ -83,7 +84,11 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
     const fullBufParts: Uint8Array[] = [encoder.encode(tsplHeader + "\r\n")]
 
     for (const record of records) {
-      const canvas = getCanvas(record)
+      const normalizedRecord: [string, number][] = record.map(
+        ([text, value]) => [normalizeSymbol(text), value]
+      )
+
+      const canvas = getCanvas(normalizedRecord)
       const { trimmedCanvas, offsetX, offsetY } = trimCanvas(canvas)
 
       const bitmapBytes = await getBitmapBytesFromCanvas(trimmedCanvas)

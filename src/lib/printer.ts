@@ -33,7 +33,14 @@ export const getCanvas = (lines: [string, number][]): HTMLCanvasElement => {
   const maxWidth = canvas.width - 2 * PADDING
   const maxHeight = canvas.height - 2 * PADDING
   const wrappedLines = lines.flatMap(([text, size]) =>
-    wrapTextToFit(ctx, text, size, maxWidth, maxHeight)
+    wrapTextToFit(
+      ctx,
+      text,
+      size,
+      maxWidth,
+      maxHeight,
+      lines.length <= 2 ? 3 : 2
+    )
   )
 
   renderWrappedLines(ctx, canvas, wrappedLines, maxHeight)
@@ -59,6 +66,7 @@ const wrapTextToFit = (
   targetFontSize: number,
   maxWidth: number,
   maxHeight: number,
+  maxLines: number,
   minFontSize = 12
 ): { text: string; fontSize: number; lineHeight: number }[] => {
   let fontSize = targetFontSize
@@ -75,7 +83,7 @@ const wrapTextToFit = (
       (line) => ctx.measureText(line).width <= maxWidth
     )
 
-    if (totalHeight <= maxHeight && lines.length <= 2 && allLinesFit) {
+    if (totalHeight <= maxHeight && lines.length <= maxLines && allLinesFit) {
       return lines.map((line) => ({ text: line, fontSize, lineHeight }))
     }
 
