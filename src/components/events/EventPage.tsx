@@ -61,6 +61,7 @@ const EventPage = ({
   preloadedEvent: Preloaded<typeof api.events.queries.get>
 }) => {
   const event = usePreloadedQuery(preloadedEvent)
+  const createdAt = new Date(event._creationTime)
 
   return (
     <>
@@ -95,7 +96,11 @@ const EventPage = ({
                 }
               />
 
-              <ExportEvent _id={event._id} categories={event.categories} />
+              <ExportEvent
+                _id={event._id}
+                categories={event.categories}
+                minDate={createdAt}
+              />
             </div>
           </CardHeader>
 

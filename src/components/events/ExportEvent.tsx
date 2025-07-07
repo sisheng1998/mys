@@ -5,20 +5,22 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { pdf } from "@react-pdf/renderer"
 import { useConvex } from "convex/react"
 import { saveAs } from "file-saver"
-import { Download } from "lucide-react"
+import { CalendarIcon, Download } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
 import { Category } from "@/types/category"
-import {
+import dayjs, {
   formatDate,
   getLunarDateFromSolarDate,
   getLunarDateInChinese,
+  isSameDay,
 } from "@/lib/date"
 import { handleFormError } from "@/lib/error"
 import { getValidFilename } from "@/lib/string"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
@@ -33,6 +35,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -40,6 +43,12 @@ import {
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 import { LoaderButton } from "@/components/ui/loader-button"
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -58,14 +67,25 @@ import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
 import { exportEventSchema } from "@cvx/events/queries"
 
-type formSchema = z.infer<typeof exportEventSchema>
+const extendedSchema = exportEventSchema.extend({
+  dateRange: z
+    .object({
+      from: z.date(),
+      to: z.date(),
+    })
+    .optional(),
+})
+
+type formSchema = z.infer<typeof extendedSchema>
 
 const ExportEvent = ({
   _id,
   categories,
+  minDate,
 }: {
   _id: Id<"events">
   categories: Category[]
+  minDate: Date
 }) => {
   const convex = useConvex()
 
@@ -76,23 +96,38 @@ const ExportEvent = ({
   }
 
   const form = useForm<formSchema>({
-    resolver: zodResolver(exportEventSchema),
+    resolver: zodResolver(extendedSchema),
     defaultValues,
   })
 
   const onSubmit = async (values: formSchema) => {
     try {
-      const data = await convex.query(
-        api.events.queries.getRecordsForExport,
-        values
-      )
+      const { dateRange, ...body } = values
+
+      const startDate = dateRange
+        ? dayjs(dateRange.from).startOf("day").valueOf()
+        : undefined
+
+      const endDate = dateRange
+        ? dayjs(dateRange.to).endOf("day").valueOf()
+        : undefined
+
+      const data = await convex.query(api.events.queries.getRecordsForExport, {
+        ...body,
+        startDate,
+        endDate,
+      })
 
       if (data.records.length === 0) {
         toast.warning("No records found")
         return
       }
 
-      const title = `${data.name}${data.category} - ${formatDate(data.date)} (${getLunarDateInChinese(getLunarDateFromSolarDate(data.date))})`
+      let title = `${data.name}${data.category} - ${formatDate(data.date)} (${getLunarDateInChinese(getLunarDateFromSolarDate(data.date))})`
+
+      if (dateRange) {
+        title += ` [${formatDate(dateRange.from)}${!isSameDay(dateRange.from, dateRange.to) ? `-${formatDate(dateRange.to)}` : ""}]`
+      }
 
       const blob = await pdf(
         <EventRecordPDF
@@ -181,6 +216,67 @@ const ExportEvent = ({
 
             <FormField
               control={form.control}
+              name="dateRange"
+              render={({ field }) => {
+                const today = new Date()
+
+                return (
+                  <FormItem>
+                    <FormLabel>Date Range</FormLabel>
+
+                    <Popover modal>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className="hover:bg-background h-auto min-h-9 justify-start px-3 py-1 text-left font-normal whitespace-normal"
+                          >
+                            <CalendarIcon />
+                            {field.value ? (
+                              <span>
+                                {`${formatDate(field.value.from)} (${getLunarDateInChinese(getLunarDateFromSolarDate(field.value.from))})`}
+                                {!isSameDay(field.value.from, field.value.to) &&
+                                  ` - ${formatDate(field.value.to)} (${getLunarDateInChinese(getLunarDateFromSolarDate(field.value.to))})`}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                Pick a date / range
+                              </span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverClose className="hidden" />
+
+                        <Calendar
+                          mode="range"
+                          defaultMonth={field.value?.from}
+                          selected={field.value}
+                          onSelect={(date) => field.onChange(date)}
+                          startMonth={minDate}
+                          endMonth={today}
+                          disabled={{
+                            before: minDate,
+                            after: today,
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    <FormDescription className="text-xs">
+                      Leave blank to export all records
+                    </FormDescription>
+
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
+            />
+
+            <FormField
+              control={form.control}
               name="withAmount"
               render={({ field }) => (
                 <FormItem>
@@ -188,7 +284,7 @@ const ExportEvent = ({
 
                   <Label
                     htmlFor={`checkbox-${field.name}`}
-                    className="cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
+                    className="bg-background dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
                   >
                     <FormControl>
                       <Checkbox

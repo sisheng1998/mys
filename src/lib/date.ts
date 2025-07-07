@@ -25,6 +25,9 @@ export const formatISODate = (date: DateType) =>
   dayjs(date).format(ISO_DATE_FORMAT)
 export const getDateFromISODate = (date: DateType) => dayjs(date).toDate()
 
+export const isSameDay = (dateA: DateType, dateB: DateType) =>
+  dayjs(dateA).isSame(dateB, "day")
+
 const SEPARATOR = "|"
 
 export const getLunarDateFromSolarDate = (date: DateType): string => {
