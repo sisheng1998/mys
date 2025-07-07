@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { ComponentProps, useEffect, useRef, useState } from "react"
 import { RowSelectionState } from "@tanstack/react-table"
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
 import { Edit, LayoutList, Trash2, X } from "lucide-react"
@@ -108,6 +108,27 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
     api.templates.mutations.deleteTemplateRecords
   )
 
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const [align, setAlign] =
+    useState<ComponentProps<typeof DropdownMenuContent>["align"]>("end")
+
+  useEffect(() => {
+    const updateAlignment = () => {
+      if (!triggerRef.current) return
+
+      const rect = triggerRef.current.getBoundingClientRect()
+      const midpoint = window.innerWidth / 2
+      setAlign(rect.left < midpoint ? "start" : "end")
+    }
+
+    if (selectedIds.length === 0) return
+
+    updateAlignment()
+    window.addEventListener("resize", updateAlignment)
+
+    return () => window.removeEventListener("resize", updateAlignment)
+  }, [selectedIds.length])
+
   return (
     <Card className="flex-1 lg:col-span-2">
       <CardHeader className="flex flex-wrap items-start justify-between gap-4">
@@ -120,7 +141,7 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button>
+                <Button ref={triggerRef}>
                   <LayoutList />
                   <span>Bulk Action(s)</span>
                 </Button>
@@ -129,7 +150,7 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-52 rounded-lg"
                 side="bottom"
-                align="end"
+                align={align}
                 sideOffset={4}
               >
                 <DropdownMenuLabel>

@@ -232,6 +232,7 @@ const VirtualizedDataTable = <TData,>({
           return (
             <TableRow
               data-state={row.getIsSelected() && "selected"}
+              className="data-[state=selected]:bg-muted/25"
               {...props}
             />
           )
