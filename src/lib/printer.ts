@@ -9,7 +9,6 @@ const LABEL_HEIGHT_MM = 25
 const LABEL_WIDTH_DOTS = LABEL_WIDTH_MM * DOTS_PER_MM
 const LABEL_HEIGHT_DOTS = LABEL_HEIGHT_MM * DOTS_PER_MM
 const PADDING = 12
-const OFFSET_X = 16
 const FONT_WEIGHT = /Android|Windows/i.test(navigator.userAgent) ? 300 : 200
 
 export const getTSPLCommands = (commands: string[] = []): string[] => [
@@ -72,7 +71,11 @@ const wrapTextToFit = (
     if (lines.length === 2) balanceTwoLines(ctx, lines, maxWidth)
 
     const totalHeight = lines.length * lineHeight
-    if (totalHeight <= maxHeight && lines.length <= 2) {
+    const allLinesFit = lines.every(
+      (line) => ctx.measureText(line).width <= maxWidth
+    )
+
+    if (totalHeight <= maxHeight && lines.length <= 2 && allLinesFit) {
       return lines.map((line) => ({ text: line, fontSize, lineHeight }))
     }
 
@@ -181,7 +184,7 @@ export const trimCanvas = (canvas: HTMLCanvasElement) => {
   }
 
   if (top > bottom || left > right) {
-    return { trimmedCanvas: canvas, offsetX: 0 + OFFSET_X, offsetY: 0 }
+    return { trimmedCanvas: canvas, offsetX: 0, offsetY: 0 }
   }
 
   const trimmedWidth = right - left + 1
@@ -199,7 +202,7 @@ export const trimCanvas = (canvas: HTMLCanvasElement) => {
     0
   )
 
-  return { trimmedCanvas, offsetX: left + OFFSET_X, offsetY: top }
+  return { trimmedCanvas, offsetX: left, offsetY: top }
 }
 
 export const getBitmapBytesFromCanvas = async (
