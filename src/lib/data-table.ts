@@ -74,5 +74,9 @@ export const calculateColumnSizing = <DataType>(
     }
   }
 
+  for (const key in sizing) {
+    sizing[key] = Math.floor(sizing[key])
+  }
+
   return sizing
 }

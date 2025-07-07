@@ -182,7 +182,7 @@ const VirtualizedDataTable = <TData,>({
       const hasScrollbar = scroller.scrollHeight > scroller.clientHeight
       setHasScrollbar(hasScrollbar)
 
-      const width = scroller.clientWidth - (hasScrollbar ? 0 : 12) - 0.5
+      const width = scroller.clientWidth - (hasScrollbar ? 0 : 12)
       if (width === lastWidthRef.current) return
       lastWidthRef.current = width
 
