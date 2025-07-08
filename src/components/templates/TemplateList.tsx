@@ -120,10 +120,12 @@ export const IconWithText = ({
   icon: Icon,
   text,
   title,
+  side = "bottom",
 }: {
   icon: LucideIcon
   text: string
   title: string
+  side?: React.ComponentProps<typeof TooltipContent>["side"]
 }) => (
   <Tooltip>
     <div className="flex items-center gap-1.5">
@@ -133,6 +135,6 @@ export const IconWithText = ({
       <span>{text}</span>
     </div>
 
-    <TooltipContent side="bottom">{title}</TooltipContent>
+    <TooltipContent side={side}>{title}</TooltipContent>
   </Tooltip>
 )

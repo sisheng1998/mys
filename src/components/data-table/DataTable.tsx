@@ -47,6 +47,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean
   rowSelection?: RowSelectionState
   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>
+  footer?: (table: TableType<TData>) => React.ReactNode
 }
 
 const DataTable = <TData extends WithId, TValue>({
@@ -56,6 +57,7 @@ const DataTable = <TData extends WithId, TValue>({
   isLoading,
   rowSelection,
   setRowSelection,
+  footer,
 }: DataTableProps<TData, TValue>) => {
   const [pagination, setPagination] = usePaginationParams()
   const [search, setSearch] = useSearchParams()
@@ -128,7 +130,13 @@ const DataTable = <TData extends WithId, TValue>({
           <Search search={search} setSearch={table.setGlobalFilter} />
         </div>
 
-        <VirtualizedDataTable table={table} />
+        <VirtualizedDataTable table={table} hasFooter={!!footer} />
+
+        {footer && (
+          <div className="bg-card -mt-4 rounded-b-md border border-t-0">
+            {footer(table)}
+          </div>
+        )}
 
         <Pagination table={table} />
       </div>
@@ -140,8 +148,10 @@ export default DataTable
 
 const VirtualizedDataTable = <TData,>({
   table,
+  hasFooter,
 }: {
   table: TableType<TData>
+  hasFooter: boolean
 }) => {
   const ref = useRef<TableVirtuosoHandle>(null)
   const scrollerRef = useRef<HTMLElement | Window>(null)
@@ -201,7 +211,10 @@ const VirtualizedDataTable = <TData,>({
     <TableVirtuoso
       ref={ref}
       scrollerRef={(ref) => (scrollerRef.current = ref)}
-      className="min-h-96 flex-shrink flex-grow basis-0 rounded-md border"
+      className={cn(
+        "min-h-96 flex-shrink flex-grow basis-0 rounded-md border",
+        hasFooter && "rounded-b-none"
+      )}
       totalCount={rows.length}
       defaultItemHeight={53}
       increaseViewportBy={150}

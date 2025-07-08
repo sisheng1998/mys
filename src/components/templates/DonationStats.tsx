@@ -10,11 +10,7 @@ import { useQuery } from "@/hooks/use-query"
 import { CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { IconWithText } from "@/components/templates/TemplateList"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -125,30 +121,10 @@ export const CategoryInfo = ({
       <div className="flex flex-wrap items-center justify-between gap-1">
         <p>{title}</p>
 
-        <div className="flex flex-wrap items-center gap-1 font-medium">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <p className="flex flex-wrap items-center gap-1">
-                <span>{donors}</span>
-                <Users className="size-3.5" />
-              </p>
-            </TooltipTrigger>
+        <div className="flex flex-wrap items-center gap-2 font-medium">
+          <IconWithText icon={Users} text={donors} title="Donors" />
 
-            <TooltipContent side="left">Donors</TooltipContent>
-          </Tooltip>
-
-          <span>-</span>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <p className="flex flex-wrap items-center gap-1">
-                <span>{amount}</span>
-                <CircleDollarSign className="size-3.5" />
-              </p>
-            </TooltipTrigger>
-
-            <TooltipContent side="right">Amount</TooltipContent>
-          </Tooltip>
+          <IconWithText icon={CircleDollarSign} text={amount} title="Amount" />
         </div>
       </div>
     )}

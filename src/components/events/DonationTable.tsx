@@ -2,9 +2,17 @@
 
 import React, { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
-import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
+import { ColumnDef, RowSelectionState, Table } from "@tanstack/react-table"
 import { useMutation } from "convex/react"
-import { Edit, Loader2, Printer, Trash2 } from "lucide-react"
+import {
+  CircleDollarSign,
+  Edit,
+  LayoutList,
+  Loader2,
+  Printer,
+  Trash2,
+  Users,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { Category } from "@/types/category"
@@ -13,7 +21,7 @@ import { getRowNumber } from "@/lib/data-table"
 import { formatDate, formatTime } from "@/lib/date"
 import { handleMutationError } from "@/lib/error"
 import { getNameWithTitle } from "@/lib/name"
-import { formatCurrency } from "@/lib/number"
+import { formatCurrency, formatNumber } from "@/lib/number"
 import { cn } from "@/lib/utils"
 import { useDialog } from "@/hooks/use-dialog"
 import { useQuery } from "@/hooks/use-query"
@@ -33,6 +41,7 @@ import DeleteEventRecord from "@/components/events/DeleteEventRecord"
 import EditEventRecord from "@/components/events/EditEventRecord"
 import PrintEventRecord from "@/components/events/PrintEventRecord"
 import TableFilters from "@/components/events/TableFilters"
+import { IconWithText } from "@/components/templates/TemplateList"
 import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
@@ -275,6 +284,7 @@ const DonationTable = ({
         isLoading={status === "pending"}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        footer={(table) => <Footer table={table} />}
       />
 
       <EditEventRecord
@@ -334,5 +344,53 @@ const PaymentStatusCheckbox = ({
     </div>
   ) : (
     <Checkbox checked={isPaid} onCheckedChange={handleUpdatePaymentStatus} />
+  )
+}
+
+const Footer = ({ table }: { table: Table<EventRecord> }) => {
+  const rows = table.getFilteredRowModel().rows
+
+  const totalDonors = useMemo(
+    () => new Set(rows.map((row) => row.original.name)).size,
+    [rows]
+  )
+
+  const totalAmount = useMemo(
+    () => rows.reduce((sum, row) => sum + row.original.amount, 0),
+    [rows]
+  )
+
+  const totalPaidAmount = useMemo(
+    () =>
+      rows.reduce(
+        (sum, row) => (row.original.isPaid ? sum + row.original.amount : sum),
+        0
+      ),
+    [rows]
+  )
+
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 p-2.5 text-sm font-medium">
+      <IconWithText
+        icon={LayoutList}
+        text={formatNumber(rows.length)}
+        title="Total Records"
+        side="top"
+      />
+
+      <IconWithText
+        icon={Users}
+        text={formatNumber(totalDonors)}
+        title="Total Donors"
+        side="top"
+      />
+
+      <IconWithText
+        icon={CircleDollarSign}
+        text={`${formatCurrency(totalPaidAmount)} / ${formatCurrency(totalAmount)}`}
+        title="Total Amount (Paid / Total)"
+        side="top"
+      />
+    </div>
   )
 }
