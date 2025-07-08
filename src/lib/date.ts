@@ -1,11 +1,13 @@
 import dayjs from "dayjs"
 import { PluginLunar } from "dayjs-plugin-lunar"
+import isBetween from "dayjs/plugin/isBetween"
 import timezone from "dayjs/plugin/timezone"
 
 export const TIMEZONE = "Asia/Kuala_Lumpur"
 
 dayjs.extend(timezone)
 dayjs.extend(PluginLunar)
+dayjs.extend(isBetween)
 
 dayjs.tz.setDefault(TIMEZONE)
 
@@ -25,8 +27,16 @@ export const formatISODate = (date: DateType) =>
   dayjs(date).format(ISO_DATE_FORMAT)
 export const getDateFromISODate = (date: DateType) => dayjs(date).toDate()
 
+export const getStartOfDay = (date: DateType) => dayjs(date).startOf("day")
+export const getEndOfDay = (date: DateType) => dayjs(date).endOf("day")
+
 export const isSameDay = (dateA: DateType, dateB: DateType) =>
   dayjs(dateA).isSame(dateB, "day")
+
+export const isDateInRange = (
+  date: DateType,
+  range: { from: DateType; to: DateType }
+) => dayjs(date).isBetween(range.from, range.to, "day", "[]")
 
 const SEPARATOR = "|"
 

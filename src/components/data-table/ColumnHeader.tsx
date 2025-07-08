@@ -4,6 +4,7 @@ import React from "react"
 import { Column, Row } from "@tanstack/react-table"
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react"
 
+import { formatISODate, isDateInRange } from "@/lib/date"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -62,4 +63,20 @@ export const multiSelectFilter = <TData extends object>(
   if (!filterValue.length) return true
   const value = row.getValue(columnId)
   return filterValue.includes(value)
+}
+
+export const dateFilter = <TData extends object>(
+  row: Row<TData>,
+  columnId: string,
+  filterValue: unknown[]
+) => {
+  if (!filterValue.length) return true
+  const value = formatISODate(new Date(row.getValue(columnId)))
+
+  const dateRange = {
+    from: filterValue[0] as string,
+    to: filterValue[filterValue.length - 1] as string,
+  }
+
+  return isDateInRange(value, dateRange)
 }

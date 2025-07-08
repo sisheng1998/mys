@@ -61,7 +61,6 @@ const EventPage = ({
   preloadedEvent: Preloaded<typeof api.events.queries.get>
 }) => {
   const event = usePreloadedQuery(preloadedEvent)
-  const createdAt = new Date(event._creationTime)
 
   return (
     <>
@@ -99,7 +98,7 @@ const EventPage = ({
               <ExportEvent
                 _id={event._id}
                 categories={event.categories}
-                minDate={createdAt}
+                _creationTime={event._creationTime}
               />
             </div>
           </CardHeader>
@@ -107,7 +106,10 @@ const EventPage = ({
           <DonationStats categories={event.categories} />
         </Card>
 
-        <DonationList categories={event.categories} />
+        <DonationList
+          categories={event.categories}
+          _creationTime={event._creationTime}
+        />
       </div>
     </>
   )
@@ -115,7 +117,13 @@ const EventPage = ({
 
 export default EventPage
 
-const DonationList = ({ categories }: { categories: Category[] }) => {
+const DonationList = ({
+  categories,
+  _creationTime,
+}: {
+  categories: Category[]
+  _creationTime: number
+}) => {
   const { isSupported } = usePrinter()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
@@ -307,6 +315,7 @@ const DonationList = ({ categories }: { categories: Category[] }) => {
       <CardContent className="flex flex-1 flex-col">
         <DonationTable
           categories={categories}
+          _creationTime={_creationTime}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
         />

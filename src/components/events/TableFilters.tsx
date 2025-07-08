@@ -2,11 +2,20 @@
 
 import React from "react"
 import { Table } from "@tanstack/react-table"
-import { ListFilter, X } from "lucide-react"
+import { CalendarIcon, ListFilter, X } from "lucide-react"
 
 import { Category } from "@/types/category"
+import {
+  formatDate,
+  formatISODate,
+  getDateFromISODate,
+  getLunarDateFromSolarDate,
+  getLunarDateInChinese,
+  isSameDay,
+} from "@/lib/date"
 import { useFilterParams } from "@/hooks/use-data-table"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Command,
@@ -19,6 +28,7 @@ import {
 import { NotificationBadge } from "@/components/ui/notification-badge"
 import {
   Popover,
+  PopoverClose,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
@@ -26,24 +36,32 @@ import CommandSearch from "@/components/data-table/CommandSearch"
 
 const CATEGORY_KEY = "category"
 const PAYMENT_KEY = "payment"
+const DATE_KEY = "date"
 
 const TableFilters = <TData,>({
   table,
   categories,
+  _creationTime,
 }: {
   table: Table<TData>
   categories: Category[]
+  _creationTime: number
 }) => {
+  const today = new Date()
+  const minDate = new Date(_creationTime)
+
   const [columnFilters] = useFilterParams()
 
   const selectedCategory = columnFilters.find((f) => f.id === CATEGORY_KEY)
   const selectedPayment = columnFilters.find((f) => f.id === PAYMENT_KEY)
+  const selectedDate = columnFilters.find((f) => f.id === DATE_KEY)
 
   const noOfActiveFilters =
     (Array.isArray(selectedCategory?.value)
       ? selectedCategory.value.length
       : 0) +
-    (Array.isArray(selectedPayment?.value) ? selectedPayment.value.length : 0)
+    (Array.isArray(selectedPayment?.value) ? selectedPayment.value.length : 0) +
+    (Array.isArray(selectedDate?.value) ? 1 : 0)
 
   const handleSelect = (key: string, value?: string | boolean) => {
     const selectedItem =
@@ -68,9 +86,39 @@ const TableFilters = <TData,>({
     }
   }
 
+  const dateRange =
+    Array.isArray(selectedDate?.value) && selectedDate.value.length > 0
+      ? {
+          from: getDateFromISODate(selectedDate.value[0]),
+          to: getDateFromISODate(
+            selectedDate.value[selectedDate.value.length - 1]
+          ),
+        }
+      : undefined
+
+  const handleSelectDateRange = (date: typeof dateRange) => {
+    if (!date) {
+      table.setColumnFilters((prev) => prev.filter((f) => f.id !== DATE_KEY))
+      return
+    }
+
+    const from = formatISODate(date.from)
+    const to = formatISODate(date.to)
+
+    const dateValues = from === to ? [from] : [from, to]
+
+    table.setColumnFilters((prev) => [
+      ...prev.filter((f) => f.id !== DATE_KEY),
+      { id: DATE_KEY, value: dateValues },
+    ])
+  }
+
   const handleReset = () =>
     table.setColumnFilters((prev) =>
-      prev.filter((f) => f.id !== CATEGORY_KEY && f.id !== PAYMENT_KEY)
+      prev.filter(
+        (f) =>
+          f.id !== CATEGORY_KEY && f.id !== PAYMENT_KEY && f.id !== DATE_KEY
+      )
     )
 
   return (
@@ -84,12 +132,57 @@ const TableFilters = <TData,>({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-48 p-0" align="start">
+      <PopoverContent className="w-60 p-0" align="start">
         <Command>
           <CommandSearch />
 
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
+
+            <CommandGroup heading="Date Range">
+              <CommandItem className="p-0">
+                <Popover modal>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="h-auto w-full justify-start rounded-sm px-2! py-1.5 text-left font-normal whitespace-normal"
+                    >
+                      <CalendarIcon />
+                      {dateRange ? (
+                        <span>
+                          {`${formatDate(dateRange.from)} (${getLunarDateInChinese(getLunarDateFromSolarDate(dateRange.from))})`}
+                          {!isSameDay(dateRange.from, dateRange.to) &&
+                            ` - ${formatDate(dateRange.to)} (${getLunarDateInChinese(getLunarDateFromSolarDate(dateRange.to))})`}
+                        </span>
+                      ) : (
+                        <span>All Dates</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverClose className="hidden" />
+
+                    <Calendar
+                      mode="range"
+                      defaultMonth={dateRange?.from}
+                      selected={dateRange}
+                      onSelect={(date) =>
+                        handleSelectDateRange(date as typeof dateRange)
+                      }
+                      startMonth={minDate}
+                      endMonth={today}
+                      disabled={{
+                        before: minDate,
+                        after: today,
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </CommandItem>
+            </CommandGroup>
+
+            <CommandSeparator />
 
             <CommandGroup heading="Payment Status">
               {[true, false].map((value, index) => {

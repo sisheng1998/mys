@@ -111,7 +111,7 @@ const DataTable = <TData extends WithId, TValue>({
   return (
     <div className="relative flex flex-1 flex-col">
       {isLoading && (
-        <div className="bg-card absolute inset-0 z-10 flex flex-1 flex-col gap-4">
+        <div className="bg-card absolute inset-0 z-20 flex flex-1 flex-col gap-4">
           <Skeleton className="h-9" />
           <Skeleton className="min-h-96 flex-1" />
           <Skeleton className="h-9" />

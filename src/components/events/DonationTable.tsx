@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import ColumnHeader, {
+  dateFilter,
   multiSelectFilter,
 } from "@/components/data-table/ColumnHeader"
 import DataTable from "@/components/data-table/DataTable"
@@ -39,10 +40,12 @@ import { Id } from "@cvx/_generated/dataModel"
 
 const DonationTable = ({
   categories,
+  _creationTime,
   rowSelection,
   setRowSelection,
 }: {
   categories: Category[]
+  _creationTime: number
   rowSelection: RowSelectionState
   setRowSelection: React.Dispatch<React.SetStateAction<RowSelectionState>>
 }) => {
@@ -159,22 +162,26 @@ const DonationTable = ({
       },
       {
         id: "date",
+        accessorKey: "_creationTime",
+        filterFn: dateFilter,
         header: ({ column }) => <ColumnHeader column={column} title="Date" />,
-        accessorFn: (row) => formatDate(row._creationTime),
-        cell: ({ cell, row }) => (
-          <Tooltip>
-            <TooltipTrigger className="cursor-text">
-              {cell.getValue() as string}
-            </TooltipTrigger>
+        cell: ({ cell, row }) => {
+          const date = new Date(cell.getValue() as number)
 
-            <TooltipContent side="bottom" className="text-center">
-              Recorded at
-              <br />
-              {cell.getValue() as string},{" "}
-              {formatTime(row.original._creationTime)}
-            </TooltipContent>
-          </Tooltip>
-        ),
+          return (
+            <Tooltip>
+              <TooltipTrigger className="cursor-text">
+                {formatDate(date)}
+              </TooltipTrigger>
+
+              <TooltipContent side="bottom" className="text-center">
+                Recorded at
+                <br />
+                {formatDate(date)}, {formatTime(row.original._creationTime)}
+              </TooltipContent>
+            </Tooltip>
+          )
+        },
         minSize: 96,
         meta: {
           flex: 0.25,
@@ -259,7 +266,11 @@ const DonationTable = ({
         columns={columns}
         data={data}
         filters={(table) => (
-          <TableFilters table={table} categories={categories} />
+          <TableFilters
+            table={table}
+            categories={categories}
+            _creationTime={_creationTime}
+          />
         )}
         isLoading={status === "pending"}
         rowSelection={rowSelection}

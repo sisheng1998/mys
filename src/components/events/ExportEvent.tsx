@@ -11,10 +11,12 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { Category } from "@/types/category"
-import dayjs, {
+import {
   formatDate,
+  getEndOfDay,
   getLunarDateFromSolarDate,
   getLunarDateInChinese,
+  getStartOfDay,
   isSameDay,
 } from "@/lib/date"
 import { handleFormError } from "@/lib/error"
@@ -81,13 +83,16 @@ type formSchema = z.infer<typeof extendedSchema>
 const ExportEvent = ({
   _id,
   categories,
-  minDate,
+  _creationTime,
 }: {
   _id: Id<"events">
   categories: Category[]
-  minDate: Date
+  _creationTime: number
 }) => {
   const convex = useConvex()
+
+  const today = new Date()
+  const minDate = new Date(_creationTime)
 
   const defaultValues: formSchema = {
     _id,
@@ -105,11 +110,11 @@ const ExportEvent = ({
       const { dateRange, ...body } = values
 
       const startDate = dateRange
-        ? dayjs(dateRange.from).startOf("day").valueOf()
+        ? getStartOfDay(dateRange.from).valueOf()
         : undefined
 
       const endDate = dateRange
-        ? dayjs(dateRange.to).endOf("day").valueOf()
+        ? getEndOfDay(dateRange.to).valueOf()
         : undefined
 
       const data = await convex.query(api.events.queries.getRecordsForExport, {
@@ -217,62 +222,58 @@ const ExportEvent = ({
             <FormField
               control={form.control}
               name="dateRange"
-              render={({ field }) => {
-                const today = new Date()
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date Range</FormLabel>
 
-                return (
-                  <FormItem>
-                    <FormLabel>Date Range</FormLabel>
+                  <Popover modal>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className="hover:bg-background h-auto min-h-9 justify-start px-3 py-1 text-left font-normal whitespace-normal"
+                        >
+                          <CalendarIcon />
+                          {field.value ? (
+                            <span>
+                              {`${formatDate(field.value.from)} (${getLunarDateInChinese(getLunarDateFromSolarDate(field.value.from))})`}
+                              {!isSameDay(field.value.from, field.value.to) &&
+                                ` - ${formatDate(field.value.to)} (${getLunarDateInChinese(getLunarDateFromSolarDate(field.value.to))})`}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              Pick a date / range
+                            </span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
 
-                    <Popover modal>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className="hover:bg-background h-auto min-h-9 justify-start px-3 py-1 text-left font-normal whitespace-normal"
-                          >
-                            <CalendarIcon />
-                            {field.value ? (
-                              <span>
-                                {`${formatDate(field.value.from)} (${getLunarDateInChinese(getLunarDateFromSolarDate(field.value.from))})`}
-                                {!isSameDay(field.value.from, field.value.to) &&
-                                  ` - ${formatDate(field.value.to)} (${getLunarDateInChinese(getLunarDateFromSolarDate(field.value.to))})`}
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground">
-                                Pick a date / range
-                              </span>
-                            )}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverClose className="hidden" />
 
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <PopoverClose className="hidden" />
+                      <Calendar
+                        mode="range"
+                        defaultMonth={field.value?.from}
+                        selected={field.value}
+                        onSelect={(date) => field.onChange(date)}
+                        startMonth={minDate}
+                        endMonth={today}
+                        disabled={{
+                          before: minDate,
+                          after: today,
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
 
-                        <Calendar
-                          mode="range"
-                          defaultMonth={field.value?.from}
-                          selected={field.value}
-                          onSelect={(date) => field.onChange(date)}
-                          startMonth={minDate}
-                          endMonth={today}
-                          disabled={{
-                            before: minDate,
-                            after: today,
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <FormDescription className="text-xs">
+                    Leave blank to export all records
+                  </FormDescription>
 
-                    <FormDescription className="text-xs">
-                      Leave blank to export all records
-                    </FormDescription>
-
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormField
