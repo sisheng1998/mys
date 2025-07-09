@@ -24,12 +24,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import DeleteConfirmation from "@/components/records/DeleteConfirmation"
 
 import { api } from "@cvx/_generated/api"
 
 const DeleteCategory = ({ category }: { category: Category }) => {
   const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isConfirmDeletion, setIsConfirmDeletion] = useState<boolean>(false)
 
   const deleteCategory = useMutation(api.categories.mutations.deleteCategory)
 
@@ -61,15 +63,28 @@ const DeleteCategory = ({ category }: { category: Category }) => {
         <TooltipContent side="bottom">Delete</TooltipContent>
       </Tooltip>
 
-      <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <AlertDialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          setTimeout(() => setIsConfirmDeletion(false), 100)
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the
-            category.
+            category {`"`}
+            <strong className="text-foreground">{category.name}</strong>
+            {`"`}.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <DeleteConfirmation
+          label="Yes, delete the category"
+          value={isConfirmDeletion}
+          setValue={setIsConfirmDeletion}
+        />
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -78,7 +93,7 @@ const DeleteCategory = ({ category }: { category: Category }) => {
             variant="destructive"
             onClick={handleDelete}
             isLoading={isLoading}
-            disabled={isLoading}
+            disabled={isLoading || !isConfirmDeletion}
           >
             Delete
           </LoaderButton>

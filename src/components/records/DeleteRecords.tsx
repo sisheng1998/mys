@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { LoaderButton } from "@/components/ui/loader-button"
+import DeleteConfirmation from "@/components/records/DeleteConfirmation"
 
 const DeleteRecords = ({
   ids,
@@ -26,6 +27,7 @@ const DeleteRecords = ({
   handleDeleteRecords: () => Promise<void>
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isConfirmDeletion, setIsConfirmDeletion] = useState<boolean>(false)
 
   const handleDelete = async () => {
     setIsLoading(true)
@@ -43,7 +45,12 @@ const DeleteRecords = ({
 
   return (
     <AlertDialog {...props}>
-      <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <AlertDialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          setTimeout(() => setIsConfirmDeletion(false), 100)
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 
@@ -63,6 +70,12 @@ const DeleteRecords = ({
           </AlertDescription>
         </Alert>
 
+        <DeleteConfirmation
+          label="Yes, delete the selected record(s)"
+          value={isConfirmDeletion}
+          setValue={setIsConfirmDeletion}
+        />
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
 
@@ -70,7 +83,7 @@ const DeleteRecords = ({
             variant="destructive"
             onClick={handleDelete}
             isLoading={isLoading}
-            disabled={isLoading}
+            disabled={isLoading || !isConfirmDeletion}
           >
             Delete
           </LoaderButton>

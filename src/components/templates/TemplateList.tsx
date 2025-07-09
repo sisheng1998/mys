@@ -77,7 +77,7 @@ const TemplateList = () => {
               </div>
             </CardHeader>
 
-            <CardFooter className="flex-wrap gap-x-4 gap-y-2 text-sm">
+            <CardFooter className="mt-auto flex-wrap gap-x-4 gap-y-2 text-sm">
               <IconWithText
                 icon={CircleDollarSign}
                 text={formatCurrency(template.totalAmount)}

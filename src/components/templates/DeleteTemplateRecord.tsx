@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { TemplateRecord } from "@/types/template"
 import { handleMutationError } from "@/lib/error"
+import { getNameWithTitle } from "@/lib/name"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -16,6 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { LoaderButton } from "@/components/ui/loader-button"
+import DeleteConfirmation from "@/components/records/DeleteConfirmation"
 
 import { api } from "@cvx/_generated/api"
 
@@ -26,6 +28,7 @@ const DeleteTemplateRecord = ({
   templateRecord?: TemplateRecord
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isConfirmDeletion, setIsConfirmDeletion] = useState<boolean>(false)
 
   const deleteTemplateRecords = useMutation(
     api.templates.mutations.deleteTemplateRecords
@@ -49,15 +52,33 @@ const DeleteTemplateRecord = ({
 
   return (
     <AlertDialog {...props}>
-      <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <AlertDialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          setTimeout(() => setIsConfirmDeletion(false), 100)
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the
-            record.
+            record for donor {`"`}
+            <strong className="text-foreground">
+              {getNameWithTitle(
+                templateRecord?.name || "",
+                templateRecord?.title
+              )}
+            </strong>
+            {`"`}.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <DeleteConfirmation
+          label="Yes, delete the record"
+          value={isConfirmDeletion}
+          setValue={setIsConfirmDeletion}
+        />
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -66,7 +87,7 @@ const DeleteTemplateRecord = ({
             variant="destructive"
             onClick={handleDelete}
             isLoading={isLoading}
-            disabled={isLoading}
+            disabled={isLoading || !isConfirmDeletion}
           >
             Delete
           </LoaderButton>

@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { LoaderButton } from "@/components/ui/loader-button"
+import DeleteConfirmation from "@/components/records/DeleteConfirmation"
 
 import { api } from "@cvx/_generated/api"
 
@@ -24,6 +25,7 @@ const DeleteUser = ({
   ...props
 }: React.ComponentProps<typeof AlertDialog> & { user?: User }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isConfirmDeletion, setIsConfirmDeletion] = useState<boolean>(false)
 
   const deleteUser = useMutation(api.users.mutations.deleteUser)
 
@@ -45,14 +47,30 @@ const DeleteUser = ({
 
   return (
     <AlertDialog {...props}>
-      <AlertDialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <AlertDialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault()
+          setTimeout(() => setIsConfirmDeletion(false), 100)
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the user.
+            This action cannot be undone. This will permanently delete the user{" "}
+            {`"`}
+            <strong className="text-foreground">
+              {user?.name || user?.email}
+            </strong>
+            {`"`}.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <DeleteConfirmation
+          label="Yes, delete the user"
+          value={isConfirmDeletion}
+          setValue={setIsConfirmDeletion}
+        />
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -61,7 +79,7 @@ const DeleteUser = ({
             variant="destructive"
             onClick={handleDelete}
             isLoading={isLoading}
-            disabled={isLoading}
+            disabled={isLoading || !isConfirmDeletion}
           >
             Delete
           </LoaderButton>

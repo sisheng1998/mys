@@ -52,11 +52,11 @@ const PrintEventRecord = ({
           <AlertDialogTitle>Print Sticker</AlertDialogTitle>
 
           <AlertDialogDescription>
-            Confirm to print a sticker for{" "}
+            Confirm to print a sticker for donor {`"`}
             <strong className="text-foreground">
               {getNameWithTitle(eventRecord?.name || "", eventRecord?.title)}
             </strong>
-            .
+            {`"`}?
           </AlertDialogDescription>
         </AlertDialogHeader>
 
