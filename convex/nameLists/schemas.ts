@@ -14,6 +14,7 @@ export const TITLES = [
   "佛弟子",
   "已故",
   "公司",
+  "學生",
 ] as const
 
 export const nameListFields = {
