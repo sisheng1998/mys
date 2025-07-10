@@ -42,6 +42,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import AddEventRecord from "@/components/events/AddEventRecord"
+import CategoryTab from "@/components/events/CategoryTab"
 import DonationStats from "@/components/events/DonationStats"
 import DonationTable from "@/components/events/DonationTable"
 import EditEvent from "@/components/events/EditEvent"
@@ -312,7 +313,9 @@ const DonationList = ({
         )}
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col">
+      <CardContent className="-mt-2 flex flex-1 flex-col gap-4">
+        <CategoryTab categories={categories} />
+
         <DonationTable
           categories={categories}
           _creationTime={_creationTime}

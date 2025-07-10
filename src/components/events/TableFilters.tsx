@@ -32,9 +32,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import CommandSearch from "@/components/data-table/CommandSearch"
+import { DEFAULT_TAB, useTabParams } from "@/components/events/CategoryTab"
 import { useDataTable } from "@/contexts/data-table"
 
-const CATEGORY_KEY = "category"
+export const CATEGORY_KEY = "category"
 const PAYMENT_KEY = "payment"
 const DATE_KEY = "date"
 
@@ -50,6 +51,9 @@ const TableFilters = <TData,>({
 
   const { table } = useDataTable<TData>()
 
+  const [selectedTab] = useTabParams()
+  const isAllTab = selectedTab === DEFAULT_TAB
+
   const [columnFilters] = useFilterParams()
 
   const selectedCategory = columnFilters.find((f) => f.id === CATEGORY_KEY)
@@ -57,7 +61,7 @@ const TableFilters = <TData,>({
   const selectedDate = columnFilters.find((f) => f.id === DATE_KEY)
 
   const noOfActiveFilters =
-    (Array.isArray(selectedCategory?.value)
+    (isAllTab && Array.isArray(selectedCategory?.value)
       ? selectedCategory.value.length
       : 0) +
     (Array.isArray(selectedPayment?.value) ? selectedPayment.value.length : 0) +
@@ -121,9 +125,12 @@ const TableFilters = <TData,>({
     if (!table) return
 
     table.setColumnFilters((prev) =>
-      prev.filter(
-        (f) =>
-          f.id !== CATEGORY_KEY && f.id !== PAYMENT_KEY && f.id !== DATE_KEY
+      prev.filter((f) =>
+        f.id === PAYMENT_KEY ||
+        f.id === DATE_KEY ||
+        (f.id === CATEGORY_KEY && isAllTab)
+          ? false
+          : true
       )
     )
   }
@@ -212,31 +219,37 @@ const TableFilters = <TData,>({
               })}
             </CommandGroup>
 
-            <CommandSeparator />
+            {isAllTab && (
+              <>
+                <CommandSeparator />
 
-            <CommandGroup
-              heading="Category"
-              className="max-h-80 overflow-x-hidden overflow-y-auto"
-            >
-              {categories.map((category, index) => {
-                const isSelected =
-                  Array.isArray(selectedCategory?.value) &&
-                  selectedCategory.value.includes(category.name)
+                <CommandGroup
+                  heading="Category"
+                  className="max-h-80 overflow-x-hidden overflow-y-auto"
+                >
+                  {categories.map((category, index) => {
+                    const isSelected =
+                      Array.isArray(selectedCategory?.value) &&
+                      selectedCategory.value.includes(category.name)
 
-                return (
-                  <CommandItem
-                    key={index}
-                    onSelect={() => handleSelect(CATEGORY_KEY, category.name)}
-                  >
-                    <Checkbox
-                      className="pointer-events-none"
-                      checked={isSelected}
-                    />
-                    <span>{category.name}</span>
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
+                    return (
+                      <CommandItem
+                        key={index}
+                        onSelect={() =>
+                          handleSelect(CATEGORY_KEY, category.name)
+                        }
+                      >
+                        <Checkbox
+                          className="pointer-events-none"
+                          checked={isSelected}
+                        />
+                        <span>{category.name}</span>
+                      </CommandItem>
+                    )
+                  })}
+                </CommandGroup>
+              </>
+            )}
 
             {noOfActiveFilters > 0 && (
               <>
