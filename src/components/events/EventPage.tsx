@@ -313,7 +313,7 @@ const DonationList = ({
         )}
       </CardHeader>
 
-      <CardContent className="-mt-2 flex flex-1 flex-col gap-4">
+      <CardContent className="-mt-3 flex flex-1 flex-col gap-4">
         <CategoryTab categories={categories} />
 
         <DonationTable

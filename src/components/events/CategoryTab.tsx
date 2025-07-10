@@ -34,6 +34,7 @@ const CategoryTab = ({ categories }: { categories: Category[] }) => {
   const scrollToTab = (tab: string) => {
     const element = tabRefs.current[tab]
     if (!element) return
+
     element.scrollIntoView({
       behavior: "smooth",
       inline: "center",
