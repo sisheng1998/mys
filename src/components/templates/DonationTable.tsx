@@ -3,13 +3,13 @@
 import React, { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
-import { Edit, Trash2 } from "lucide-react"
+import { CircleDollarSign, Edit, LayoutList, Trash2, Users } from "lucide-react"
 
 import { Category } from "@/types/category"
 import { TemplateRecord } from "@/types/template"
 import { getRowNumber } from "@/lib/data-table"
 import { getNameWithTitle } from "@/lib/name"
-import { formatCurrency } from "@/lib/number"
+import { formatCurrency, formatNumber } from "@/lib/number"
 import { cn } from "@/lib/utils"
 import { useDialog } from "@/hooks/use-dialog"
 import { useQuery } from "@/hooks/use-query"
@@ -27,6 +27,8 @@ import DataTable from "@/components/data-table/DataTable"
 import CategoryFilter from "@/components/templates/CategoryFilter"
 import DeleteTemplateRecord from "@/components/templates/DeleteTemplateRecord"
 import EditTemplateRecord from "@/components/templates/EditTemplateRecord"
+import { IconWithText } from "@/components/templates/TemplateList"
+import { useDataTable } from "@/contexts/data-table"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -187,6 +189,7 @@ const DonationTable = ({
         isLoading={status === "pending"}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        footer={<Footer />}
       />
 
       <EditTemplateRecord
@@ -204,3 +207,42 @@ const DonationTable = ({
 }
 
 export default DonationTable
+
+const Footer = () => {
+  const { table } = useDataTable<TemplateRecord>()
+
+  const rows = useMemo(() => table?.getFilteredRowModel().rows || [], [table])
+
+  const { totalDonors, totalAmount } = useMemo(
+    () => ({
+      totalDonors: new Set(rows.map((row) => row.original.name)).size,
+      totalAmount: rows.reduce((sum, row) => sum + row.original.amount, 0),
+    }),
+    [rows]
+  )
+
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 p-2.5 text-sm font-medium">
+      <IconWithText
+        icon={LayoutList}
+        text={formatNumber(rows.length)}
+        title="Total Records"
+        side="top"
+      />
+
+      <IconWithText
+        icon={Users}
+        text={formatNumber(totalDonors)}
+        title="Total Donors"
+        side="top"
+      />
+
+      <IconWithText
+        icon={CircleDollarSign}
+        text={formatCurrency(totalAmount)}
+        title="Total Amount"
+        side="top"
+      />
+    </div>
+  )
+}
