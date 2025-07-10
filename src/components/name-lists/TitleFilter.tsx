@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { Table } from "@tanstack/react-table"
 import { ListFilter, X } from "lucide-react"
 
 import { useFilterParams } from "@/hooks/use-data-table"
@@ -22,16 +21,21 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import CommandSearch from "@/components/data-table/CommandSearch"
+import { useDataTable } from "@/contexts/data-table"
 
 import { TITLES } from "@cvx/nameLists/schemas"
 
 const KEY = "title"
 
-const TitleFilter = <TData,>({ table }: { table: Table<TData> }) => {
+const TitleFilter = <TData,>() => {
+  const { table } = useDataTable<TData>()
+
   const [columnFilters] = useFilterParams()
   const selectedItem = columnFilters.find((f) => f.id === KEY)
 
   const handleSelect = (value?: string) => {
+    if (!table) return
+
     if (selectedItem) {
       const newValues =
         Array.isArray(selectedItem.value) && selectedItem.value.includes(value)
@@ -51,8 +55,11 @@ const TitleFilter = <TData,>({ table }: { table: Table<TData> }) => {
     }
   }
 
-  const handleReset = () =>
+  const handleReset = () => {
+    if (!table) return
+
     table.setColumnFilters((prev) => prev.filter((f) => f.id !== KEY))
+  }
 
   return (
     <Popover>
@@ -76,7 +83,10 @@ const TitleFilter = <TData,>({ table }: { table: Table<TData> }) => {
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup heading="Title">
+            <CommandGroup
+              heading="Title"
+              className="max-h-80 overflow-x-hidden overflow-y-auto"
+            >
               <CommandItem onSelect={() => handleSelect(undefined)}>
                 <Checkbox
                   className="pointer-events-none"

@@ -122,9 +122,14 @@ export const CategoryInfo = ({
         <p>{title}</p>
 
         <div className="flex flex-wrap items-center gap-2 font-medium">
-          <IconWithText icon={Users} text={donors} title="Donors" />
+          <IconWithText icon={Users} text={donors} title="Donors" side="left" />
 
-          <IconWithText icon={CircleDollarSign} text={amount} title="Amount" />
+          <IconWithText
+            icon={CircleDollarSign}
+            text={amount}
+            title="Amount"
+            side="left"
+          />
         </div>
       </div>
     )}

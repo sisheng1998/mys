@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { Table } from "@tanstack/react-table"
 import { ListFilter, X } from "lucide-react"
 
 import { useFilterParams } from "@/hooks/use-data-table"
@@ -22,14 +21,19 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import CommandSearch from "@/components/data-table/CommandSearch"
+import { useDataTable } from "@/contexts/data-table"
 
 const KEY = "status"
 
-const StatusFilter = <TData,>({ table }: { table: Table<TData> }) => {
+const StatusFilter = <TData,>() => {
+  const { table } = useDataTable<TData>()
+
   const [columnFilters] = useFilterParams()
   const selectedItem = columnFilters.find((f) => f.id === KEY)
 
   const handleSelect = (value: boolean) => {
+    if (!table) return
+
     if (selectedItem) {
       const newValues =
         Array.isArray(selectedItem.value) && selectedItem.value.includes(value)
@@ -49,8 +53,11 @@ const StatusFilter = <TData,>({ table }: { table: Table<TData> }) => {
     }
   }
 
-  const handleReset = () =>
+  const handleReset = () => {
+    if (!table) return
+
     table.setColumnFilters((prev) => prev.filter((f) => f.id !== KEY))
+  }
 
   return (
     <Popover>

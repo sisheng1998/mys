@@ -134,7 +134,7 @@ const UserTable = () => {
       <DataTable
         columns={columns}
         data={data}
-        filters={(table) => <StatusFilter table={table} />}
+        filters={<StatusFilter />}
         isLoading={status === "pending"}
       />
 

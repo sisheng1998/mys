@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
-import { ColumnDef, RowSelectionState, Table } from "@tanstack/react-table"
+import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 import { useMutation } from "convex/react"
 import {
   CircleDollarSign,
@@ -42,6 +42,7 @@ import EditEventRecord from "@/components/events/EditEventRecord"
 import PrintEventRecord from "@/components/events/PrintEventRecord"
 import TableFilters from "@/components/events/TableFilters"
 import { IconWithText } from "@/components/templates/TemplateList"
+import { useDataTable } from "@/contexts/data-table"
 import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
@@ -274,17 +275,13 @@ const DonationTable = ({
       <DataTable
         columns={columns}
         data={data}
-        filters={(table) => (
-          <TableFilters
-            table={table}
-            categories={categories}
-            _creationTime={_creationTime}
-          />
-        )}
+        filters={
+          <TableFilters categories={categories} _creationTime={_creationTime} />
+        }
         isLoading={status === "pending"}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
-        footer={(table) => <Footer table={table} />}
+        footer={<Footer />}
       />
 
       <EditEventRecord
@@ -347,25 +344,20 @@ const PaymentStatusCheckbox = ({
   )
 }
 
-const Footer = ({ table }: { table: Table<EventRecord> }) => {
-  const rows = table.getFilteredRowModel().rows
+const Footer = () => {
+  const { table } = useDataTable<EventRecord>()
 
-  const totalDonors = useMemo(
-    () => new Set(rows.map((row) => row.original.name)).size,
-    [rows]
-  )
+  const rows = useMemo(() => table?.getFilteredRowModel().rows || [], [table])
 
-  const totalAmount = useMemo(
-    () => rows.reduce((sum, row) => sum + row.original.amount, 0),
-    [rows]
-  )
-
-  const totalPaidAmount = useMemo(
-    () =>
-      rows.reduce(
+  const { totalDonors, totalAmount, totalPaidAmount } = useMemo(
+    () => ({
+      totalDonors: new Set(rows.map((row) => row.original.name)).size,
+      totalAmount: rows.reduce((sum, row) => sum + row.original.amount, 0),
+      totalPaidAmount: rows.reduce(
         (sum, row) => (row.original.isPaid ? sum + row.original.amount : sum),
         0
       ),
+    }),
     [rows]
   )
 
@@ -388,7 +380,7 @@ const Footer = ({ table }: { table: Table<EventRecord> }) => {
       <IconWithText
         icon={CircleDollarSign}
         text={`${formatCurrency(totalPaidAmount)} / ${formatCurrency(totalAmount)}`}
-        title="Total Amount (Paid / Total)"
+        title="Amount (Paid / Total)"
         side="top"
       />
     </div>

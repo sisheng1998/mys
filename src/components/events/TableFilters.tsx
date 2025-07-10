@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { Table } from "@tanstack/react-table"
 import { CalendarIcon, ListFilter, X } from "lucide-react"
 
 import { Category } from "@/types/category"
@@ -33,22 +32,23 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import CommandSearch from "@/components/data-table/CommandSearch"
+import { useDataTable } from "@/contexts/data-table"
 
 const CATEGORY_KEY = "category"
 const PAYMENT_KEY = "payment"
 const DATE_KEY = "date"
 
 const TableFilters = <TData,>({
-  table,
   categories,
   _creationTime,
 }: {
-  table: Table<TData>
   categories: Category[]
   _creationTime: number
 }) => {
   const today = new Date()
   const minDate = new Date(_creationTime)
+
+  const { table } = useDataTable<TData>()
 
   const [columnFilters] = useFilterParams()
 
@@ -64,6 +64,8 @@ const TableFilters = <TData,>({
     (Array.isArray(selectedDate?.value) ? 1 : 0)
 
   const handleSelect = (key: string, value?: string | boolean) => {
+    if (!table) return
+
     const selectedItem =
       key === CATEGORY_KEY ? selectedCategory : selectedPayment
 
@@ -97,6 +99,8 @@ const TableFilters = <TData,>({
       : undefined
 
   const handleSelectDateRange = (date: typeof dateRange) => {
+    if (!table) return
+
     if (!date) {
       table.setColumnFilters((prev) => prev.filter((f) => f.id !== DATE_KEY))
       return
@@ -113,13 +117,16 @@ const TableFilters = <TData,>({
     ])
   }
 
-  const handleReset = () =>
+  const handleReset = () => {
+    if (!table) return
+
     table.setColumnFilters((prev) =>
       prev.filter(
         (f) =>
           f.id !== CATEGORY_KEY && f.id !== PAYMENT_KEY && f.id !== DATE_KEY
       )
     )
+  }
 
   return (
     <Popover>

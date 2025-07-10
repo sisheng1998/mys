@@ -37,23 +37,24 @@ import {
 import ColumnToggle from "@/components/data-table/ColumnToggle"
 import Pagination from "@/components/data-table/Pagination"
 import Search from "@/components/data-table/Search"
+import { useDataTable } from "@/contexts/data-table"
 
 type WithId = { _id: string }
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  filters?: (table: TableType<TData>) => React.ReactNode
+  filters?: React.ReactNode
   isLoading?: boolean
   rowSelection?: RowSelectionState
   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>
-  footer?: (table: TableType<TData>) => React.ReactNode
+  footer?: React.ReactNode
 }
 
 const DataTable = <TData extends WithId, TValue>({
   columns,
   data,
-  filters = () => null,
+  filters,
   isLoading,
   rowSelection,
   setRowSelection,
@@ -64,6 +65,8 @@ const DataTable = <TData extends WithId, TValue>({
   const [sorting, setSorting] = useSortingParams()
   const [columnFilters, setColumnFilters] = useFilterParams()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+
+  const { setTable } = useDataTable<TData>()
 
   const table = useReactTable({
     data,
@@ -100,6 +103,10 @@ const DataTable = <TData extends WithId, TValue>({
   })
 
   useEffect(() => {
+    setTable(table)
+  }, [table, setTable])
+
+  useEffect(() => {
     if (data.length === 0) return
 
     const currentPageIndex = table.getState().pagination.pageIndex
@@ -124,7 +131,7 @@ const DataTable = <TData extends WithId, TValue>({
         <div className="flex flex-wrap items-center gap-2">
           <div className="mr-auto flex flex-wrap items-center gap-2">
             <ColumnToggle table={table} />
-            {filters(table)}
+            {filters}
           </div>
 
           <Search search={search} setSearch={table.setGlobalFilter} />
@@ -134,7 +141,7 @@ const DataTable = <TData extends WithId, TValue>({
 
         {footer && (
           <div className="bg-card -mt-4 rounded-b-md border border-t-0">
-            {footer(table)}
+            {footer}
           </div>
         )}
 
