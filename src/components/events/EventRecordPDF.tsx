@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer"
 
 import { EventRecordForExport } from "@/types/event"
+import { Title } from "@/types/nameList"
 import {
   formatDate,
   getLunarDateFromSolarDate,
@@ -16,40 +17,89 @@ import {
 } from "@/lib/date"
 import { getNameWithTitle } from "@/lib/name"
 import { formatCurrency, formatNumber } from "@/lib/number"
+import { isAllEnglishCharacters } from "@/lib/string"
 
 const NUM_COLUMNS = 3
-const RECORDS_PER_COLUMN = 30
-const RECORDS_PER_PAGE = NUM_COLUMNS * RECORDS_PER_COLUMN
+const MAX_LINES_PER_COLUMN = 30
 
-const paginateRecords = (records: EventRecordForExport["records"]) => {
-  const pages: EventRecordForExport["records"][] = []
-
-  for (let i = 0; i < records.length; i += RECORDS_PER_PAGE) {
-    pages.push(records.slice(i, i + RECORDS_PER_PAGE))
-  }
-
-  return pages
+type RecordWithEstimate = EventRecordForExport["records"][number] & {
+  estimatedLines: number
 }
 
-const splitPageIntoColumns = (
+const estimateLines = (name: string, title?: Title, withAmount?: boolean) => {
+  const charactersPerLine = isAllEnglishCharacters(name)
+    ? 20
+    : withAmount
+      ? 9
+      : 12
+
+  const fullName = getNameWithTitle(name, title)
+  return Math.ceil(fullName.length / charactersPerLine)
+}
+
+const paginateAndSplit = (
   records: EventRecordForExport["records"],
-  numColumns: number,
-  recordsPerColumn: number
-) => {
-  const columns: EventRecordForExport["records"][] = Array.from(
-    { length: numColumns },
-    () => []
-  )
+  withAmount: boolean
+): RecordWithEstimate[][][] => {
+  const recordsWithEstimates: RecordWithEstimate[] = records.map((record) => ({
+    ...record,
+    estimatedLines: estimateLines(record.name, record.title, withAmount),
+  }))
 
-  for (let i = 0; i < records.length; i++) {
-    const columnIndex = Math.floor(i / recordsPerColumn)
+  const pages: RecordWithEstimate[][][] = []
 
-    if (columnIndex < numColumns) {
-      columns[columnIndex].push(records[i])
-    }
+  let currentPage: RecordWithEstimate[][] = []
+  let currentColumn: RecordWithEstimate[] = []
+  let recordCount = 0
+  let lineCount = 0
+  let extraLinePool = 0
+
+  const pushColumn = () => {
+    currentPage.push(currentColumn)
+    currentColumn = []
+    recordCount = 0
+    lineCount = 0
+    extraLinePool = 0
   }
 
-  return columns
+  const pushPage = () => {
+    while (currentPage.length < NUM_COLUMNS) {
+      currentPage.push([])
+    }
+    pages.push(currentPage)
+    currentPage = []
+  }
+
+  for (const record of recordsWithEstimates) {
+    const lines = record.estimatedLines
+    const extra = Math.max(0, lines - 1)
+
+    const nextRecordCount = recordCount + 1
+    const nextLineCount = lineCount + lines
+    const nextExtraLinePool = extraLinePool + extra
+    const bonusLines = Math.floor(nextExtraLinePool / 3)
+    const allowedLines = MAX_LINES_PER_COLUMN + bonusLines
+
+    const exceedsRecordLimit = nextRecordCount > 30
+    const exceedsLineLimit = nextLineCount > allowedLines
+
+    if (exceedsRecordLimit || exceedsLineLimit) {
+      pushColumn()
+      if (currentPage.length >= NUM_COLUMNS) {
+        pushPage()
+      }
+    }
+
+    currentColumn.push(record)
+    recordCount++
+    lineCount += lines
+    extraLinePool += extra
+  }
+
+  if (currentColumn.length > 0) pushColumn()
+  if (currentPage.length > 0) pushPage()
+
+  return pages
 }
 
 Font.register({
@@ -167,16 +217,14 @@ const EventRecordPDF = ({
   data: EventRecordForExport
   withAmount: boolean
 }) => {
-  const pages = paginateRecords(data.records)
+  const pages = paginateAndSplit(data.records, withAmount)
+
+  let globalIndex = 0
 
   return (
     <Document title={title} author="妙音寺" subject="Donation Records">
-      {pages.map((pageRecords, pageIndex) => {
-        const columns = splitPageIntoColumns(
-          pageRecords,
-          NUM_COLUMNS,
-          RECORDS_PER_COLUMN
-        )
+      {pages.map((columns, pageIndex) => {
+        const pageRecords = columns.flat()
 
         return (
           <Page key={pageIndex} size="A4" style={styles.page}>
@@ -202,10 +250,7 @@ const EventRecordPDF = ({
                   ]}
                 >
                   {column.map((record, recordIndex) => {
-                    const globalIndex =
-                      pageIndex * RECORDS_PER_PAGE +
-                      colIndex * RECORDS_PER_COLUMN +
-                      recordIndex
+                    const index = globalIndex++
 
                     return (
                       <View key={recordIndex} style={styles.record}>
@@ -217,9 +262,7 @@ const EventRecordPDF = ({
                             },
                           ]}
                         >
-                          <Text style={styles.textRight}>
-                            {globalIndex + 1}.
-                          </Text>
+                          <Text style={styles.textRight}>{index + 1}.</Text>
                         </View>
 
                         <Text

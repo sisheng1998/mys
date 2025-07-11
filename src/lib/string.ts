@@ -71,4 +71,4 @@ const converter = OpenCC.Converter({ from: "cn", to: "tw" })
 export const convertSCToTC = (text: string): string => converter(text)
 
 export const isAllEnglishCharacters = (text: string): boolean =>
-  /^[A-Za-z\s]+$/.test(text)
+  /^[A-Za-z\s'\/\-\(\)]+$/.test(text)
