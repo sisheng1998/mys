@@ -42,7 +42,7 @@ function UnderlineTabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "ring-offset-background hover:text-accent-foreground focus-visible:ring-ring data-[state=active]:text-primary data-[state=active]:border-b-primary hover:before:bg-muted/50 data-[state=active]:hover:before:bg-primary/10 relative z-0 inline-flex items-center justify-center border-b-2 border-b-transparent bg-transparent px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors before:absolute before:inset-x-0 before:inset-y-2 before:z-[-1] before:rounded-md before:transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+        "ring-offset-background hover:text-accent-foreground focus-visible:ring-ring data-[state=active]:text-primary data-[state=active]:border-b-primary hover:bg-muted/50 data-[state=active]:hover:bg-primary/10 relative z-0 inline-flex items-center justify-center rounded-t-sm border-b-2 border-b-transparent bg-transparent px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
         className
       )}
       {...props}
