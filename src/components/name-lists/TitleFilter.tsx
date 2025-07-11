@@ -76,7 +76,11 @@ const TitleFilter = <TData,>() => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-48 p-0" align="start">
+      <PopoverContent
+        className="w-48 p-0"
+        align="start"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <Command>
           <CommandSearch />
 
