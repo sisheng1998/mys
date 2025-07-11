@@ -16,6 +16,7 @@ import type * as categories_schemas from "../categories/schemas.js";
 import type * as events_mutations from "../events/mutations.js";
 import type * as events_queries from "../events/queries.js";
 import type * as events_schemas from "../events/schemas.js";
+import type * as events_scripts from "../events/scripts.js";
 import type * as http from "../http.js";
 import type * as nameLists_migrations from "../nameLists/migrations.js";
 import type * as nameLists_mutations from "../nameLists/mutations.js";
@@ -54,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   "events/mutations": typeof events_mutations;
   "events/queries": typeof events_queries;
   "events/schemas": typeof events_schemas;
+  "events/scripts": typeof events_scripts;
   http: typeof http;
   "nameLists/migrations": typeof nameLists_migrations;
   "nameLists/mutations": typeof nameLists_mutations;
