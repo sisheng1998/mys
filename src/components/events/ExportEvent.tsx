@@ -70,6 +70,9 @@ import { Id } from "@cvx/_generated/dataModel"
 import { exportEventSchema } from "@cvx/events/queries"
 
 const extendedSchema = exportEventSchema.extend({
+  withAmount: z.boolean(),
+  withPaymentStatus: z.boolean(),
+  withTotal: z.boolean(),
   dateRange: z
     .object({
       from: z.date(),
@@ -98,6 +101,8 @@ const ExportEvent = ({
     _id,
     category: "",
     withAmount: false,
+    withPaymentStatus: false,
+    withTotal: false,
   }
 
   const form = useForm<formSchema>({
@@ -107,7 +112,8 @@ const ExportEvent = ({
 
   const onSubmit = async (values: formSchema) => {
     try {
-      const { dateRange, ...body } = values
+      const { dateRange, withAmount, withPaymentStatus, withTotal, ...body } =
+        values
 
       const startDate = dateRange
         ? getStartOfDay(dateRange.from).valueOf()
@@ -138,11 +144,13 @@ const ExportEvent = ({
         <EventRecordPDF
           title={title}
           data={data}
-          withAmount={values.withAmount}
+          withAmount={withAmount}
+          withPaymentStatus={withPaymentStatus}
+          withTotal={withTotal}
         />
       ).toBlob()
 
-      const filename = `${getValidFilename(`${title}${values.withAmount ? " (A)" : ""}`)}.pdf`
+      const filename = `${getValidFilename(title)}.pdf`
       saveAs(blob, filename)
 
       toast.success("PDF exported")
@@ -276,32 +284,84 @@ const ExportEvent = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="withAmount"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>PDF Content</Label>
+            <div className="flex flex-col gap-2">
+              <Label>PDF Content</Label>
 
-                  <Label
-                    htmlFor={`checkbox-${field.name}`}
-                    className="bg-background dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
-                  >
-                    <FormControl>
-                      <Checkbox
-                        id={`checkbox-${field.name}`}
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
+              <FormField
+                control={form.control}
+                name="withAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label
+                      htmlFor={`checkbox-${field.name}`}
+                      className="bg-background dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
+                    >
+                      <FormControl>
+                        <Checkbox
+                          id={`checkbox-${field.name}`}
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
 
-                    <FormLabel className="pointer-events-none h-4.5 font-normal">
-                      Include donation amount
-                    </FormLabel>
-                  </Label>
-                </FormItem>
-              )}
-            />
+                      <FormLabel className="pointer-events-none h-4.5 font-normal">
+                        Include donation amount
+                      </FormLabel>
+                    </Label>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="withPaymentStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label
+                      htmlFor={`checkbox-${field.name}`}
+                      className="bg-background dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
+                    >
+                      <FormControl>
+                        <Checkbox
+                          id={`checkbox-${field.name}`}
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+
+                      <FormLabel className="pointer-events-none h-4.5 font-normal">
+                        Include payment status
+                      </FormLabel>
+                    </Label>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="withTotal"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label
+                      htmlFor={`checkbox-${field.name}`}
+                      className="bg-background dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
+                    >
+                      <FormControl>
+                        <Checkbox
+                          id={`checkbox-${field.name}`}
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+
+                      <FormLabel className="pointer-events-none h-4.5 font-normal">
+                        Include page / grand total
+                      </FormLabel>
+                    </Label>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter>
               <DialogClose asChild>

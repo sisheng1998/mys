@@ -212,10 +212,14 @@ const EventRecordPDF = ({
   title,
   data,
   withAmount,
+  withPaymentStatus,
+  withTotal,
 }: {
   title: string
   data: EventRecordForExport
   withAmount: boolean
+  withPaymentStatus: boolean
+  withTotal: boolean
 }) => {
   const pages = paginateAndSplit(data.records, withAmount)
 
@@ -272,19 +276,25 @@ const EventRecordPDF = ({
                           {getNameWithTitle(record.name, record.title)}
                         </Text>
 
-                        {withAmount && (
+                        {(withAmount || withPaymentStatus) && (
                           <View style={styles.recordAmount}>
-                            <Text style={styles.textRight}>
-                              {formatNumber(record.amount || 0)}
-                            </Text>
+                            {withAmount && (
+                              <Text style={styles.textRight}>
+                                {formatNumber(record.amount || 0)}
+                              </Text>
+                            )}
 
-                            <Text
-                              style={{
-                                color: record.isPaid ? "black" : "transparent",
-                              }}
-                            >
-                              ✓
-                            </Text>
+                            {withPaymentStatus && (
+                              <Text
+                                style={{
+                                  color: record.isPaid
+                                    ? "black"
+                                    : "transparent",
+                                }}
+                              >
+                                ✓
+                              </Text>
+                            )}
                           </View>
                         )}
                       </View>
@@ -294,7 +304,7 @@ const EventRecordPDF = ({
               ))}
             </View>
 
-            {withAmount && (
+            {withTotal && (
               <View style={styles.totalSection}>
                 <View style={styles.totalInnerSection}>
                   <View style={styles.total}>
@@ -315,16 +325,20 @@ const EventRecordPDF = ({
                           0
                         )
                       )}{" "}
-                      (
-                      {formatCurrency(
-                        pageRecords
-                          .filter((record) => record.isPaid)
-                          .reduce(
-                            (sum, record) => sum + (record.amount || 0),
-                            0
-                          )
-                      )}{" "}
-                      Paid)
+                      {withPaymentStatus && (
+                        <>
+                          (
+                          {formatCurrency(
+                            pageRecords
+                              .filter((record) => record.isPaid)
+                              .reduce(
+                                (sum, record) => sum + (record.amount || 0),
+                                0
+                              )
+                          )}{" "}
+                          Paid)
+                        </>
+                      )}
                     </Text>
                   </View>
 
@@ -341,16 +355,20 @@ const EventRecordPDF = ({
                             0
                           )
                         )}{" "}
-                        (
-                        {formatCurrency(
-                          data.records
-                            .filter((record) => record.isPaid)
-                            .reduce(
-                              (sum, record) => sum + (record.amount || 0),
-                              0
-                            )
-                        )}{" "}
-                        Paid)
+                        {withPaymentStatus && (
+                          <>
+                            (
+                            {formatCurrency(
+                              data.records
+                                .filter((record) => record.isPaid)
+                                .reduce(
+                                  (sum, record) => sum + (record.amount || 0),
+                                  0
+                                )
+                            )}{" "}
+                            Paid)
+                          </>
+                        )}
                       </Text>
                     </View>
                   )}

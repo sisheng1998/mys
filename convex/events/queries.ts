@@ -194,7 +194,6 @@ export const exportEventSchema = eventRecordSchema
   })
   .extend({
     _id: zid("events"),
-    withAmount: z.boolean(),
     startDate: z.number().optional(),
     endDate: z.number().optional(),
   })
@@ -202,7 +201,7 @@ export const exportEventSchema = eventRecordSchema
 export const getRecordsForExport = authQuery({
   args: exportEventSchema.shape,
   handler: async (ctx, args) => {
-    const { _id, category, withAmount, startDate, endDate } = args
+    const { _id, category, startDate, endDate } = args
 
     const event = await ctx.db.get(_id)
     if (!event) throw new ConvexError("Event not found")
@@ -227,10 +226,8 @@ export const getRecordsForExport = authQuery({
       records: records.map((record) => ({
         name: record.name,
         title: record.title,
-        ...(withAmount && {
-          amount: record.amount,
-          isPaid: record.isPaid,
-        }),
+        amount: record.amount,
+        isPaid: record.isPaid,
       })),
     }
   },
