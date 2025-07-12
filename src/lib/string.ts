@@ -68,7 +68,26 @@ export const normalizeSymbol = (input: string): string => {
 
 const converter = OpenCC.Converter({ from: "cn", to: "tw" })
 
-export const convertSCToTC = (text: string): string => converter(text)
+const excludedWords = ["莹"]
+
+export const convertSCToTC = (text: string): string => {
+  let tempText = text
+
+  excludedWords.forEach((word, index) => {
+    const placeholder = `__EXCL_${index}__`
+    const regex = new RegExp(word, "g")
+    tempText = tempText.replace(regex, placeholder)
+  })
+
+  let converted = converter(tempText)
+
+  excludedWords.forEach((word, index) => {
+    const placeholder = `__EXCL_${index}__`
+    converted = converted.replaceAll(placeholder, word)
+  })
+
+  return converted
+}
 
 export const isAllEnglishCharacters = (text: string): boolean =>
   /^[A-Za-z\s'\/\-\(\)]+$/.test(text)
