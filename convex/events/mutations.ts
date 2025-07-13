@@ -165,7 +165,7 @@ export const addEventRecordByCategorySchema = eventRecordSchema
 export const addEventRecordByCategory = authMutation({
   args: addEventRecordByCategorySchema.shape,
   handler: async (ctx, args) => {
-    const { eventId, category, amount, records } = args
+    const { eventId, category, records } = args
 
     const event = await ctx.db.get(eventId)
     if (!event) throw new ConvexError("Event not found")
@@ -181,7 +181,7 @@ export const addEventRecordByCategory = authMutation({
     }
 
     for (const record of records) {
-      const { title, name, isPaid } = record
+      const { title, name, amount, isPaid } = record
 
       const duplicatedRecord = await ctx.db
         .query("eventRecords")
