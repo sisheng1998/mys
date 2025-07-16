@@ -38,6 +38,13 @@ export const getLabelText = (
     ? ENGLISH_NAME_FONT_SIZE
     : CHINESE_NAME_FONT_SIZE
 
+  if (name === "十方法界一切眾生") {
+    return [
+      ["十方法界 一切眾生", 42],
+      ["出入平安", TITLE_FONT_SIZE],
+    ]
+  }
+
   if (title === "合家") {
     label = [
       [name, fontSize],

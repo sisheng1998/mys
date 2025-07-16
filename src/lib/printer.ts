@@ -9,16 +9,11 @@ const LABEL_HEIGHT_MM = 25
 const LABEL_WIDTH_DOTS = LABEL_WIDTH_MM * DOTS_PER_MM
 const LABEL_HEIGHT_DOTS = LABEL_HEIGHT_MM * DOTS_PER_MM
 const PADDING = 12
-const FONT_WEIGHT = /Android|Windows/i.test(navigator.userAgent) ? 300 : 200
+const FONT_WEIGHT = 400
 
 export const getTSPLCommands = (commands: string[] = []): string[] => [
   `SIZE ${LABEL_WIDTH_MM} mm,${LABEL_HEIGHT_MM} mm`,
   `GAP ${GAP_HEIGHT_MM} mm,0 mm`,
-  "DIRECTION 0,0",
-  "REFERENCE 0,0",
-  "DENSITY 9",
-  "OFFSET 0 mm",
-  "SPEED 3",
   ...commands,
 ]
 
