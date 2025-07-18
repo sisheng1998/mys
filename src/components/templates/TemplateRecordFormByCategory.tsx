@@ -123,7 +123,7 @@ const TemplateRecordFormByCategory = ({
           }
         }),
       })
-      toast.success("Record(s) added")
+      toast.success(`${values.records.length} record(s) added`)
       handleClose()
     } catch (error) {
       handleFormError(error, form.setError)
