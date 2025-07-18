@@ -12,6 +12,7 @@ import { z } from "zod"
 import { Category } from "@/types/category"
 import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
+import { getLabelText } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -46,6 +47,7 @@ import {
 } from "@/components/ui/tooltip"
 import NameAutocomplete from "@/components/records/NameAutocomplete"
 import { FormFooter } from "@/components/templates/AddTemplateRecord"
+import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -56,6 +58,8 @@ const getExtendedSchema = (categories: Category[]) =>
   addEventRecordByDonorSchema
     .extend({
       title: addEventRecordByDonorSchema.shape.title.nullable(),
+      isPaid: z.boolean(),
+      printSticker: z.boolean(),
       records: z.array(
         addEventRecordByDonorSchema.shape.records.element.extend({
           id: z.number(),
@@ -92,6 +96,7 @@ const EventRecordFormByDonor = ({
   categories: Category[]
   handleClose: () => void
 }) => {
+  const { device, print } = usePrinter()
   const { _id } = useParams<{ _id: Id<"events"> }>()
 
   const addEventRecord = useMutation(api.events.mutations.addEventRecordByDonor)
@@ -100,7 +105,16 @@ const EventRecordFormByDonor = ({
     eventId: _id,
     title: null,
     name: "",
-    records: [{ id: Date.now(), category: "", amount: NaN, isPaid: false }],
+    isPaid: false,
+    printSticker: false,
+    records: [
+      {
+        id: Date.now(),
+        category: "",
+        amount: NaN,
+        isPaid: false,
+      },
+    ],
   }
 
   const form = useForm<formSchema>({
@@ -113,8 +127,10 @@ const EventRecordFormByDonor = ({
     name: "records",
   })
 
-  const onSubmit = async (values: formSchema) => {
+  const onSubmit = async ({ isPaid, printSticker, ...values }: formSchema) => {
     try {
+      void isPaid
+
       await addEventRecord({
         ...values,
         title: values.title || undefined,
@@ -123,7 +139,14 @@ const EventRecordFormByDonor = ({
           return record
         }),
       })
-      toast.success("Record(s) added")
+
+      toast.success(`${values.records.length} record(s) added`)
+
+      if (device && printSticker) {
+        await print([getLabelText(values.name, values.title || undefined)])
+        toast.success("Sticker printed")
+      }
+
       handleClose()
     } catch (error) {
       handleFormError(error, form.setError)
@@ -152,78 +175,108 @@ const EventRecordFormByDonor = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field, fieldState }) => {
-            const triggerCategories = () =>
-              form.getValues("records").forEach(async (record, index) => {
-                if (record.category) {
-                  await form.trigger([`records.${index}.category`])
-                }
-              })
+        <div className="grid gap-2">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field, fieldState }) => {
+              const triggerCategories = () =>
+                form.getValues("records").forEach(async (record, index) => {
+                  if (record.category) {
+                    await form.trigger([`records.${index}.category`])
+                  }
+                })
 
-            return (
-              <FormItem>
-                <FormLabel>Donor</FormLabel>
+              return (
+                <FormItem>
+                  <FormLabel>Donor</FormLabel>
 
-                <div className="flex items-stretch">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field: titleField }) => (
-                      <FormItem>
-                        <Select
-                          value={titleField.value || ""}
-                          onValueChange={(value) => {
-                            titleField.onChange(value)
-                            triggerCategories()
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 px-2 [&_svg]:hidden">
-                              <SelectValue placeholder="Title">
-                                {titleField.value || "Title"}
-                              </SelectValue>
-                            </SelectTrigger>
-                          </FormControl>
+                  <div className="flex items-stretch">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field: titleField }) => (
+                        <FormItem>
+                          <Select
+                            value={titleField.value || ""}
+                            onValueChange={(value) => {
+                              titleField.onChange(value)
+                              triggerCategories()
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 px-2 [&_svg]:hidden">
+                                <SelectValue placeholder="Title">
+                                  {titleField.value || "Title"}
+                                </SelectValue>
+                              </SelectTrigger>
+                            </FormControl>
 
-                          <SelectContent>
-                            <SelectItem value={null!}>
-                              <span className="text-muted-foreground">
-                                Select
-                              </span>
-                            </SelectItem>
-
-                            {TITLES.map((title) => (
-                              <SelectItem key={title} value={title}>
-                                {title}
+                            <SelectContent>
+                              <SelectItem value={null!}>
+                                <span className="text-muted-foreground">
+                                  Select
+                                </span>
                               </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
 
-                  <FormControl>
-                    <NameAutocomplete
-                      name="name"
-                      onSelect={(data) => {
-                        field.onChange(data.name)
-                        form.setValue("title", data.title || null)
-                        triggerCategories()
-                      }}
-                      isInvalid={!!fieldState.error}
+                              {TITLES.map((title) => (
+                                <SelectItem key={title} value={title}>
+                                  {title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
                     />
-                  </FormControl>
-                </div>
 
-                <FormMessage />
-              </FormItem>
-            )
-          }}
-        />
+                    <FormControl>
+                      <NameAutocomplete
+                        name="name"
+                        onSelect={(data) => {
+                          field.onChange(data.name)
+                          form.setValue("title", data.title || null)
+                          triggerCategories()
+                        }}
+                        isInvalid={!!fieldState.error}
+                      />
+                    </FormControl>
+                  </div>
+
+                  <FormMessage />
+                </FormItem>
+              )
+            }}
+          />
+
+          {device && (
+            <FormField
+              control={form.control}
+              name="printSticker"
+              render={({ field }) => (
+                <FormItem className="justify-self-start">
+                  <Label
+                    htmlFor={`checkbox-${field.name}`}
+                    className="min-h-9 cursor-pointer"
+                  >
+                    <FormControl>
+                      <Checkbox
+                        id={`checkbox-${field.name}`}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={!device}
+                      />
+                    </FormControl>
+
+                    <FormLabel className="pointer-events-none font-normal">
+                      Print Sticker
+                    </FormLabel>
+                  </Label>
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
 
         <div className="-mt-1 flex flex-col gap-4">
           <div className="-mb-1 flex flex-wrap items-center justify-between gap-2">
@@ -237,6 +290,7 @@ const EventRecordFormByDonor = ({
                 append({
                   ...defaultValues.records[0],
                   id: Date.now(),
+                  isPaid: form.watch("isPaid"),
                 })
               }
             >
@@ -351,7 +405,16 @@ const EventRecordFormByDonor = ({
                           <Checkbox
                             id={`checkbox-${field.name}`}
                             checked={field.value}
-                            onCheckedChange={field.onChange}
+                            onCheckedChange={(value) => {
+                              field.onChange(value)
+
+                              if (
+                                !form.watch("isPaid") ||
+                                form.watch("records").length === 1
+                              ) {
+                                form.setValue("isPaid", value as boolean)
+                              }
+                            }}
                           />
                         </FormControl>
 

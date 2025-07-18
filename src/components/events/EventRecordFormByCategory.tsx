@@ -11,7 +11,7 @@ import { z } from "zod"
 
 import { Category } from "@/types/category"
 import { handleFormError } from "@/lib/error"
-import { isTitleDisabled } from "@/lib/name"
+import { getLabelText, isTitleDisabled } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/tooltip"
 import NameAutocomplete from "@/components/records/NameAutocomplete"
 import { FormFooter } from "@/components/templates/AddTemplateRecord"
+import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -55,12 +56,15 @@ import { TITLES } from "@cvx/nameLists/schemas"
 const getExtendedSchema = (categories: Category[]) =>
   addEventRecordByCategorySchema
     .extend({
+      isPaid: z.boolean(),
+      printSticker: z.boolean(),
       records: z.array(
         addEventRecordByCategorySchema.shape.records.element.extend({
           id: z.number(),
           title:
             addEventRecordByCategorySchema.shape.records.element.shape.title.nullable(),
           isPaid: z.boolean(),
+          printSticker: z.boolean(),
         })
       ),
     })
@@ -90,6 +94,7 @@ const EventRecordFormByCategory = ({
   categories: Category[]
   handleClose: () => void
 }) => {
+  const { device, print } = usePrinter()
   const { _id } = useParams<{ _id: Id<"events"> }>()
 
   const addEventRecord = useMutation(
@@ -100,8 +105,17 @@ const EventRecordFormByCategory = ({
     eventId: _id,
     category: "",
     amount: NaN,
+    isPaid: false,
+    printSticker: false,
     records: [
-      { id: Date.now(), title: null, name: "", amount: NaN, isPaid: false },
+      {
+        id: Date.now(),
+        title: null,
+        name: "",
+        amount: NaN,
+        isPaid: false,
+        printSticker: false,
+      },
     ],
   }
 
@@ -115,19 +129,37 @@ const EventRecordFormByCategory = ({
     name: "records",
   })
 
-  const onSubmit = async (values: formSchema) => {
+  const onSubmit = async ({ isPaid, printSticker, ...values }: formSchema) => {
     try {
+      void isPaid
+      void printSticker
+
       await addEventRecord({
         ...values,
-        records: values.records.map(({ id, ...record }) => {
+        records: values.records.map(({ id, printSticker, ...record }) => {
           void id
+          void printSticker
+
           return {
             ...record,
             title: record.title || undefined,
           }
         }),
       })
-      toast.success("Record(s) added")
+
+      toast.success(`${values.records.length} record(s) added`)
+
+      if (device) {
+        const records = values.records
+          .filter((record) => record.printSticker)
+          .map((record) => getLabelText(record.name, record.title || undefined))
+
+        if (records.length !== 0) {
+          await print(records)
+          toast.success(`${records.length} sticker(s) printed`)
+        }
+      }
+
       handleClose()
     } catch (error) {
       handleFormError(error, form.setError)
@@ -220,6 +252,8 @@ const EventRecordFormByCategory = ({
                   ...defaultValues.records[0],
                   id: Date.now(),
                   amount: form.watch("amount"),
+                  isPaid: form.watch("isPaid"),
+                  printSticker: form.watch("printSticker"),
                 })
               }
             >
@@ -364,17 +398,65 @@ const EventRecordFormByCategory = ({
                           <Checkbox
                             id={`checkbox-${field.name}`}
                             checked={field.value}
-                            onCheckedChange={field.onChange}
+                            onCheckedChange={(value) => {
+                              field.onChange(value)
+
+                              if (
+                                !form.watch("isPaid") ||
+                                form.watch("records").length === 1
+                              ) {
+                                form.setValue("isPaid", value as boolean)
+                              }
+                            }}
                           />
                         </FormControl>
 
-                        <FormLabel className="pointer-events-none font-normal">
+                        <FormLabel className="pointer-events-none leading-tight font-normal">
                           Mark as Paid
                         </FormLabel>
                       </Label>
                     </FormItem>
                   )}
                 />
+
+                {device && (
+                  <FormField
+                    control={form.control}
+                    name={`records.${index}.printSticker`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label
+                          htmlFor={`checkbox-${field.name}`}
+                          className="min-h-9 cursor-pointer sm:ml-9"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              id={`checkbox-${field.name}`}
+                              checked={field.value}
+                              onCheckedChange={(value) => {
+                                field.onChange(value)
+
+                                if (
+                                  !form.watch("printSticker") ||
+                                  form.watch("records").length === 1
+                                ) {
+                                  form.setValue(
+                                    "printSticker",
+                                    value as boolean
+                                  )
+                                }
+                              }}
+                            />
+                          </FormControl>
+
+                          <FormLabel className="pointer-events-none leading-tight font-normal">
+                            Print Sticker
+                          </FormLabel>
+                        </Label>
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <Tooltip>
                   <TooltipTrigger asChild>
