@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useState,
 } from "react"
+import pako from "pako"
 
 import {
   getBitmapBytesFromCanvas,
@@ -95,7 +96,14 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
       const widthInBytes = Math.ceil(trimmedCanvas.width / 8)
       const height = trimmedCanvas.height
 
-      const bitmapCmdPrefix = `BITMAP ${offsetX},${offsetY},${widthInBytes},${height},0,`
+      const compressedBytes = pako.deflate(bitmapBytes, {
+        level: -1,
+        windowBits: -15,
+        memLevel: 9,
+        strategy: 0,
+      })
+
+      const bitmapCmdPrefix = `BITMAP ${offsetX},${offsetY},${widthInBytes},${height},3,${compressedBytes.length},`
       const bitmapHeader = encoder.encode(bitmapCmdPrefix)
       const bitmapFooter = encoder.encode("\r\n")
       const clearCmd = encoder.encode("CLS\r\n")
@@ -103,7 +111,7 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
 
       fullBufParts.push(clearCmd)
       fullBufParts.push(bitmapHeader)
-      fullBufParts.push(bitmapBytes)
+      fullBufParts.push(compressedBytes)
       fullBufParts.push(bitmapFooter)
       fullBufParts.push(printCmd)
     }

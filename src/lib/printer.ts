@@ -233,7 +233,7 @@ export const getBitmapBytesFromCanvas = async (
         if (isBlack) byte |= 1 << (7 - bit)
       }
 
-      bytes[y * widthInBytes + byteIdx] = ~byte & 0xff
+      bytes[y * widthInBytes + byteIdx] = byte
     }
   }
 
