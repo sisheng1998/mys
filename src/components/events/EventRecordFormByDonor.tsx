@@ -175,7 +175,7 @@ const EventRecordFormByDonor = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <div className="grid gap-2">
+        <div className="grid gap-4">
           <FormField
             control={form.control}
             name="name"
@@ -254,7 +254,7 @@ const EventRecordFormByDonor = ({
               control={form.control}
               name="printSticker"
               render={({ field }) => (
-                <FormItem className="justify-self-start">
+                <FormItem className="-my-2 justify-self-start">
                   <Label
                     htmlFor={`checkbox-${field.name}`}
                     className="min-h-9 cursor-pointer"

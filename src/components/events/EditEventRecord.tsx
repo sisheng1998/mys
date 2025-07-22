@@ -11,6 +11,7 @@ import { Category } from "@/types/category"
 import { EventRecord } from "@/types/event"
 import { isCategoryDisabled } from "@/lib/category"
 import { handleFormError } from "@/lib/error"
+import { getLabelText } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -48,6 +49,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import NameAutocomplete from "@/components/records/NameAutocomplete"
+import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
 import { editEventRecordSchema } from "@cvx/events/mutations"
@@ -57,6 +59,7 @@ const getExtendedSchema = (categories: Category[]) =>
   editEventRecordSchema
     .extend({
       title: editEventRecordSchema.shape.title.nullable(),
+      printSticker: z.boolean(),
     })
     .superRefine((data, ctx) => {
       const selectedCategory = categories.find((c) => c.name === data.category)
@@ -84,20 +87,23 @@ const EditEventRecord = ({
   eventRecord?: EventRecord
   categories: Category[]
 }) => {
+  const { device, print } = usePrinter()
   const editEventRecord = useMutation(api.events.mutations.editEventRecord)
 
   const defaultValues: formSchema = useMemo(
     () =>
-      eventRecord ??
-      ({
-        _id: "",
-        eventId: "",
-        title: null,
-        name: "",
-        category: "",
-        amount: NaN,
-        isPaid: false,
-      } as formSchema),
+      eventRecord
+        ? { ...eventRecord, printSticker: false }
+        : ({
+            _id: "",
+            eventId: "",
+            title: null,
+            name: "",
+            printSticker: false,
+            category: "",
+            amount: NaN,
+            isPaid: false,
+          } as formSchema),
     [eventRecord]
   )
 
@@ -110,10 +116,17 @@ const EditEventRecord = ({
     form.reset(defaultValues)
   }, [form, defaultValues])
 
-  const onSubmit = async (values: formSchema) => {
+  const onSubmit = async ({ printSticker, ...values }: formSchema) => {
     try {
       await editEventRecord({ ...values, title: values.title || undefined })
+
       toast.success("Record updated")
+
+      if (device && printSticker) {
+        await print([getLabelText(values.name, values.title || undefined)])
+        toast.success("Sticker printed")
+      }
+
       props.onOpenChange?.(false)
     } catch (error) {
       handleFormError(error, form.setError)
@@ -142,79 +155,109 @@ const EditEventRecord = ({
               </DialogDescription>
             </DialogHeader>
 
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field, fieldState }) => {
-                const triggerCategory = async () => {
-                  const category = form.getValues("category")
+            <div className="grid gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => {
+                  const triggerCategory = async () => {
+                    const category = form.getValues("category")
 
-                  if (category) {
-                    await form.trigger(["category"])
+                    if (category) {
+                      await form.trigger(["category"])
+                    }
                   }
-                }
 
-                return (
-                  <FormItem>
-                    <FormLabel>Donor</FormLabel>
+                  return (
+                    <FormItem>
+                      <FormLabel>Donor</FormLabel>
 
-                    <div className="flex items-stretch">
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field: titleField }) => (
-                          <FormItem>
-                            <Select
-                              value={titleField.value || ""}
-                              onValueChange={(value) => {
-                                titleField.onChange(value)
-                                triggerCategory()
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 px-2 [&_svg]:hidden">
-                                  <SelectValue placeholder="Title">
-                                    {titleField.value || "Title"}
-                                  </SelectValue>
-                                </SelectTrigger>
-                              </FormControl>
+                      <div className="flex items-stretch">
+                        <FormField
+                          control={form.control}
+                          name="title"
+                          render={({ field: titleField }) => (
+                            <FormItem>
+                              <Select
+                                value={titleField.value || ""}
+                                onValueChange={(value) => {
+                                  titleField.onChange(value)
+                                  triggerCategory()
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 px-2 [&_svg]:hidden">
+                                    <SelectValue placeholder="Title">
+                                      {titleField.value || "Title"}
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                </FormControl>
 
-                              <SelectContent>
-                                <SelectItem value={null!}>
-                                  <span className="text-muted-foreground">
-                                    Select
-                                  </span>
-                                </SelectItem>
-
-                                {TITLES.map((title) => (
-                                  <SelectItem key={title} value={title}>
-                                    {title}
+                                <SelectContent>
+                                  <SelectItem value={null!}>
+                                    <span className="text-muted-foreground">
+                                      Select
+                                    </span>
                                   </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
 
-                      <FormControl>
-                        <NameAutocomplete
-                          name="name"
-                          onSelect={(data) => {
-                            field.onChange(data.name)
-                            form.setValue("title", data.title || null)
-                            triggerCategory()
-                          }}
-                          isInvalid={!!fieldState.error}
+                                  {TITLES.map((title) => (
+                                    <SelectItem key={title} value={title}>
+                                      {title}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                    </div>
 
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
-            />
+                        <FormControl>
+                          <NameAutocomplete
+                            name="name"
+                            onSelect={(data) => {
+                              field.onChange(data.name)
+                              form.setValue("title", data.title || null)
+                              triggerCategory()
+                            }}
+                            isInvalid={!!fieldState.error}
+                          />
+                        </FormControl>
+                      </div>
+
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
+              />
+
+              {device && (
+                <FormField
+                  control={form.control}
+                  name="printSticker"
+                  render={({ field }) => (
+                    <FormItem className="-my-2 justify-self-start">
+                      <Label
+                        htmlFor={`checkbox-${field.name}`}
+                        className="min-h-9 cursor-pointer"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            id={`checkbox-${field.name}`}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={!device}
+                          />
+                        </FormControl>
+
+                        <FormLabel className="pointer-events-none font-normal">
+                          Print Sticker
+                        </FormLabel>
+                      </Label>
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
 
             <div className="grid items-start gap-4 sm:grid-cols-2">
               <FormField
