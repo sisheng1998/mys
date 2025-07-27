@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Heart } from "lucide-react"
 
 const Footer = () => (
-  <header className="text-muted-foreground m-2 mt-0 flex shrink-0 flex-wrap items-center justify-between gap-2 px-2 py-1 text-xs">
+  <footer className="text-muted-foreground m-2 mt-0 flex shrink-0 flex-wrap items-center justify-between gap-2 px-2 py-1 text-xs">
     <p>
       Made with
       <Heart className="mx-1 mb-1 inline size-3.5" />
@@ -14,7 +14,7 @@ const Footer = () => (
     </p>
 
     <p>© {new Date().getFullYear()} - All Rights Reserved</p>
-  </header>
+  </footer>
 )
 
 export default Footer
