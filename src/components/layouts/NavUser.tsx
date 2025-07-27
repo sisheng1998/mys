@@ -39,7 +39,7 @@ const NavUser = () => {
     try {
       setIsLoading(true)
       await signOut()
-      push("/login")
+      push("/sign-in")
     } catch (error) {
       toast.error(String(error))
       setIsLoading(false)
