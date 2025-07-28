@@ -4,8 +4,6 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import Logo from "@/icons/Logo"
 
-export const dynamic = "force-static"
-
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <main className="container mx-auto my-8 flex w-auto flex-col items-center justify-center gap-6 p-4">
     <Card className="w-full">
