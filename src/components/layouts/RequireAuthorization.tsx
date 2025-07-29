@@ -6,7 +6,14 @@ import { LogOut, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 
 import { useRouter } from "@/hooks/use-router"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { LoaderButton } from "@/components/ui/loader-button"
 import { useAuth } from "@/contexts/auth"
 
@@ -48,30 +55,31 @@ const Unauthorized = () => {
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center p-4">
-      <Alert className="w-full max-w-sm gap-y-2 has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] [&>svg]:size-5">
-        <TriangleAlert />
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <div className="mb-2 flex items-center justify-center">
+            <TriangleAlert className="text-destructive size-10" />
+          </div>
 
-        <AlertTitle className="text-base">Unauthorized Access</AlertTitle>
+          <CardTitle className="text-destructive">Unauthorized</CardTitle>
+          <CardDescription>{`You don't have access to the application`}</CardDescription>
+        </CardHeader>
 
-        <AlertDescription className="gap-2">
-          <p>{`You don't have access to this application.`}</p>
+        <CardContent className="text-center text-sm">
+          Try signing in with a different account, or contact the administrator
+          if you think this is a mistake.
+        </CardContent>
 
-          <p className="text-xs">
-            Try signing in with a different account, or contact admin if you
-            think this is a mistake.
-          </p>
-
+        <CardFooter className="justify-center">
           <LoaderButton
-            size="sm"
-            className="mt-1.5 text-xs"
             onClick={handleClick}
             isLoading={isLoading}
             icon={LogOut}
           >
             Sign Out
           </LoaderButton>
-        </AlertDescription>
-      </Alert>
+        </CardFooter>
+      </Card>
     </main>
   )
 }
