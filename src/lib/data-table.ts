@@ -5,6 +5,7 @@ import {
   Row,
   Table,
 } from "@tanstack/react-table"
+import hash from "object-hash"
 
 export const getColumnSignature = <TData, TValue>(
   columns: ColumnDef<TData, TValue>[]
@@ -13,7 +14,12 @@ export const getColumnSignature = <TData, TValue>(
     .map((c) => c.id || c["accessorKey" as keyof typeof c] || "")
     .join("|")
 
-  return columnIds
+  const columnSignature = hash(columnIds, {
+    algorithm: "md5",
+    encoding: "base64",
+  })
+
+  return columnSignature
 }
 
 export const getRowNumber = <T>(row: Row<T>, table: Table<T>): string => {
