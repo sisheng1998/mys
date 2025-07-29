@@ -17,7 +17,7 @@ import {
 } from "@tanstack/react-table"
 import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso"
 
-import { calculateColumnSizing } from "@/lib/data-table"
+import { calculateColumnSizing, getColumnSignature } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
 import {
   useFilterParams,
@@ -166,12 +166,23 @@ const VirtualizedDataTable = <TData,>({
 
   const [hasScrollbar, setHasScrollbar] = useState<boolean>(false)
 
+  const columns = table.getAllLeafColumns()
   const { rows } = table.getRowModel()
   const {
     pagination: { pageIndex },
     columnSizingInfo,
     columnSizing,
   } = table.getState()
+
+  const { columnSizingMap, setColumnSizingMap } = useDataTable()
+  const columnSignature = useMemo(() => getColumnSignature(columns), [columns])
+  const initialSizing = columnSizingMap[columnSignature] || {}
+
+  useEffect(() => {
+    if (Object.keys(initialSizing).length === 0) return
+    table.setColumnSizing(initialSizing)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const columnSizeVars = useMemo(() => {
     const headers = table.getFlatHeaders()
@@ -205,7 +216,12 @@ const VirtualizedDataTable = <TData,>({
 
       const headers = table.getFlatHeaders()
       const columnSizing = calculateColumnSizing(headers, width)
+
       table.setColumnSizing(columnSizing)
+      setColumnSizingMap((prev) => ({
+        ...prev,
+        [columnSignature]: columnSizing,
+      }))
     })
 
     resizeObserver.observe(scroller)

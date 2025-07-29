@@ -1,4 +1,20 @@
-import { defaultColumnSizing, Header, Row, Table } from "@tanstack/react-table"
+import {
+  ColumnDef,
+  defaultColumnSizing,
+  Header,
+  Row,
+  Table,
+} from "@tanstack/react-table"
+
+export const getColumnSignature = <TData, TValue>(
+  columns: ColumnDef<TData, TValue>[]
+): string => {
+  const columnIds = columns
+    .map((c) => c.id || c["accessorKey" as keyof typeof c] || "")
+    .join("|")
+
+  return columnIds
+}
 
 export const getRowNumber = <T>(row: Row<T>, table: Table<T>): string => {
   const pageSize = table.getState().pagination.pageSize
