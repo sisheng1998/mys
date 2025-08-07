@@ -178,3 +178,10 @@
     cursor: pointer;
   }
 }
+
+@layer components {
+  #nprogress {
+    position: relative;
+    z-index: 999999;
+  }
+}

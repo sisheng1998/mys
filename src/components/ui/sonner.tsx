@@ -16,7 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      className="toaster group font-sans!"
+      className="toaster group pointer-events-auto font-sans!"
       style={
         {
           "--normal-bg": "var(--popover)",
@@ -36,6 +36,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           icon: "[&_svg]:size-4",
         },
       }}
+      position="top-center"
       richColors
       {...props}
     />
