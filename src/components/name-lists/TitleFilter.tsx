@@ -87,37 +87,39 @@ const TitleFilter = <TData,>() => {
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup
-              heading="Title"
-              className="max-h-80 overflow-x-hidden overflow-y-auto"
-            >
-              <CommandItem onSelect={() => handleSelect(undefined)}>
-                <Checkbox
-                  className="pointer-events-none"
-                  checked={
+            <div className="max-h-80 overflow-x-hidden overflow-y-auto">
+              <CommandGroup heading="Title">
+                <CommandItem onSelect={() => handleSelect(undefined)}>
+                  <Checkbox
+                    className="pointer-events-none"
+                    checked={
+                      Array.isArray(selectedItem?.value) &&
+                      selectedItem.value.includes(undefined)
+                    }
+                  />
+                  <span>No Title</span>
+                </CommandItem>
+
+                {TITLES.map((value, index) => {
+                  const isSelected =
                     Array.isArray(selectedItem?.value) &&
-                    selectedItem.value.includes(undefined)
-                  }
-                />
-                <span>No Title</span>
-              </CommandItem>
+                    selectedItem.value.includes(value)
 
-              {TITLES.map((value, index) => {
-                const isSelected =
-                  Array.isArray(selectedItem?.value) &&
-                  selectedItem.value.includes(value)
-
-                return (
-                  <CommandItem key={index} onSelect={() => handleSelect(value)}>
-                    <Checkbox
-                      className="pointer-events-none"
-                      checked={isSelected}
-                    />
-                    <span>{value}</span>
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
+                  return (
+                    <CommandItem
+                      key={index}
+                      onSelect={() => handleSelect(value)}
+                    >
+                      <Checkbox
+                        className="pointer-events-none"
+                        checked={isSelected}
+                      />
+                      <span>{value}</span>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </div>
 
             {selectedItem && (
               <>

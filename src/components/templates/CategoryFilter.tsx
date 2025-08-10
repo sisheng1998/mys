@@ -86,29 +86,28 @@ const CategoryFilter = <TData,>({ categories }: { categories: Category[] }) => {
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup
-              heading="Category"
-              className="max-h-80 overflow-x-hidden overflow-y-auto"
-            >
-              {categories.map((category, index) => {
-                const isSelected =
-                  Array.isArray(selectedItem?.value) &&
-                  selectedItem.value.includes(category.name)
+            <div className="max-h-80 overflow-x-hidden overflow-y-auto">
+              <CommandGroup heading="Category">
+                {categories.map((category, index) => {
+                  const isSelected =
+                    Array.isArray(selectedItem?.value) &&
+                    selectedItem.value.includes(category.name)
 
-                return (
-                  <CommandItem
-                    key={index}
-                    onSelect={() => handleSelect(category.name)}
-                  >
-                    <Checkbox
-                      className="pointer-events-none"
-                      checked={isSelected}
-                    />
-                    <span>{category.name}</span>
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
+                  return (
+                    <CommandItem
+                      key={index}
+                      onSelect={() => handleSelect(category.name)}
+                    >
+                      <Checkbox
+                        className="pointer-events-none"
+                        checked={isSelected}
+                      />
+                      <span>{category.name}</span>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </div>
 
             {selectedItem && (
               <>

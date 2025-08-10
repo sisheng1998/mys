@@ -131,25 +131,27 @@ export const MultiSelect = ({
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
-              {options.map((option) => {
-                const isSelected =
-                  Array.isArray(value) && value.includes(option.value)
+            <div className="max-h-80 overflow-x-hidden overflow-y-auto">
+              <CommandGroup>
+                {options.map((option) => {
+                  const isSelected =
+                    Array.isArray(value) && value.includes(option.value)
 
-                return (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => handleSelect(option.value)}
-                  >
-                    <Checkbox
-                      className="pointer-events-none"
-                      checked={isSelected}
-                    />
-                    <span>{option.label}</span>
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      onSelect={() => handleSelect(option.value)}
+                    >
+                      <Checkbox
+                        className="pointer-events-none"
+                        checked={isSelected}
+                      />
+                      <span>{option.label}</span>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </div>
 
             {hasValue && (
               <>

@@ -85,26 +85,28 @@ const StatusFilter = <TData,>() => {
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup
-              heading="Status"
-              className="max-h-80 overflow-x-hidden overflow-y-auto"
-            >
-              {[true, false].map((value, index) => {
-                const isSelected =
-                  Array.isArray(selectedItem?.value) &&
-                  selectedItem.value.includes(value)
+            <div className="max-h-80 overflow-x-hidden overflow-y-auto">
+              <CommandGroup heading="Status">
+                {[true, false].map((value, index) => {
+                  const isSelected =
+                    Array.isArray(selectedItem?.value) &&
+                    selectedItem.value.includes(value)
 
-                return (
-                  <CommandItem key={index} onSelect={() => handleSelect(value)}>
-                    <Checkbox
-                      className="pointer-events-none"
-                      checked={isSelected}
-                    />
-                    <span>{value ? "Authorized" : "Unauthorized"}</span>
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
+                  return (
+                    <CommandItem
+                      key={index}
+                      onSelect={() => handleSelect(value)}
+                    >
+                      <Checkbox
+                        className="pointer-events-none"
+                        checked={isSelected}
+                      />
+                      <span>{value ? "Authorized" : "Unauthorized"}</span>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </div>
 
             {selectedItem && (
               <>

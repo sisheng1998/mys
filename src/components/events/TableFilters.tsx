@@ -157,103 +157,102 @@ const TableFilters = <TData,>({
           <CommandList className="max-h-full">
             <CommandEmpty>No results found</CommandEmpty>
 
-            <CommandGroup heading="Date Range">
-              <CommandItem className="p-0">
-                <Popover modal>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="h-auto w-full justify-start rounded-sm px-2! py-1.5 text-left font-normal whitespace-normal"
-                    >
-                      <CalendarIcon />
-                      {dateRange ? (
-                        <span>
-                          {`${formatDate(dateRange.from)} (${getLunarDateInChinese(getLunarDateFromSolarDate(dateRange.from))})`}
-                          {!isSameDay(dateRange.from, dateRange.to) &&
-                            ` - ${formatDate(dateRange.to)} (${getLunarDateInChinese(getLunarDateFromSolarDate(dateRange.to))})`}
-                        </span>
-                      ) : (
-                        <span>All Dates</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <PopoverClose className="hidden" />
-
-                    <Calendar
-                      mode="range"
-                      defaultMonth={dateRange?.from}
-                      selected={dateRange}
-                      onSelect={(date) =>
-                        handleSelectDateRange(date as typeof dateRange)
-                      }
-                      startMonth={minDate}
-                      endMonth={today}
-                      disabled={{
-                        before: minDate,
-                        after: today,
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </CommandItem>
-            </CommandGroup>
-
-            <CommandSeparator />
-
-            <CommandGroup heading="Payment Status">
-              {[true, false].map((value, index) => {
-                const isSelected =
-                  Array.isArray(selectedPayment?.value) &&
-                  selectedPayment.value.includes(value)
-
-                return (
-                  <CommandItem
-                    key={index}
-                    onSelect={() => handleSelect(PAYMENT_KEY, value)}
-                  >
-                    <Checkbox
-                      className="pointer-events-none"
-                      checked={isSelected}
-                    />
-                    <span>{value ? "Paid" : "Unpaid"}</span>
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
-
-            {isAllTab && (
-              <>
-                <CommandSeparator />
-
-                <CommandGroup
-                  heading="Category"
-                  className="max-h-80 overflow-x-hidden overflow-y-auto"
-                >
-                  {categories.map((category, index) => {
-                    const isSelected =
-                      Array.isArray(selectedCategory?.value) &&
-                      selectedCategory.value.includes(category.name)
-
-                    return (
-                      <CommandItem
-                        key={index}
-                        onSelect={() =>
-                          handleSelect(CATEGORY_KEY, category.name)
-                        }
+            <div className="max-h-80 overflow-x-hidden overflow-y-auto">
+              <CommandGroup heading="Date Range">
+                <CommandItem className="p-0">
+                  <Popover modal>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-auto w-full justify-start rounded-sm px-2! py-1.5 text-left font-normal whitespace-normal"
                       >
-                        <Checkbox
-                          className="pointer-events-none"
-                          checked={isSelected}
-                        />
-                        <span>{category.name}</span>
-                      </CommandItem>
-                    )
-                  })}
-                </CommandGroup>
-              </>
-            )}
+                        <CalendarIcon />
+                        {dateRange ? (
+                          <span>
+                            {`${formatDate(dateRange.from)} (${getLunarDateInChinese(getLunarDateFromSolarDate(dateRange.from))})`}
+                            {!isSameDay(dateRange.from, dateRange.to) &&
+                              ` - ${formatDate(dateRange.to)} (${getLunarDateInChinese(getLunarDateFromSolarDate(dateRange.to))})`}
+                          </span>
+                        ) : (
+                          <span>All Dates</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverClose className="hidden" />
+
+                      <Calendar
+                        mode="range"
+                        defaultMonth={dateRange?.from}
+                        selected={dateRange}
+                        onSelect={(date) =>
+                          handleSelectDateRange(date as typeof dateRange)
+                        }
+                        startMonth={minDate}
+                        endMonth={today}
+                        disabled={{
+                          before: minDate,
+                          after: today,
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </CommandItem>
+              </CommandGroup>
+
+              <CommandSeparator />
+
+              <CommandGroup heading="Payment Status">
+                {[true, false].map((value, index) => {
+                  const isSelected =
+                    Array.isArray(selectedPayment?.value) &&
+                    selectedPayment.value.includes(value)
+
+                  return (
+                    <CommandItem
+                      key={index}
+                      onSelect={() => handleSelect(PAYMENT_KEY, value)}
+                    >
+                      <Checkbox
+                        className="pointer-events-none"
+                        checked={isSelected}
+                      />
+                      <span>{value ? "Paid" : "Unpaid"}</span>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+
+              {isAllTab && (
+                <>
+                  <CommandSeparator />
+
+                  <CommandGroup heading="Category">
+                    {categories.map((category, index) => {
+                      const isSelected =
+                        Array.isArray(selectedCategory?.value) &&
+                        selectedCategory.value.includes(category.name)
+
+                      return (
+                        <CommandItem
+                          key={index}
+                          onSelect={() =>
+                            handleSelect(CATEGORY_KEY, category.name)
+                          }
+                        >
+                          <Checkbox
+                            className="pointer-events-none"
+                            checked={isSelected}
+                          />
+                          <span>{category.name}</span>
+                        </CommandItem>
+                      )
+                    })}
+                  </CommandGroup>
+                </>
+              )}
+            </div>
 
             {noOfActiveFilters > 0 && (
               <>

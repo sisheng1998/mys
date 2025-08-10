@@ -88,25 +88,27 @@ export function Autocomplete<T>({
             align="start"
           >
             <CommandList className="max-h-full">
-              <CommandGroup className="max-h-80 overflow-x-hidden overflow-y-auto">
-                {options.map((option) => (
-                  <CommandItem
-                    key={option.label}
-                    onSelect={() => {
-                      onSelectValue(option.data)
-                      setOpen(false)
-                    }}
-                  >
-                    <span>{option.label}</span>
-                    <Check
-                      className={cn(
-                        "ml-auto size-3.5",
-                        value === option.value ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+              <div className="max-h-80 overflow-x-hidden overflow-y-auto">
+                <CommandGroup>
+                  {options.map((option) => (
+                    <CommandItem
+                      key={option.label}
+                      onSelect={() => {
+                        onSelectValue(option.data)
+                        setOpen(false)
+                      }}
+                    >
+                      <span>{option.label}</span>
+                      <Check
+                        className={cn(
+                          "ml-auto size-3.5",
+                          value === option.value ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </div>
             </CommandList>
           </PopoverContent>
         )}
