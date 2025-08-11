@@ -26,7 +26,7 @@ const ColumnHeader = <TData, TValue>({
       variant="ghost"
       size="sm"
       className={cn(
-        "-ml-2.5 h-full w-full justify-start hover:bg-transparent",
+        "-ml-2.5 h-full w-full justify-start rounded-none hover:bg-transparent dark:hover:bg-transparent",
         className
       )}
       onClick={() => {
