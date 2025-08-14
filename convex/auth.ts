@@ -1,5 +1,6 @@
 import Google from "@auth/core/providers/google"
 import { convexAuth } from "@convex-dev/auth/server"
+import { ConvexError } from "convex/values"
 
 import { MutationCtx } from "@cvx/_generated/server"
 import { userSchema } from "@cvx/users/schemas"
@@ -37,7 +38,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         return existingUser._id
       }
 
-      return ctx.db.insert("users", { ...profile, isAuthorized: false })
+      throw new ConvexError(`Unauthorized User: ${profile.email}`)
     },
   },
 })
