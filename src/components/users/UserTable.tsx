@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { Fragment, useMemo, useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Trash2 } from "lucide-react"
 
@@ -61,21 +61,8 @@ const UserTable = () => {
       {
         accessorKey: "email",
         header: ({ column }) => <ColumnHeader column={column} title="Email" />,
-        cell: (info) => {
-          const email = info.getValue() as string
-
-          if (!email.includes("@")) return email
-
-          const [username, domain] = email.split("@")
-
-          return (
-            <>
-              {username}
-              <wbr />@{domain}
-            </>
-          )
-        },
-        minSize: 160,
+        cell: (info) => formatEmail(info.getValue() as string),
+        minSize: 200,
         meta: {
           cellClassName: cn("break-words"),
           flex: 1,
@@ -144,3 +131,24 @@ const UserTable = () => {
 }
 
 export default UserTable
+
+export const formatEmail = (email: string) => {
+  if (!email.includes("@")) return email
+
+  const [username, domain] = email.split("@")
+  const domainParts = domain.split(".")
+
+  return (
+    <>
+      {username}@
+      <wbr />
+      {domainParts.map((part, index) => (
+        <Fragment key={index}>
+          {part}
+          {index < domainParts.length - 1 && "."}
+          {index < domainParts.length - 1 && <wbr />}
+        </Fragment>
+      ))}
+    </>
+  )
+}
