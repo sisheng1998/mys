@@ -27,6 +27,7 @@ const eventRecordFields = {
   category: v.string(),
   amount: v.number(),
   isPaid: v.boolean(),
+  createdAt: v.number(),
 }
 
 const eventRecordZodFields = convexToZodFields(eventRecordFields)
@@ -47,5 +48,5 @@ export const eventTables = {
   events: defineTable(eventFields).index("by_date", ["date"]),
   eventRecords: defineTable(eventRecordFields)
     .index("by_event_name_category", ["eventId", "name", "category"])
-    .index("by_event", ["eventId"]),
+    .index("by_event", ["eventId", "createdAt"]),
 }

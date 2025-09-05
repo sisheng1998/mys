@@ -109,6 +109,7 @@ export const addTemplateRecordByDonor = authMutation({
         name,
         category,
         amount,
+        createdAt: Date.now(),
       })
 
       await ctx.db.insert("templateRecords", newTemplateRecord)
@@ -180,6 +181,7 @@ export const addTemplateRecordByCategory = authMutation({
         name,
         category,
         amount,
+        createdAt: Date.now(),
       })
 
       await ctx.db.insert("templateRecords", newTemplateRecord)

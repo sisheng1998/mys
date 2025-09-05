@@ -212,8 +212,8 @@ export const getRecordsForExport = authQuery({
         .withIndex("by_event", (q) =>
           q
             .eq("eventId", _id)
-            .gt("_creationTime", startDate ?? event._creationTime)
-            .lt("_creationTime", endDate ?? Date.now())
+            .gt("createdAt", startDate ?? event._creationTime)
+            .lt("createdAt", endDate ?? Date.now())
         )
         .order("asc"),
       (q) => q.category === category

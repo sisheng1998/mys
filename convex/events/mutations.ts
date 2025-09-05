@@ -43,6 +43,7 @@ export const upsertEvent = authMutation({
           name: record.name,
           category: record.category,
           amount: record.amount,
+          createdAt: Date.now(),
         })
 
         await ctx.db.insert("eventRecords", newEventRecord)
@@ -134,6 +135,7 @@ export const addEventRecordByDonor = authMutation({
         category,
         amount,
         isPaid,
+        createdAt: Date.now(),
       })
 
       await ctx.db.insert("eventRecords", newEventRecord)
@@ -204,6 +206,7 @@ export const addEventRecordByCategory = authMutation({
         category,
         amount,
         isPaid,
+        createdAt: Date.now(),
       })
 
       await ctx.db.insert("eventRecords", newEventRecord)

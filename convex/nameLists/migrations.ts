@@ -1,3 +1,4 @@
+import { internal } from "@cvx/_generated/api"
 import { migrations } from "@cvx/utils/migration"
 import { convertChineseToUnicode } from "@cvx/utils/name"
 
@@ -11,3 +12,7 @@ export const setSearchText = migrations.define({
     })
   },
 })
+
+export const runSetSearchText = migrations.runner(
+  internal.nameLists.migrations.setSearchText
+)

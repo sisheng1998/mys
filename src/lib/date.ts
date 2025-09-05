@@ -16,7 +16,7 @@ export default dayjs
 type DateType = Date | string | number
 
 const DATE_FORMAT = "DD/MM/YYYY"
-const TIME_FORMAT = "HH:mm A"
+const TIME_FORMAT = "h:mm A"
 
 export const formatDate = (date: DateType) => dayjs(date).format(DATE_FORMAT)
 export const formatTime = (date: DateType) => dayjs(date).format(TIME_FORMAT)

@@ -172,7 +172,7 @@ const DonationTable = ({
       },
       {
         id: "date",
-        accessorKey: "_creationTime",
+        accessorKey: "createdAt",
         filterFn: dateFilter,
         header: ({ column }) => <ColumnHeader column={column} title="Date" />,
         cell: ({ cell, row }) => {
@@ -187,7 +187,7 @@ const DonationTable = ({
               <TooltipContent side="bottom" className="text-center">
                 Recorded at
                 <br />
-                {formatDate(date)}, {formatTime(row.original._creationTime)}
+                {formatDate(date)}, {formatTime(row.original.createdAt)}
               </TooltipContent>
             </Tooltip>
           )

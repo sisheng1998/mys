@@ -26,6 +26,7 @@ const templateRecordFields = {
   templateId: v.id("templates"),
   category: v.string(),
   amount: v.number(),
+  createdAt: v.number(),
 }
 
 const templateRecordZodFields = convexToZodFields(templateRecordFields)
@@ -45,5 +46,5 @@ export const templateTables = {
   templates: defineTable(templateFields).index("by_name", ["name"]),
   templateRecords: defineTable(templateRecordFields)
     .index("by_template_name_category", ["templateId", "name", "category"])
-    .index("by_template", ["templateId"]),
+    .index("by_template", ["templateId", "createdAt"]),
 }
