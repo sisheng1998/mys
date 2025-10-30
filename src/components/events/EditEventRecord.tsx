@@ -249,7 +249,7 @@ const EditEventRecord = ({
                           />
                         </FormControl>
 
-                        <FormLabel className="pointer-events-none font-normal">
+                        <FormLabel className="pointer-events-none leading-tight font-normal">
                           Print Sticker
                         </FormLabel>
                       </Label>
@@ -362,7 +362,7 @@ const EditEventRecord = ({
                       />
                     </FormControl>
 
-                    <FormLabel className="pointer-events-none h-4.5 font-normal">
+                    <FormLabel className="pointer-events-none leading-tight font-normal">
                       Mark as Paid
                     </FormLabel>
                   </Label>
