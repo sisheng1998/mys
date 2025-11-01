@@ -68,7 +68,7 @@ export const normalizeSymbol = (input: string): string => {
 
 const converter = OpenCC.Converter({ from: "cn", to: "tw" })
 
-const excludedWords = ["莹"]
+const excludedWords = ["莹", "合"]
 
 export const convertSCToTC = (text: string): string => {
   let tempText = text
@@ -91,3 +91,6 @@ export const convertSCToTC = (text: string): string => {
 
 export const isAllEnglishCharacters = (text: string): boolean =>
   /^[A-Za-z\s'\/\-\(\)]+$/.test(text)
+
+export const getExcelSheetName = (name: string): string =>
+  name.replace(/[:\\/?*\[\]]/g, "_").substring(0, 31)

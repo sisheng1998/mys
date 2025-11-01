@@ -5,17 +5,19 @@ import { RowSelectionState } from "@tanstack/react-table"
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
 import {
   Check,
+  Download,
   Edit,
+  EllipsisVertical,
   LayoutList,
   Loader2,
   Printer,
   Trash2,
+  Upload,
   X,
 } from "lucide-react"
 import { toast } from "sonner"
 
-import { Category } from "@/types/category"
-import { Event } from "@/types/event"
+import { Event, EventDetails } from "@/types/event"
 import {
   formatDate,
   getLunarDateFromSolarDate,
@@ -47,6 +49,8 @@ import DonationStats from "@/components/events/DonationStats"
 import DonationTable from "@/components/events/DonationTable"
 import EditEvent from "@/components/events/EditEvent"
 import ExportEvent from "@/components/events/ExportEvent"
+import ExportEventRecord from "@/components/events/ExportEventRecord"
+import ImportEventRecord from "@/components/events/ImportEventRecord"
 import PrintRecords from "@/components/events/PrintRecords"
 import DeleteRecords from "@/components/records/DeleteRecords"
 import UpdateRecordAmount from "@/components/records/UpdateRecordAmount"
@@ -107,10 +111,7 @@ const EventPage = ({
           <DonationStats categories={event.categories} />
         </Card>
 
-        <DonationList
-          categories={event.categories}
-          _creationTime={event._creationTime}
-        />
+        <DonationList event={event} />
       </div>
     </>
   )
@@ -118,13 +119,7 @@ const EventPage = ({
 
 export default EventPage
 
-const DonationList = ({
-  categories,
-  _creationTime,
-}: {
-  categories: Category[]
-  _creationTime: number
-}) => {
+const DonationList = ({ event }: { event: EventDetails }) => {
   const { isSupported } = usePrinter()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
@@ -134,6 +129,9 @@ const DonationList = ({
 
   const [isPaidLoading, setIsPaidLoading] = useState<boolean>(false)
   const [isUnpaidLoading, setIsUnpaidLoading] = useState<boolean>(false)
+
+  const importRecordDialog = useDialog()
+  const exportRecordDialog = useDialog()
 
   const updateRecordAmountDialog = useDialog()
   const printRecordsDialog = useDialog()
@@ -153,16 +151,24 @@ const DonationList = ({
   const [align, setAlign] =
     useState<ComponentProps<typeof DropdownMenuContent>["align"]>("end")
 
+  const moreButtonTriggerRef = useRef<HTMLButtonElement>(null)
+  const [moreButtonAlign, setMoreButtonAlign] =
+    useState<ComponentProps<typeof DropdownMenuContent>["align"]>("end")
+
   useEffect(() => {
     const updateAlignment = () => {
-      if (!triggerRef.current) return
-
-      const rect = triggerRef.current.getBoundingClientRect()
       const midpoint = window.innerWidth / 2
-      setAlign(rect.left < midpoint ? "start" : "end")
-    }
 
-    if (selectedIds.length === 0) return
+      if (triggerRef.current && selectedIds.length !== 0) {
+        const rect = triggerRef.current.getBoundingClientRect()
+        setAlign(rect.left < midpoint ? "start" : "end")
+      }
+
+      if (moreButtonTriggerRef.current) {
+        const rect = moreButtonTriggerRef.current.getBoundingClientRect()
+        setMoreButtonAlign(rect.left < midpoint ? "start" : "end")
+      }
+    }
 
     updateAlignment()
     window.addEventListener("resize", updateAlignment)
@@ -207,118 +213,157 @@ const DonationList = ({
           <CardDescription>List of all donation records</CardDescription>
         </div>
 
-        {selectedIds.length !== 0 ? (
-          <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button ref={triggerRef}>
-                  <LayoutList />
-                  <span>Bulk Action(s)</span>
-                </Button>
-              </DropdownMenuTrigger>
+        <div className="flex flex-wrap items-center gap-2">
+          {selectedIds.length !== 0 ? (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button ref={triggerRef}>
+                    <LayoutList />
+                    <span>Bulk Action(s)</span>
+                  </Button>
+                </DropdownMenuTrigger>
 
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-52 rounded-lg"
-                side="bottom"
-                align={align}
-                sideOffset={4}
-              >
-                <DropdownMenuLabel>
-                  {selectedIds.length} record(s) selected
-                </DropdownMenuLabel>
+                <DropdownMenuContent
+                  className="w-[--radix-dropdown-menu-trigger-width] min-w-52 rounded-lg"
+                  side="bottom"
+                  align={align}
+                  sideOffset={4}
+                >
+                  <DropdownMenuLabel>
+                    {selectedIds.length} record(s) selected
+                  </DropdownMenuLabel>
 
-                <DropdownMenuSeparator />
+                  <DropdownMenuSeparator />
 
-                {[true, false].map((value, index) => {
-                  const isLoading = value ? isPaidLoading : isUnpaidLoading
-                  const Icon = isLoading ? Loader2 : value ? Check : X
+                  {[true, false].map((value, index) => {
+                    const isLoading = value ? isPaidLoading : isUnpaidLoading
+                    const Icon = isLoading ? Loader2 : value ? Check : X
 
-                  return (
-                    <DropdownMenuItem
-                      key={index}
-                      onSelect={(e) => {
-                        e.preventDefault()
-                        handleUpdatePaymentStatus(value)
-                      }}
-                      disabled={isPaidLoading || isUnpaidLoading}
-                    >
-                      <Icon className={cn(isLoading && "animate-spin")} />
-                      Mark as {value ? "Paid" : "Unpaid"}
-                    </DropdownMenuItem>
-                  )
-                })}
+                    return (
+                      <DropdownMenuItem
+                        key={index}
+                        onSelect={(e) => {
+                          e.preventDefault()
+                          handleUpdatePaymentStatus(value)
+                        }}
+                        disabled={isPaidLoading || isUnpaidLoading}
+                      >
+                        <Icon className={cn(isLoading && "animate-spin")} />
+                        Mark as {value ? "Paid" : "Unpaid"}
+                      </DropdownMenuItem>
+                    )
+                  })}
 
-                <DropdownMenuSeparator />
+                  <DropdownMenuSeparator />
 
-                <DropdownMenuItem onSelect={updateRecordAmountDialog.trigger}>
-                  <Edit />
-                  Edit Amount
-                </DropdownMenuItem>
-
-                {isSupported && (
-                  <DropdownMenuItem onSelect={printRecordsDialog.trigger}>
-                    <Printer />
-                    Print Sticker
+                  <DropdownMenuItem onSelect={updateRecordAmountDialog.trigger}>
+                    <Edit />
+                    Edit Amount
                   </DropdownMenuItem>
-                )}
 
-                <DropdownMenuSeparator />
+                  {isSupported && (
+                    <DropdownMenuItem onSelect={printRecordsDialog.trigger}>
+                      <Printer />
+                      Print Sticker
+                    </DropdownMenuItem>
+                  )}
 
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={deleteRecordsDialog.trigger}
-                >
-                  <Trash2 />
-                  Delete
-                </DropdownMenuItem>
+                  <DropdownMenuSeparator />
 
-                <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={deleteRecordsDialog.trigger}
+                  >
+                    <Trash2 />
+                    Delete
+                  </DropdownMenuItem>
 
-                <DropdownMenuItem
-                  onSelect={() => setRowSelection({})}
-                  className="text-muted-foreground"
-                >
-                  <X />
-                  Clear Selection
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuSeparator />
 
-            <UpdateRecordAmount
-              ids={selectedIds}
-              handleUpdateAmount={async (amount) => {
-                await updateEventRecordAmount({
-                  ids: selectedIds as Id<"eventRecords">[],
-                  amount,
-                })
-              }}
-              {...updateRecordAmountDialog.props}
-            />
+                  <DropdownMenuItem
+                    onSelect={() => setRowSelection({})}
+                    className="text-muted-foreground"
+                  >
+                    <X />
+                    Clear Selection
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            <PrintRecords ids={selectedIds} {...printRecordsDialog.props} />
+              <UpdateRecordAmount
+                ids={selectedIds}
+                handleUpdateAmount={async (amount) => {
+                  await updateEventRecordAmount({
+                    ids: selectedIds as Id<"eventRecords">[],
+                    amount,
+                  })
+                }}
+                {...updateRecordAmountDialog.props}
+              />
 
-            <DeleteRecords
-              ids={selectedIds}
-              handleDeleteRecords={async () => {
-                await deleteEventRecords({
-                  ids: selectedIds as Id<"eventRecords">[],
-                })
-                setRowSelection({})
-              }}
-              {...deleteRecordsDialog.props}
-            />
-          </>
-        ) : (
-          <AddEventRecord categories={categories} />
-        )}
+              <PrintRecords ids={selectedIds} {...printRecordsDialog.props} />
+
+              <DeleteRecords
+                ids={selectedIds}
+                handleDeleteRecords={async () => {
+                  await deleteEventRecords({
+                    ids: selectedIds as Id<"eventRecords">[],
+                  })
+                  setRowSelection({})
+                }}
+                {...deleteRecordsDialog.props}
+              />
+            </>
+          ) : (
+            <AddEventRecord categories={event.categories} />
+          )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="outline" ref={moreButtonTriggerRef}>
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              className="w-[--radix-dropdown-menu-trigger-width] min-w-40 rounded-lg"
+              side="bottom"
+              align={moreButtonAlign}
+              sideOffset={4}
+            >
+              <DropdownMenuLabel>Event Record(s)</DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem onSelect={importRecordDialog.trigger}>
+                <Upload />
+                Import
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onSelect={exportRecordDialog.trigger}>
+                <Download />
+                Export
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <ImportEventRecord
+            _id={event._id}
+            categories={event.categories}
+            {...importRecordDialog.props}
+          />
+
+          <ExportEventRecord event={event} {...exportRecordDialog.props} />
+        </div>
       </CardHeader>
 
       <CardContent className="-mt-2 flex flex-1 flex-col gap-4">
-        <CategoryTab categories={categories} />
+        <CategoryTab categories={event.categories} />
 
         <DonationTable
-          categories={categories}
-          _creationTime={_creationTime}
+          categories={event.categories}
+          _creationTime={event._creationTime}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
         />

@@ -6,6 +6,8 @@ export type Event = FunctionReturnType<
   typeof api.events.queries.list
 >["page"][number]
 
+export type EventDetails = FunctionReturnType<typeof api.events.queries.get>
+
 export type EventRecord = FunctionReturnType<
   typeof api.events.queries.getRecords
 >[number]
