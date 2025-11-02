@@ -50,6 +50,8 @@ type EventRecord = FunctionReturnType<
   typeof api.events.queries.getRecordsForImport
 >[number]
 
+// TODO: Add function to import the validated records
+
 const ImportEventRecord = ({
   _id,
   categories,
@@ -77,7 +79,7 @@ const ImportEventRecord = ({
   }, [eventRecords])
 
   const invalidEventRecords = useMemo(
-    () => eventRecords.filter((record) => record.remark),
+    () => eventRecords.filter((record) => record.remarks),
     [eventRecords]
   )
 
@@ -187,7 +189,7 @@ const ImportEventRecord = ({
                 <EventRecordTable
                   records={invalidEventRecords}
                   includeCategory
-                  includeRemark
+                  includeRemarks
                 />
               </>
             ) : (
@@ -301,11 +303,11 @@ const CategoryTab = ({
 const EventRecordTable = ({
   records,
   includeCategory = false,
-  includeRemark = false,
+  includeRemarks = false,
 }: {
   records: EventRecord[]
   includeCategory?: boolean
-  includeRemark?: boolean
+  includeRemarks?: boolean
 }) => {
   const columns = useMemo(
     (): ColumnDef<EventRecord>[] => [
@@ -358,11 +360,11 @@ const EventRecordTable = ({
           flex: 0.25,
         },
       },
-      ...(includeRemark
+      ...(includeRemarks
         ? [
             {
-              accessorKey: "remark",
-              header: "Remark",
+              accessorKey: "remarks",
+              header: "Remarks",
               minSize: 160,
               meta: {
                 flex: 1,
@@ -371,7 +373,7 @@ const EventRecordTable = ({
           ]
         : []),
     ],
-    [includeCategory, includeRemark]
+    [includeCategory, includeRemarks]
   )
 
   const table = useReactTable({
@@ -382,7 +384,7 @@ const EventRecordTable = ({
 
   const { totalDonors, totalAmount } = useMemo(
     () =>
-      !includeRemark
+      !includeRemarks
         ? {
             totalDonors: new Set(records.map((row) => row.name)).size,
             totalAmount: records.reduce((sum, row) => sum + row.amount, 0),
@@ -391,14 +393,14 @@ const EventRecordTable = ({
             totalDonors: 0,
             totalAmount: 0,
           },
-    [records, includeRemark]
+    [records, includeRemarks]
   )
 
   return (
     <>
-      <VirtualizedDataTable table={table} hasFooter={!includeRemark} />
+      <VirtualizedDataTable table={table} hasFooter={!includeRemarks} />
 
-      {!includeRemark && (
+      {!includeRemarks && (
         <div className="bg-card -mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-b-md border border-t-0 p-2.5 text-sm font-medium">
           <IconWithText
             icon={LayoutList}

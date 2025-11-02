@@ -208,6 +208,8 @@ export const importEventRecordSchema = z.object({
   ),
 })
 
+type Title = (typeof TITLES)[number]
+
 export const getRecordsForImport = authQuery({
   args: importEventRecordSchema.shape,
   handler: async (ctx, args) => {
@@ -222,29 +224,97 @@ export const getRecordsForImport = authQuery({
       )
     ).filter((category) => !!category)
 
+    const seen = new Set<string>()
+
     const eventRecords = await Promise.all(
       records.map(async (record) => {
-        const amount = record.amount ?? 0
+        if (record.title && !TITLES.includes(record.title as Title)) {
+          const remarks = `Invalid title "${record.title}"`
+          return { ...record, remarks }
+        }
 
-        let remark: string = ""
+        if (record.name === "") {
+          const remarks = "Missing name"
+          return { ...record, remarks }
+        }
+
+        const key = `${record.name}_${record.category}`
+        if (seen.has(key)) {
+          const remarks = `Duplicated record with this donor and category "${record.category}"`
+          return { ...record, remarks }
+        } else {
+          seen.add(key)
+        }
+
+        let title: Title = record.title as Title
+
+        const existingNameListRecord = await filter(
+          ctx.db
+            .query("nameLists")
+            .withSearchIndex("search_name", (q) =>
+              q.search("name", record.name)
+            ),
+          (q) => q.name.toLowerCase() === record.name.toLowerCase()
+        ).unique()
 
         if (
-          record.title &&
-          !TITLES.includes(record.title as (typeof TITLES)[number])
+          existingNameListRecord &&
+          existingNameListRecord.title &&
+          existingNameListRecord.title !== "合家"
         ) {
-          remark = `Invalid title "${record.title}"`
-          return { ...record, amount, remark }
+          title = existingNameListRecord.title
         }
 
-        return {
-          ...record,
-          amount,
-          remark,
+        let category = record.category
+        let amount = record.amount
+
+        const allowedCategories = categories.filter((c) => {
+          if (c.isExclusion) {
+            return !c.titles.includes(title ?? "")
+          }
+
+          if (c.titles.length > 0) {
+            return c.titles.includes(title ?? "")
+          }
+
+          return true
+        })
+
+        const relevantCategory = allowedCategories.find(
+          (c) => c.name === category || c.name.includes(category)
+        )
+
+        if (relevantCategory) {
+          category = relevantCategory.name
+          amount = amount ?? relevantCategory.amount
+        } else {
+          const remarks = `Invalid category "${category}"`
+          return { ...record, title, remarks }
         }
+
+        const duplicatedRecord = await ctx.db
+          .query("eventRecords")
+          .withIndex("by_event_name_category", (q) =>
+            q
+              .eq("eventId", _id)
+              .eq("name", record.name)
+              .eq("category", category)
+          )
+          .unique()
+
+        if (duplicatedRecord) {
+          const remarks = `Another record with this donor and category "${category}" already exists`
+          return { ...record, title, category, amount, remarks }
+        }
+
+        return { ...record, title, category, amount, remarks: "" }
       })
     )
 
-    return eventRecords
+    return eventRecords.map((record) => ({
+      ...record,
+      amount: record.amount ?? 0,
+    }))
   },
 })
 
