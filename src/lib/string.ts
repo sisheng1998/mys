@@ -92,5 +92,18 @@ export const convertSCToTC = (text: string): string => {
 export const isAllEnglishCharacters = (text: string): boolean =>
   /^[A-Za-z\s'\/\-\(\)]+$/.test(text)
 
-export const getExcelSheetName = (name: string): string =>
-  name.replace(/[:\\/?*\[\]]/g, "_").substring(0, 31)
+export const getExcelSheetName = (name: string): string => {
+  if (!name) return "Sheet1"
+
+  let sheetName = name.split(/[(（]/)[0].trim()
+
+  sheetName = sheetName.replace(/[:\\/?*\[\]]/g, "_")
+
+  sheetName = sheetName.replace(/_+/g, "_")
+
+  sheetName = sheetName.replace(/^_+|_+$/g, "").trim()
+
+  if (!sheetName) sheetName = "Sheet1"
+
+  return sheetName.substring(0, 31)
+}

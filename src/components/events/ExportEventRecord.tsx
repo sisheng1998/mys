@@ -44,16 +44,15 @@ const ExportEventRecord = ({
   const groupedData = useMemo(() => {
     const grouped: Record<string, EventRecord[]> = {}
 
-    for (const cat of event.categories) {
-      grouped[cat.name] = []
+    for (const category of event.categories) {
+      const baseName = getExcelSheetName(category.name)
+      if (!grouped[baseName]) grouped[baseName] = []
     }
 
     for (const record of data) {
-      const category = record.category
-
-      if (!grouped[category]) grouped[category] = []
-
-      grouped[category].push(record)
+      const baseCategory = getExcelSheetName(record.category)
+      if (!grouped[baseCategory]) grouped[baseCategory] = []
+      grouped[baseCategory].push(record)
     }
 
     return grouped
@@ -68,8 +67,6 @@ const ExportEventRecord = ({
       Object.entries(groupedData).forEach(([category, records]) => {
         if (records.length === 0) return
 
-        const sheetName = getExcelSheetName(category)
-
         const ws = XLSX.utils.json_to_sheet(
           records.map((r) => ({
             title: r.title || "",
@@ -81,7 +78,7 @@ const ExportEventRecord = ({
           }
         )
 
-        XLSX.utils.book_append_sheet(wb, ws, sheetName)
+        XLSX.utils.book_append_sheet(wb, ws, category)
       })
 
       const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" })
@@ -118,9 +115,19 @@ const ExportEventRecord = ({
 
         <Alert className="bg-primary/10 border-primary text-primary">
           <Info />
-          <AlertTitle>Total {data.length} record(s)</AlertTitle>
-          <AlertDescription className="text-primary">
-            All record(s) will be exported.
+          <AlertTitle>
+            Total {data.length} record{data.length === 1 ? "" : "s"}
+          </AlertTitle>
+          <AlertDescription className="text-primary gap-0">
+            <p>All record(s) will be exported.</p>
+            {Object.entries(groupedData)
+              .filter(([, records]) => records.length !== 0)
+              .map(([category, records]) => (
+                <p key={category}>
+                  - {category}: {records.length} record
+                  {records.length === 1 ? "" : "s"}
+                </p>
+              ))}
           </AlertDescription>
         </Alert>
 
