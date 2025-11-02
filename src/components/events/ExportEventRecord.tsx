@@ -109,23 +109,20 @@ const ExportEventRecord = ({
           <DialogTitle>Export Event Record(s)</DialogTitle>
 
           <DialogDescription>
-            Export all the event record(s) to an Excel file.
+            Export all the event record(s) to Excel file.
           </DialogDescription>
         </DialogHeader>
 
         <Alert className="bg-primary/10 border-primary text-primary">
           <Info />
-          <AlertTitle>
-            Total {data.length} record{data.length === 1 ? "" : "s"}
-          </AlertTitle>
+          <AlertTitle>Total {data.length} record(s)</AlertTitle>
           <AlertDescription className="text-primary gap-0">
             <p>All record(s) will be exported.</p>
             {Object.entries(groupedData)
               .filter(([, records]) => records.length !== 0)
               .map(([category, records]) => (
                 <p key={category}>
-                  - {category}: {records.length} record
-                  {records.length === 1 ? "" : "s"}
+                  - {category}: {records.length} record(s)
                 </p>
               ))}
           </AlertDescription>

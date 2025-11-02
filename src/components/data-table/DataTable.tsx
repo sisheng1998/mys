@@ -153,12 +153,12 @@ const DataTable = <TData extends WithId, TValue>({
 
 export default DataTable
 
-const VirtualizedDataTable = <TData,>({
+export const VirtualizedDataTable = <TData,>({
   table,
-  hasFooter,
+  hasFooter = false,
 }: {
   table: TableType<TData>
-  hasFooter: boolean
+  hasFooter?: boolean
 }) => {
   const ref = useRef<TableVirtuosoHandle>(null)
   const scrollerRef = useRef<HTMLElement | Window>(null)

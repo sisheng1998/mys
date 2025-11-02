@@ -43,7 +43,7 @@ const ExcelDropzone = ({
     <div
       {...getRootProps()}
       className={cn(
-        "bg-muted text-muted-foreground hover:bg-muted/75 flex min-h-48 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed p-2 text-center text-sm transition-colors outline-none",
+        "bg-muted text-muted-foreground hover:bg-muted/75 flex min-h-80 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed p-2 text-center text-sm transition-colors outline-none",
         isDragActive &&
           "border-primary bg-primary/10 text-primary hover:bg-primary/10",
         isLoading && "pointer-events-none opacity-75"

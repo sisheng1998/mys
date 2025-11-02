@@ -66,7 +66,7 @@ const PrintEventRecord = ({
             className="border-destructive bg-destructive/10"
           >
             <CircleAlert />
-            <AlertTitle>Printer Not Connected</AlertTitle>
+            <AlertTitle>Printer not connected</AlertTitle>
             <AlertDescription>
               Please connect to the printer before printing.
             </AlertDescription>

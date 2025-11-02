@@ -5,6 +5,7 @@ import { ConvexError } from "convex/values"
 import { z } from "zod"
 
 import { eventRecordSchema } from "@cvx/events/schemas"
+import { TITLES } from "@cvx/nameLists/schemas"
 import { authQuery } from "@cvx/utils/function"
 
 export const list = authQuery({
@@ -185,6 +186,65 @@ export const getRecords = authQuery({
       .collect()
 
     return records
+  },
+})
+
+export const importEventRecordSchema = z.object({
+  _id: zid("events"),
+  records: z.array(
+    z.object(
+      eventRecordSchema
+        .pick({
+          category: true,
+          title: true,
+          name: true,
+          amount: true,
+        })
+        .extend({
+          title: z.string().optional(),
+          amount: z.number().optional(),
+        }).shape
+    )
+  ),
+})
+
+export const getRecordsForImport = authQuery({
+  args: importEventRecordSchema.shape,
+  handler: async (ctx, args) => {
+    const { _id, records } = args
+
+    const event = await ctx.db.get(_id)
+    if (!event) throw new ConvexError("Event not found")
+
+    const categories = (
+      await Promise.all(
+        event.categories.map((category) => ctx.db.get(category))
+      )
+    ).filter((category) => !!category)
+
+    const eventRecords = await Promise.all(
+      records.map(async (record) => {
+        const amount = record.amount ?? 0
+
+        let remark: string = ""
+
+        if (
+          record.title &&
+          !TITLES.includes(record.title as (typeof TITLES)[number])
+        ) {
+          remark = `Invalid title "${record.title}"`
+          return { ...record, amount, remark }
+        }
+
+        return {
+          ...record,
+          amount,
+          remark,
+        }
+      })
+    )
+
+    return eventRecords
   },
 })
 
