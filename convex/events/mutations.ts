@@ -312,3 +312,46 @@ export const deleteEventRecords = authMutation({
     }
   },
 })
+
+const importEventRecordSchema = z.object({
+  _id: zid("events"),
+  records: z.array(
+    z.object(
+      eventRecordSchema.pick({
+        category: true,
+        title: true,
+        name: true,
+        amount: true,
+      }).shape
+    )
+  ),
+  isPaid: z.boolean(),
+})
+
+export const importEventRecords = authMutation({
+  args: importEventRecordSchema.shape,
+  handler: async (ctx, args) => {
+    const { _id, records, isPaid } = args
+
+    const event = await ctx.db.get(_id)
+    if (!event) throw new ConvexError("Event not found")
+
+    for (const record of records) {
+      const { title, name, amount, category } = record
+
+      await createNameListRecord(ctx, { name, title })
+
+      const newEventRecord = eventRecordSchema.parse({
+        eventId: _id,
+        title,
+        name,
+        category,
+        amount,
+        isPaid,
+        createdAt: Date.now(),
+      })
+
+      await ctx.db.insert("eventRecords", newEventRecord)
+    }
+  },
+})

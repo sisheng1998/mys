@@ -246,7 +246,7 @@ export const getRecordsForImport = authQuery({
           seen.add(key)
         }
 
-        let title: Title = record.title as Title
+        let title = record.title as Title
 
         const existingNameListRecord = await filter(
           ctx.db
@@ -313,6 +313,7 @@ export const getRecordsForImport = authQuery({
 
     return eventRecords.map((record) => ({
       ...record,
+      title: record.title as Title | undefined,
       amount: record.amount ?? 0,
     }))
   },

@@ -6,7 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { useConvex } from "convex/react"
+import { useConvex, useMutation } from "convex/react"
 import { FunctionReturnType } from "convex/server"
 import { CircleAlert, CircleDollarSign, LayoutList, Users } from "lucide-react"
 import { toast } from "sonner"
@@ -16,6 +16,7 @@ import { z } from "zod"
 import { Category } from "@/types/category"
 import { Title } from "@/types/nameList"
 import { getRowNumber } from "@/lib/data-table"
+import { handleMutationError } from "@/lib/error"
 import { formatCurrency, formatNumber } from "@/lib/number"
 import { convertSCToTC, getExcelSheetName } from "@/lib/string"
 import { cn } from "@/lib/utils"
@@ -50,8 +51,6 @@ type EventRecord = FunctionReturnType<
   typeof api.events.queries.getRecordsForImport
 >[number]
 
-// TODO: Add function to import the validated records
-
 const ImportEventRecord = ({
   _id,
   categories,
@@ -61,6 +60,9 @@ const ImportEventRecord = ({
   categories: Category[]
 }) => {
   const convex = useConvex()
+  const importEventRecords = useMutation(
+    api.events.mutations.importEventRecords
+  )
 
   const [eventRecords, setEventRecords] = useState<EventRecord[]>([])
   const [selectedTab, setSelectedTab] = useState<string>(DEFAULT_TAB)
@@ -138,9 +140,25 @@ const ImportEventRecord = ({
   }
 
   const handleSubmit = async () => {
-    console.log(_id)
-    console.log(isPaid)
-    console.log(eventRecords)
+    if (invalidEventRecords.length !== 0) return
+
+    setIsLoading(true)
+
+    try {
+      const records = eventRecords.map(({ remarks, ...record }) => {
+        void remarks
+        return record
+      })
+
+      await importEventRecords({ _id, records, isPaid })
+
+      toast.success(`${eventRecords.length} record(s) imported`)
+      props.onOpenChange?.(false)
+    } catch (error) {
+      handleMutationError(error)
+    }
+
+    setIsLoading(false)
   }
 
   const handleReset = () => {
@@ -353,6 +371,7 @@ const EventRecordTable = ({
       {
         accessorKey: "amount",
         header: "Amount",
+        cell: (info) => info.getValue() || "-",
         minSize: 80,
         meta: {
           headerClassName: cn("text-right"),
