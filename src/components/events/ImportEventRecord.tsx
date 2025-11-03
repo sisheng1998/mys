@@ -51,6 +51,8 @@ type EventRecord = FunctionReturnType<
   typeof api.events.queries.getRecordsForImport
 >[number]
 
+const WITH_REMARKS = "With Remarks"
+
 const ImportEventRecord = ({
   _id,
   categories,
@@ -60,6 +62,7 @@ const ImportEventRecord = ({
   categories: Category[]
 }) => {
   const convex = useConvex()
+
   const importEventRecords = useMutation(
     api.events.mutations.importEventRecords
   )
@@ -80,10 +83,23 @@ const ImportEventRecord = ({
     return grouped
   }, [eventRecords])
 
-  const invalidEventRecords = useMemo(
-    () => eventRecords.filter((record) => record.remarks),
-    [eventRecords]
-  )
+  const { invalidEventRecords, eventRecordsWithRemarks } = useMemo(() => {
+    const invalidEventRecords: EventRecord[] = []
+    const eventRecordsWithRemarks: EventRecord[] = []
+
+    for (const record of eventRecords) {
+      if (record.invalid) {
+        invalidEventRecords.push(record)
+      } else if (record.remarks) {
+        eventRecordsWithRemarks.push(record)
+      }
+    }
+
+    return {
+      invalidEventRecords,
+      eventRecordsWithRemarks,
+    }
+  }, [eventRecords])
 
   const handleUpload = async (file: File) => {
     try {
@@ -145,8 +161,10 @@ const ImportEventRecord = ({
     setIsLoading(true)
 
     try {
-      const records = eventRecords.map(({ remarks, ...record }) => {
+      const records = eventRecords.map(({ remarks, invalid, ...record }) => {
         void remarks
+        void invalid
+
         return record
       })
 
@@ -171,7 +189,7 @@ const ImportEventRecord = ({
   return (
     <Dialog {...props}>
       <DialogContent
-        className="sm:max-w-[calc(100%-2rem)] md:max-w-2xl"
+        className="sm:max-w-[calc(100%-2rem)] lg:max-w-4xl"
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           handleReset()
@@ -204,14 +222,12 @@ const ImportEventRecord = ({
                   </AlertDescription>
                 </Alert>
 
-                <EventRecordTable
-                  records={invalidEventRecords}
-                  includeCategory
-                  includeRemarks
-                />
+                <EventRecordTable records={invalidEventRecords} />
               </>
             ) : (
               <>
+                <Label className="-mb-2">Data Preview</Label>
+
                 <CategoryTab
                   categories={Object.keys(groupedEventRecords)}
                   selectedTab={selectedTab}
@@ -222,9 +238,10 @@ const ImportEventRecord = ({
                   records={
                     selectedTab === DEFAULT_TAB
                       ? eventRecords
-                      : groupedEventRecords[selectedTab]
+                      : selectedTab === WITH_REMARKS
+                        ? eventRecordsWithRemarks
+                        : groupedEventRecords[selectedTab]
                   }
-                  includeCategory={selectedTab === DEFAULT_TAB}
                 />
 
                 <div className="flex flex-col gap-2">
@@ -279,7 +296,10 @@ const CategoryTab = ({
   selectedTab: string
   setSelectedTab: (tab: string) => void
 }) => {
-  const tabs = useMemo(() => [DEFAULT_TAB, ...categories], [categories])
+  const tabs = useMemo(
+    () => [DEFAULT_TAB, ...categories, WITH_REMARKS],
+    [categories]
+  )
 
   const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
 
@@ -318,15 +338,7 @@ const CategoryTab = ({
   )
 }
 
-const EventRecordTable = ({
-  records,
-  includeCategory = false,
-  includeRemarks = false,
-}: {
-  records: EventRecord[]
-  includeCategory?: boolean
-  includeRemarks?: boolean
-}) => {
+const EventRecordTable = ({ records }: { records: EventRecord[] }) => {
   const columns = useMemo(
     (): ColumnDef<EventRecord>[] => [
       {
@@ -353,21 +365,17 @@ const EventRecordTable = ({
         header: "Name",
         minSize: 128,
         meta: {
-          flex: 0.75,
+          flex: 0.5,
         },
       },
-      ...(includeCategory
-        ? [
-            {
-              accessorKey: "category",
-              header: "Category",
-              minSize: 80,
-              meta: {
-                flex: 0.25,
-              },
-            },
-          ]
-        : []),
+      {
+        accessorKey: "category",
+        header: "Category",
+        minSize: 128,
+        meta: {
+          flex: 0.25,
+        },
+      },
       {
         accessorKey: "amount",
         header: "Amount",
@@ -379,20 +387,17 @@ const EventRecordTable = ({
           flex: 0.25,
         },
       },
-      ...(includeRemarks
-        ? [
-            {
-              accessorKey: "remarks",
-              header: "Remarks",
-              minSize: 160,
-              meta: {
-                flex: 1,
-              },
-            },
-          ]
-        : []),
+      {
+        accessorKey: "remarks",
+        header: "Remarks",
+        cell: (info) => info.getValue() || "-",
+        minSize: 240,
+        meta: {
+          flex: 1.25,
+        },
+      },
     ],
-    [includeCategory, includeRemarks]
+    []
   )
 
   const table = useReactTable({
@@ -402,47 +407,39 @@ const EventRecordTable = ({
   })
 
   const { totalDonors, totalAmount } = useMemo(
-    () =>
-      !includeRemarks
-        ? {
-            totalDonors: new Set(records.map((row) => row.name)).size,
-            totalAmount: records.reduce((sum, row) => sum + row.amount, 0),
-          }
-        : {
-            totalDonors: 0,
-            totalAmount: 0,
-          },
-    [records, includeRemarks]
+    () => ({
+      totalDonors: new Set(records.map((row) => row.name)).size,
+      totalAmount: records.reduce((sum, row) => sum + row.amount, 0),
+    }),
+    [records]
   )
 
   return (
     <>
-      <VirtualizedDataTable table={table} hasFooter={!includeRemarks} />
+      <VirtualizedDataTable table={table} hasFooter />
 
-      {!includeRemarks && (
-        <div className="bg-card -mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-b-md border border-t-0 p-2.5 text-sm font-medium">
-          <IconWithText
-            icon={LayoutList}
-            text={formatNumber(records.length)}
-            title="Total Records"
-            side="top"
-          />
+      <div className="bg-card -mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-b-md border border-t-0 p-2.5 text-sm font-medium">
+        <IconWithText
+          icon={LayoutList}
+          text={formatNumber(records.length)}
+          title="Total Records"
+          side="top"
+        />
 
-          <IconWithText
-            icon={Users}
-            text={formatNumber(totalDonors)}
-            title="Total Donors"
-            side="top"
-          />
+        <IconWithText
+          icon={Users}
+          text={formatNumber(totalDonors)}
+          title="Total Donors"
+          side="top"
+        />
 
-          <IconWithText
-            icon={CircleDollarSign}
-            text={formatCurrency(totalAmount)}
-            title="Total Amount"
-            side="top"
-          />
-        </div>
-      )}
+        <IconWithText
+          icon={CircleDollarSign}
+          text={formatCurrency(totalAmount)}
+          title="Total Amount"
+          side="top"
+        />
+      </div>
     </>
   )
 }

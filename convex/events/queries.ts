@@ -229,24 +229,29 @@ export const getRecordsForImport = authQuery({
     const eventRecords = await Promise.all(
       records.map(async (record) => {
         if (record.title && !TITLES.includes(record.title as Title)) {
-          const remarks = `Invalid title "${record.title}"`
-          return { ...record, remarks }
+          return {
+            ...record,
+            remarks: `Invalid title "${record.title}"`,
+            invalid: true,
+          }
         }
 
         if (record.name === "") {
-          const remarks = "Missing name"
-          return { ...record, remarks }
+          return { ...record, remarks: "Missing donor name", invalid: true }
         }
 
         const key = `${record.name}_${record.category}`
         if (seen.has(key)) {
-          const remarks = `Duplicated record with this donor and category "${record.category}"`
-          return { ...record, remarks }
+          return {
+            ...record,
+            remarks: `Duplicated record with this donor and category "${record.category}"`,
+            invalid: true,
+          }
         } else {
           seen.add(key)
         }
 
-        let title = record.title as Title
+        let remarks = ""
 
         const existingNameListRecord = await filter(
           ctx.db
@@ -257,12 +262,15 @@ export const getRecordsForImport = authQuery({
           (q) => q.name.toLowerCase() === record.name.toLowerCase()
         ).unique()
 
-        if (
-          existingNameListRecord &&
-          existingNameListRecord.title &&
-          existingNameListRecord.title !== "合家"
-        ) {
-          title = existingNameListRecord.title
+        if (existingNameListRecord) {
+          const existingTitle = existingNameListRecord.title
+          const currentTitle = record.title
+
+          if (existingTitle && existingTitle !== currentTitle) {
+            remarks = `Title "${existingTitle}" found in name list`
+          }
+        } else {
+          remarks = "New donor found"
         }
 
         let category = record.category
@@ -270,11 +278,11 @@ export const getRecordsForImport = authQuery({
 
         const allowedCategories = categories.filter((c) => {
           if (c.isExclusion) {
-            return !c.titles.includes(title ?? "")
+            return !c.titles.includes((record.title ?? "") as Title)
           }
 
           if (c.titles.length > 0) {
-            return c.titles.includes(title ?? "")
+            return c.titles.includes((record.title ?? "") as Title)
           }
 
           return true
@@ -288,8 +296,11 @@ export const getRecordsForImport = authQuery({
           category = relevantCategory.name
           amount = amount ?? relevantCategory.amount
         } else {
-          const remarks = `Invalid category "${category}"`
-          return { ...record, title, remarks }
+          return {
+            ...record,
+            remarks: `Invalid category "${category}"`,
+            invalid: true,
+          }
         }
 
         const duplicatedRecord = await ctx.db
@@ -303,11 +314,16 @@ export const getRecordsForImport = authQuery({
           .unique()
 
         if (duplicatedRecord) {
-          const remarks = `Another record with this donor and category "${category}" already exists`
-          return { ...record, title, category, amount, remarks }
+          return {
+            ...record,
+            category,
+            amount,
+            remarks: `Another record with this donor and category "${category}" already exists`,
+            invalid: true,
+          }
         }
 
-        return { ...record, title, category, amount, remarks: "" }
+        return { ...record, category, amount, remarks, invalid: false }
       })
     )
 
