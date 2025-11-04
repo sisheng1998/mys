@@ -251,6 +251,7 @@ export const getRecordsForImport = authQuery({
           seen.add(key)
         }
 
+        let title = record.title as Title | undefined
         let remarks = ""
 
         const existingNameListRecord = await filter(
@@ -266,7 +267,10 @@ export const getRecordsForImport = authQuery({
           const existingTitle = existingNameListRecord.title
           const currentTitle = record.title
 
-          if (existingTitle && existingTitle !== currentTitle) {
+          if (!currentTitle && existingTitle) {
+            title = existingTitle
+            remarks = `Added title "${existingTitle}" from name list`
+          } else if (existingTitle && existingTitle !== currentTitle) {
             remarks = `Title "${existingTitle}" found in name list`
           }
         } else {
@@ -278,11 +282,11 @@ export const getRecordsForImport = authQuery({
 
         const allowedCategories = categories.filter((c) => {
           if (c.isExclusion) {
-            return !c.titles.includes((record.title ?? "") as Title)
+            return !c.titles.includes((title ?? "") as Title)
           }
 
           if (c.titles.length > 0) {
-            return c.titles.includes((record.title ?? "") as Title)
+            return c.titles.includes((title ?? "") as Title)
           }
 
           return true
@@ -298,6 +302,7 @@ export const getRecordsForImport = authQuery({
         } else {
           return {
             ...record,
+            title,
             remarks: `Invalid category "${category}"`,
             invalid: true,
           }
@@ -316,6 +321,7 @@ export const getRecordsForImport = authQuery({
         if (duplicatedRecord) {
           return {
             ...record,
+            title,
             category,
             amount,
             remarks: `Another record with this donor and category "${category}" already exists`,
@@ -323,7 +329,7 @@ export const getRecordsForImport = authQuery({
           }
         }
 
-        return { ...record, category, amount, remarks, invalid: false }
+        return { ...record, title, category, amount, remarks, invalid: false }
       })
     )
 
