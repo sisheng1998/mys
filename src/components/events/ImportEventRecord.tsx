@@ -119,6 +119,15 @@ const ImportEventRecord = ({
 
         const worksheet = workbook.Sheets[sheetName]
 
+        if (worksheet["!ref"]) {
+          const range = XLSX.utils.decode_range(worksheet["!ref"])
+
+          range.s.c = 0
+          range.s.r = 0
+
+          worksheet["!ref"] = XLSX.utils.encode_range(range)
+        }
+
         const data = XLSX.utils.sheet_to_json(worksheet, {
           header: ["title", "name", "amount"],
           defval: "",
