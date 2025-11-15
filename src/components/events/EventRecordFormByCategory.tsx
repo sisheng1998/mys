@@ -108,7 +108,6 @@ const EventRecordFormByCategory = ({
     amount: NaN,
     isPaid: false,
     printSticker: false,
-    remarks: "",
     records: [
       {
         id: Date.now(),
@@ -138,6 +137,7 @@ const EventRecordFormByCategory = ({
 
       await addEventRecord({
         ...values,
+        notes: values.notes || undefined,
         records: values.records.map(({ id, printSticker, ...record }) => {
           void id
           void printSticker
@@ -246,14 +246,14 @@ const EventRecordFormByCategory = ({
 
           <FormField
             control={form.control}
-            name="remarks"
+            name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Remarks</FormLabel>
+                <FormLabel>Notes</FormLabel>
 
                 <FormControl>
                   <ControlledInput
-                    placeholder="Enter remarks"
+                    placeholder="Enter notes"
                     {...field}
                     value={field.value || ""}
                   />

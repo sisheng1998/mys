@@ -82,7 +82,7 @@ export const addEventRecordByDonorSchema = eventRecordSchema
     eventId: true,
     title: true,
     name: true,
-    remarks: true,
+    notes: true,
   })
   .extend({
     records: z.array(
@@ -99,7 +99,7 @@ export const addEventRecordByDonorSchema = eventRecordSchema
 export const addEventRecordByDonor = authMutation({
   args: addEventRecordByDonorSchema.shape,
   handler: async (ctx, args) => {
-    const { eventId, title, name, remarks, records } = args
+    const { eventId, title, name, notes, records } = args
 
     const event = await ctx.db.get(eventId)
     if (!event) throw new ConvexError("Event not found")
@@ -136,7 +136,7 @@ export const addEventRecordByDonor = authMutation({
         category,
         amount,
         isPaid,
-        remarks,
+        notes,
         createdAt: Date.now(),
       })
 
@@ -152,7 +152,7 @@ export const addEventRecordByCategorySchema = eventRecordSchema
     eventId: true,
     category: true,
     amount: true,
-    remarks: true,
+    notes: true,
   })
   .extend({
     records: z.array(
@@ -170,7 +170,7 @@ export const addEventRecordByCategorySchema = eventRecordSchema
 export const addEventRecordByCategory = authMutation({
   args: addEventRecordByCategorySchema.shape,
   handler: async (ctx, args) => {
-    const { eventId, category, remarks, records } = args
+    const { eventId, category, notes, records } = args
 
     const event = await ctx.db.get(eventId)
     if (!event) throw new ConvexError("Event not found")
@@ -209,7 +209,7 @@ export const addEventRecordByCategory = authMutation({
         category,
         amount,
         isPaid,
-        remarks,
+        notes,
         createdAt: Date.now(),
       })
 
@@ -226,7 +226,7 @@ export const editEventRecordSchema = eventRecordSchema.extend({
 export const editEventRecord = authMutation({
   args: editEventRecordSchema.shape,
   handler: async (ctx, args) => {
-    const { _id, title, name, category, ...fields } = args
+    const { _id, title, name, category, notes, ...fields } = args
 
     const existingEventRecord = await ctx.db.get(_id)
     if (!existingEventRecord) throw new ConvexError("Record not found")
@@ -253,7 +253,7 @@ export const editEventRecord = authMutation({
 
     await createNameListRecord(ctx, { name, title })
 
-    return ctx.db.patch(_id, { title, name, category, ...fields })
+    return ctx.db.patch(_id, { title, name, category, notes, ...fields })
   },
 })
 

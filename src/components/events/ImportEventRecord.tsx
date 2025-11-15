@@ -14,7 +14,6 @@ import * as XLSX from "xlsx"
 import { z } from "zod"
 
 import { Category } from "@/types/category"
-import { Title } from "@/types/nameList"
 import { getRowNumber } from "@/lib/data-table"
 import { handleMutationError } from "@/lib/error"
 import { formatCurrency, formatNumber } from "@/lib/number"
@@ -129,18 +128,17 @@ const ImportEventRecord = ({
         }
 
         const data = XLSX.utils.sheet_to_json(worksheet, {
-          header: ["title", "name", "amount"],
+          header: ["title", "name", "amount", "notes"],
           defval: "",
         }) as Partial<EventRecord>[]
 
         data.forEach((row) =>
           records.push({
             category: category.name,
-            title: row.title
-              ? (convertSCToTC(row.title.trim()) as Title)
-              : undefined,
+            title: row.title ? convertSCToTC(row.title.trim()) : undefined,
             name: convertSCToTC((row.name || "").trim()),
             amount: row.amount,
+            notes: row.notes ? convertSCToTC(row.notes.trim()) : undefined,
           })
         )
       })

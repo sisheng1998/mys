@@ -104,7 +104,6 @@ const EditEventRecord = ({
             category: "",
             amount: NaN,
             isPaid: false,
-            remarks: "",
           } as formSchema),
     [eventRecord]
   )
@@ -120,7 +119,11 @@ const EditEventRecord = ({
 
   const onSubmit = async ({ printSticker, ...values }: formSchema) => {
     try {
-      await editEventRecord({ ...values, title: values.title || undefined })
+      await editEventRecord({
+        ...values,
+        title: values.title || undefined,
+        notes: values.notes || undefined,
+      })
 
       toast.success("Record updated")
 
@@ -348,14 +351,14 @@ const EditEventRecord = ({
 
               <FormField
                 control={form.control}
-                name="remarks"
+                name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Remarks</FormLabel>
+                    <FormLabel>Notes</FormLabel>
 
                     <FormControl>
                       <ControlledInput
-                        placeholder="Enter remarks"
+                        placeholder="Enter notes"
                         {...field}
                         value={field.value || ""}
                       />

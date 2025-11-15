@@ -171,11 +171,9 @@ const DonationTable = ({
         },
       },
       {
-        id: "remarks",
-        accessorFn: (row) => row.remarks || "-",
-        header: ({ column }) => (
-          <ColumnHeader column={column} title="Remarks" />
-        ),
+        id: "notes",
+        accessorFn: (row) => row.notes || "-",
+        header: ({ column }) => <ColumnHeader column={column} title="Notes" />,
         minSize: 160,
         meta: {
           flex: 0.5,

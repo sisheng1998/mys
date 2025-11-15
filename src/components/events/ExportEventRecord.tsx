@@ -72,7 +72,7 @@ const ExportEventRecord = ({
             title: r.title || "",
             name: r.name,
             amount: r.amount,
-            remarks: r.remarks || "",
+            notes: r.notes || "",
           })),
           {
             skipHeader: true,

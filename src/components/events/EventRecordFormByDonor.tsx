@@ -108,7 +108,6 @@ const EventRecordFormByDonor = ({
     name: "",
     isPaid: false,
     printSticker: false,
-    remarks: "",
     records: [
       {
         id: Date.now(),
@@ -136,6 +135,7 @@ const EventRecordFormByDonor = ({
       await addEventRecord({
         ...values,
         title: values.title || undefined,
+        notes: values.notes || undefined,
         records: values.records.map(({ id, ...record }) => {
           void id
           return record
@@ -253,14 +253,14 @@ const EventRecordFormByDonor = ({
 
           <FormField
             control={form.control}
-            name="remarks"
+            name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Remarks</FormLabel>
+                <FormLabel>Notes</FormLabel>
 
                 <FormControl>
                   <ControlledInput
-                    placeholder="Enter remarks"
+                    placeholder="Enter notes"
                     {...field}
                     value={field.value || ""}
                   />

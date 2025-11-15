@@ -199,6 +199,7 @@ export const importEventRecordSchema = z.object({
           title: true,
           name: true,
           amount: true,
+          notes: true,
         })
         .extend({
           title: z.string().optional(),
