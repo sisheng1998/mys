@@ -16,6 +16,7 @@ import { z } from "zod"
 import { Category } from "@/types/category"
 import { getRowNumber } from "@/lib/data-table"
 import { handleMutationError } from "@/lib/error"
+import { getLabelText } from "@/lib/name"
 import { formatCurrency, formatNumber } from "@/lib/number"
 import { convertSCToTC, getExcelSheetName } from "@/lib/string"
 import { cn } from "@/lib/utils"
@@ -41,6 +42,7 @@ import { VirtualizedDataTable } from "@/components/data-table/DataTable"
 import { DEFAULT_TAB } from "@/components/events/CategoryTab"
 import ExcelDropzone from "@/components/events/ExcelDropzone"
 import { IconWithText } from "@/components/templates/TemplateList"
+import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
 import { Id } from "@cvx/_generated/dataModel"
@@ -60,6 +62,8 @@ const ImportEventRecord = ({
   _id: Id<"events">
   categories: Category[]
 }) => {
+  const { device, print } = usePrinter()
+
   const convex = useConvex()
 
   const importEventRecords = useMutation(
@@ -69,6 +73,7 @@ const ImportEventRecord = ({
   const [eventRecords, setEventRecords] = useState<EventRecord[]>([])
   const [selectedTab, setSelectedTab] = useState<string>(DEFAULT_TAB)
   const [isPaid, setIsPaid] = useState<boolean>(false)
+  const [printCategory, setPrintCategory] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const groupedEventRecords = useMemo(() => {
@@ -178,6 +183,18 @@ const ImportEventRecord = ({
       await importEventRecords({ _id, records, isPaid })
 
       toast.success(`${eventRecords.length} record(s) imported`)
+
+      if (device && printCategory.length !== 0) {
+        const recordsToPrint = records
+          .filter((record) => printCategory.includes(record.category))
+          .map((record) => getLabelText(record.name, record.title || undefined))
+
+        if (recordsToPrint.length !== 0) {
+          await print(recordsToPrint)
+          toast.success(`${recordsToPrint.length} sticker(s) printed`)
+        }
+      }
+
       props.onOpenChange?.(false)
     } catch (error) {
       handleMutationError(error)
@@ -190,6 +207,7 @@ const ImportEventRecord = ({
     setEventRecords([])
     setSelectedTab(DEFAULT_TAB)
     setIsPaid(false)
+    setPrintCategory([])
     setIsLoading(false)
   }
 
@@ -231,13 +249,15 @@ const ImportEventRecord = ({
               </>
             ) : (
               <>
-                <Label className="-mb-2">Data Preview</Label>
+                <div className="flex min-w-0 flex-col gap-2">
+                  <Label>Data Preview</Label>
 
-                <CategoryTab
-                  categories={Object.keys(groupedEventRecords)}
-                  selectedTab={selectedTab}
-                  setSelectedTab={setSelectedTab}
-                />
+                  <CategoryTab
+                    categories={Object.keys(groupedEventRecords)}
+                    selectedTab={selectedTab}
+                    setSelectedTab={setSelectedTab}
+                  />
+                </div>
 
                 <EventRecordTable
                   records={
@@ -267,6 +287,40 @@ const ImportEventRecord = ({
                     </Label>
                   </Label>
                 </div>
+
+                {device && (
+                  <div className="flex flex-col gap-2">
+                    <Label>Print Sticker</Label>
+
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map((category) => (
+                        <Label
+                          key={category._id}
+                          htmlFor={`checkbox-${category.name}`}
+                          className="bg-background dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
+                        >
+                          <Checkbox
+                            id={`checkbox-${category.name}`}
+                            checked={printCategory.includes(category.name)}
+                            onCheckedChange={(value) =>
+                              setPrintCategory(
+                                value
+                                  ? [...printCategory, category.name]
+                                  : printCategory.filter(
+                                      (c) => c !== category.name
+                                    )
+                              )
+                            }
+                          />
+
+                          <Label className="pointer-events-none h-4.5 font-normal">
+                            {category.name}
+                          </Label>
+                        </Label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
 

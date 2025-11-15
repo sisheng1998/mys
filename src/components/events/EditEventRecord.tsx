@@ -250,7 +250,6 @@ const EditEventRecord = ({
                             id={`checkbox-${field.name}`}
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            disabled={!device}
                           />
                         </FormControl>
 
