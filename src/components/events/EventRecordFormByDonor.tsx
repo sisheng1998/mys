@@ -16,6 +16,7 @@ import { getLabelText } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import ControlledInput from "@/components/ui/controlled-input"
 import {
   Form,
   FormControl,
@@ -107,6 +108,7 @@ const EventRecordFormByDonor = ({
     name: "",
     isPaid: false,
     printSticker: false,
+    remarks: "",
     records: [
       {
         id: Date.now(),
@@ -247,6 +249,26 @@ const EventRecordFormByDonor = ({
                 </FormItem>
               )
             }}
+          />
+
+          <FormField
+            control={form.control}
+            name="remarks"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Remarks</FormLabel>
+
+                <FormControl>
+                  <ControlledInput
+                    placeholder="Enter remarks"
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           {device && (

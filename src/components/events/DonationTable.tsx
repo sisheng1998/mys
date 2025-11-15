@@ -171,6 +171,17 @@ const DonationTable = ({
         },
       },
       {
+        id: "remarks",
+        accessorFn: (row) => row.remarks || "-",
+        header: ({ column }) => (
+          <ColumnHeader column={column} title="Remarks" />
+        ),
+        minSize: 160,
+        meta: {
+          flex: 0.5,
+        },
+      },
+      {
         id: "date",
         accessorKey: "createdAt",
         filterFn: dateFilter,

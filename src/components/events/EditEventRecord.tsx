@@ -15,6 +15,7 @@ import { getLabelText } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import ControlledInput from "@/components/ui/controlled-input"
 import {
   Dialog,
   DialogClose,
@@ -103,6 +104,7 @@ const EditEventRecord = ({
             category: "",
             amount: NaN,
             isPaid: false,
+            remarks: "",
           } as formSchema),
     [eventRecord]
   )
@@ -257,118 +259,140 @@ const EditEventRecord = ({
                   )}
                 />
               )}
-            </div>
 
-            <div className="grid items-start gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
+              <div className="grid items-start gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
 
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value)
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value)
 
-                        const selectedCategory = categories.find(
-                          (c) => c.name === value
-                        )
+                          const selectedCategory = categories.find(
+                            (c) => c.name === value
+                          )
 
-                        if (selectedCategory && selectedCategory.amount) {
-                          form.setValue("amount", selectedCategory.amount)
-                        }
-                      }}
-                    >
+                          if (selectedCategory && selectedCategory.amount) {
+                            form.setValue("amount", selectedCategory.amount)
+                          }
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full min-w-24">
+                            <SelectValue placeholder="Select">
+                              {field.value || "Select"}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
+
+                        <SelectContent>
+                          <SelectItem value={null!}>
+                            <span className="text-muted-foreground">
+                              Select
+                            </span>
+                          </SelectItem>
+
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category._id}
+                              value={category.name}
+                              disabled={isCategoryDisabled(
+                                category,
+                                form.watch("title") || undefined
+                              )}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel>Amount</FormLabel>
+
                       <FormControl>
-                        <SelectTrigger className="w-full min-w-24">
-                          <SelectValue placeholder="Select">
-                            {field.value || "Select"}
-                          </SelectValue>
-                        </SelectTrigger>
+                        <NumberField
+                          placeholder="Enter amount"
+                          formatOptions={CURRENCY_FORMAT_OPTIONS}
+                          minValue={1}
+                          isInvalid={!!fieldState.error}
+                          {...field}
+                        >
+                          <NumberFieldGroup>
+                            <NumberFieldDecrement />
+                            <NumberFieldInput />
+                            <NumberFieldIncrement />
+                          </NumberFieldGroup>
+                        </NumberField>
                       </FormControl>
 
-                      <SelectContent>
-                        <SelectItem value={null!}>
-                          <span className="text-muted-foreground">Select</span>
-                        </SelectItem>
-
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category._id}
-                            value={category.name}
-                            disabled={isCategoryDisabled(
-                              category,
-                              form.watch("title") || undefined
-                            )}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
-                name="amount"
-                render={({ field, fieldState }) => (
+                name="remarks"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount</FormLabel>
+                    <FormLabel>Remarks</FormLabel>
 
                     <FormControl>
-                      <NumberField
-                        placeholder="Enter amount"
-                        formatOptions={CURRENCY_FORMAT_OPTIONS}
-                        minValue={1}
-                        isInvalid={!!fieldState.error}
+                      <ControlledInput
+                        placeholder="Enter remarks"
                         {...field}
-                      >
-                        <NumberFieldGroup>
-                          <NumberFieldDecrement />
-                          <NumberFieldInput />
-                          <NumberFieldIncrement />
-                        </NumberFieldGroup>
-                      </NumberField>
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="isPaid"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Payment Status</Label>
-
-                  <Label
-                    htmlFor={`checkbox-${field.name}`}
-                    className="cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
-                  >
-                    <FormControl>
-                      <Checkbox
-                        id={`checkbox-${field.name}`}
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+                        value={field.value || ""}
                       />
                     </FormControl>
 
-                    <FormLabel className="pointer-events-none leading-tight font-normal">
-                      Mark as Paid
-                    </FormLabel>
-                  </Label>
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isPaid"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Payment Status</Label>
+
+                    <Label
+                      htmlFor={`checkbox-${field.name}`}
+                      className="cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
+                    >
+                      <FormControl>
+                        <Checkbox
+                          id={`checkbox-${field.name}`}
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+
+                      <FormLabel className="pointer-events-none leading-tight font-normal">
+                        Mark as Paid
+                      </FormLabel>
+                    </Label>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter>
               <DialogClose asChild>

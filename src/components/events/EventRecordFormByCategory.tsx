@@ -15,6 +15,7 @@ import { getLabelText, isTitleDisabled } from "@/lib/name"
 import { CURRENCY_FORMAT_OPTIONS } from "@/lib/number"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import ControlledInput from "@/components/ui/controlled-input"
 import {
   Form,
   FormControl,
@@ -107,6 +108,7 @@ const EventRecordFormByCategory = ({
     amount: NaN,
     isPaid: false,
     printSticker: false,
+    remarks: "",
     records: [
       {
         id: Date.now(),
@@ -177,67 +179,91 @@ const EventRecordFormByCategory = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
+        <div className="grid gap-4">
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
 
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value)
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value)
 
-                  const selectedCategory = categories.find(
-                    (c) => c.name === value
-                  )
+                    const selectedCategory = categories.find(
+                      (c) => c.name === value
+                    )
 
-                  if (selectedCategory) {
-                    if (selectedCategory.amount) {
-                      form.setValue("amount", selectedCategory.amount)
+                    if (selectedCategory) {
+                      if (selectedCategory.amount) {
+                        form.setValue("amount", selectedCategory.amount)
+                      }
+
+                      form
+                        .getValues("records")
+                        .forEach(async (record, index) => {
+                          if (!record.amount && selectedCategory.amount) {
+                            form.setValue(
+                              `records.${index}.amount`,
+                              selectedCategory.amount
+                            )
+                          }
+
+                          if (record.name) {
+                            await form.trigger([`records.${index}.name`])
+                          }
+                        })
                     }
+                  }}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full min-w-24">
+                      <SelectValue placeholder="Select">
+                        {field.value || "Select"}
+                      </SelectValue>
+                    </SelectTrigger>
+                  </FormControl>
 
-                    form.getValues("records").forEach(async (record, index) => {
-                      if (!record.amount && selectedCategory.amount) {
-                        form.setValue(
-                          `records.${index}.amount`,
-                          selectedCategory.amount
-                        )
-                      }
+                  <SelectContent>
+                    <SelectItem value={null!}>
+                      <span className="text-muted-foreground">Select</span>
+                    </SelectItem>
 
-                      if (record.name) {
-                        await form.trigger([`records.${index}.name`])
-                      }
-                    })
-                  }
-                }}
-              >
+                    {categories.map((category) => (
+                      <SelectItem key={category._id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="remarks"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Remarks</FormLabel>
+
                 <FormControl>
-                  <SelectTrigger className="w-full min-w-24">
-                    <SelectValue placeholder="Select">
-                      {field.value || "Select"}
-                    </SelectValue>
-                  </SelectTrigger>
+                  <ControlledInput
+                    placeholder="Enter remarks"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
 
-                <SelectContent>
-                  <SelectItem value={null!}>
-                    <span className="text-muted-foreground">Select</span>
-                  </SelectItem>
-
-                  {categories.map((category) => (
-                    <SelectItem key={category._id} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="-mt-1 flex flex-col gap-4">
           <div className="-mb-1 flex flex-wrap items-center justify-between gap-2">

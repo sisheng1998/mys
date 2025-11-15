@@ -27,6 +27,7 @@ const eventRecordFields = {
   category: v.string(),
   amount: v.number(),
   isPaid: v.boolean(),
+  remarks: v.optional(v.string()),
   createdAt: v.number(),
 }
 
@@ -42,6 +43,7 @@ export const eventRecordSchema = z.object({
     .min(1, "Required"),
   category: z.string().min(1, "Required"),
   isPaid: z.boolean().default(false),
+  remarks: z.string().trim().optional(),
 })
 
 export const eventTables = {

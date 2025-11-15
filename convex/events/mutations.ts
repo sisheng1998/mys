@@ -82,6 +82,7 @@ export const addEventRecordByDonorSchema = eventRecordSchema
     eventId: true,
     title: true,
     name: true,
+    remarks: true,
   })
   .extend({
     records: z.array(
@@ -98,7 +99,7 @@ export const addEventRecordByDonorSchema = eventRecordSchema
 export const addEventRecordByDonor = authMutation({
   args: addEventRecordByDonorSchema.shape,
   handler: async (ctx, args) => {
-    const { eventId, title, name, records } = args
+    const { eventId, title, name, remarks, records } = args
 
     const event = await ctx.db.get(eventId)
     if (!event) throw new ConvexError("Event not found")
@@ -135,6 +136,7 @@ export const addEventRecordByDonor = authMutation({
         category,
         amount,
         isPaid,
+        remarks,
         createdAt: Date.now(),
       })
 
@@ -150,6 +152,7 @@ export const addEventRecordByCategorySchema = eventRecordSchema
     eventId: true,
     category: true,
     amount: true,
+    remarks: true,
   })
   .extend({
     records: z.array(
@@ -167,7 +170,7 @@ export const addEventRecordByCategorySchema = eventRecordSchema
 export const addEventRecordByCategory = authMutation({
   args: addEventRecordByCategorySchema.shape,
   handler: async (ctx, args) => {
-    const { eventId, category, records } = args
+    const { eventId, category, remarks, records } = args
 
     const event = await ctx.db.get(eventId)
     if (!event) throw new ConvexError("Event not found")
@@ -206,6 +209,7 @@ export const addEventRecordByCategory = authMutation({
         category,
         amount,
         isPaid,
+        remarks,
         createdAt: Date.now(),
       })
 

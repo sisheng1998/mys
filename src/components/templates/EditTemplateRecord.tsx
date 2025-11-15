@@ -141,162 +141,166 @@ const EditTemplateRecord = ({
               </DialogDescription>
             </DialogHeader>
 
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field, fieldState }) => {
-                const triggerCategory = async () => {
-                  const category = form.getValues("category")
+            <div className="grid gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => {
+                  const triggerCategory = async () => {
+                    const category = form.getValues("category")
 
-                  if (category) {
-                    await form.trigger(["category"])
+                    if (category) {
+                      await form.trigger(["category"])
+                    }
                   }
-                }
 
-                return (
-                  <FormItem>
-                    <FormLabel>Donor</FormLabel>
+                  return (
+                    <FormItem>
+                      <FormLabel>Donor</FormLabel>
 
-                    <div className="flex items-stretch">
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field: titleField }) => (
-                          <FormItem>
-                            <Select
-                              value={titleField.value || ""}
-                              onValueChange={(value) => {
-                                titleField.onChange(value)
-                                triggerCategory()
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 px-2 [&_svg]:hidden">
-                                  <SelectValue placeholder="Title">
-                                    {titleField.value || "Title"}
-                                  </SelectValue>
-                                </SelectTrigger>
-                              </FormControl>
+                      <div className="flex items-stretch">
+                        <FormField
+                          control={form.control}
+                          name="title"
+                          render={({ field: titleField }) => (
+                            <FormItem>
+                              <Select
+                                value={titleField.value || ""}
+                                onValueChange={(value) => {
+                                  titleField.onChange(value)
+                                  triggerCategory()
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="min-w-16 justify-center rounded-r-none border-r-0 px-2 [&_svg]:hidden">
+                                    <SelectValue placeholder="Title">
+                                      {titleField.value || "Title"}
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                </FormControl>
 
-                              <SelectContent>
-                                <SelectItem value={null!}>
-                                  <span className="text-muted-foreground">
-                                    Select
-                                  </span>
-                                </SelectItem>
-
-                                {TITLES.map((title) => (
-                                  <SelectItem key={title} value={title}>
-                                    {title}
+                                <SelectContent>
+                                  <SelectItem value={null!}>
+                                    <span className="text-muted-foreground">
+                                      Select
+                                    </span>
                                   </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
 
-                      <FormControl>
-                        <NameAutocomplete
-                          name="name"
-                          onSelect={(data) => {
-                            field.onChange(data.name)
-                            form.setValue("title", data.title || null)
-                            triggerCategory()
-                          }}
-                          isInvalid={!!fieldState.error}
+                                  {TITLES.map((title) => (
+                                    <SelectItem key={title} value={title}>
+                                      {title}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                    </div>
 
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
-            />
+                        <FormControl>
+                          <NameAutocomplete
+                            name="name"
+                            onSelect={(data) => {
+                              field.onChange(data.name)
+                              form.setValue("title", data.title || null)
+                              triggerCategory()
+                            }}
+                            isInvalid={!!fieldState.error}
+                          />
+                        </FormControl>
+                      </div>
 
-            <div className="grid items-start gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value)
-
-                        const selectedCategory = categories.find(
-                          (c) => c.name === value
-                        )
-
-                        if (selectedCategory && selectedCategory.amount) {
-                          form.setValue("amount", selectedCategory.amount)
-                        }
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full min-w-24">
-                          <SelectValue placeholder="Select">
-                            {field.value || "Select"}
-                          </SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-
-                      <SelectContent>
-                        <SelectItem value={null!}>
-                          <span className="text-muted-foreground">Select</span>
-                        </SelectItem>
-
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category._id}
-                            value={category.name}
-                            disabled={isCategoryDisabled(
-                              category,
-                              form.watch("title") || undefined
-                            )}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
               />
 
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel>Amount</FormLabel>
+              <div className="grid items-start gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
 
-                    <FormControl>
-                      <NumberField
-                        placeholder="Enter amount"
-                        formatOptions={CURRENCY_FORMAT_OPTIONS}
-                        minValue={1}
-                        isInvalid={!!fieldState.error}
-                        {...field}
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value)
+
+                          const selectedCategory = categories.find(
+                            (c) => c.name === value
+                          )
+
+                          if (selectedCategory && selectedCategory.amount) {
+                            form.setValue("amount", selectedCategory.amount)
+                          }
+                        }}
                       >
-                        <NumberFieldGroup>
-                          <NumberFieldDecrement />
-                          <NumberFieldInput />
-                          <NumberFieldIncrement />
-                        </NumberFieldGroup>
-                      </NumberField>
-                    </FormControl>
+                        <FormControl>
+                          <SelectTrigger className="w-full min-w-24">
+                            <SelectValue placeholder="Select">
+                              {field.value || "Select"}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                        <SelectContent>
+                          <SelectItem value={null!}>
+                            <span className="text-muted-foreground">
+                              Select
+                            </span>
+                          </SelectItem>
+
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category._id}
+                              value={category.name}
+                              disabled={isCategoryDisabled(
+                                category,
+                                form.watch("title") || undefined
+                              )}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel>Amount</FormLabel>
+
+                      <FormControl>
+                        <NumberField
+                          placeholder="Enter amount"
+                          formatOptions={CURRENCY_FORMAT_OPTIONS}
+                          minValue={1}
+                          isInvalid={!!fieldState.error}
+                          {...field}
+                        >
+                          <NumberFieldGroup>
+                            <NumberFieldDecrement />
+                            <NumberFieldInput />
+                            <NumberFieldIncrement />
+                          </NumberFieldGroup>
+                        </NumberField>
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <DialogFooter>
