@@ -326,6 +326,7 @@ const importEventRecordSchema = z.object({
         title: true,
         name: true,
         amount: true,
+        notes: true,
       }).shape
     )
   ),
@@ -341,7 +342,7 @@ export const importEventRecords = authMutation({
     if (!event) throw new ConvexError("Event not found")
 
     for (const record of records) {
-      const { title, name, amount, category } = record
+      const { title, name, amount, category, notes } = record
 
       await createNameListRecord(ctx, { name, title })
 
@@ -352,6 +353,7 @@ export const importEventRecords = authMutation({
         category,
         amount,
         isPaid,
+        notes,
         createdAt: Date.now(),
       })
 

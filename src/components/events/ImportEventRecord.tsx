@@ -196,7 +196,7 @@ const ImportEventRecord = ({
   return (
     <Dialog {...props}>
       <DialogContent
-        className="sm:max-w-[calc(100%-2rem)] lg:max-w-4xl"
+        className="sm:max-w-[calc(100%-2rem)] xl:max-w-5xl"
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           handleReset()
@@ -221,9 +221,7 @@ const ImportEventRecord = ({
                   className="border-destructive bg-destructive/10"
                 >
                   <CircleAlert />
-                  <AlertTitle>
-                    {invalidEventRecords.length} invalid record(s) found
-                  </AlertTitle>
+                  <AlertTitle>Invalid record(s) found</AlertTitle>
                   <AlertDescription>
                     Please resolve all the issues before importing.
                   </AlertDescription>
@@ -392,6 +390,15 @@ const EventRecordTable = ({ records }: { records: EventRecord[] }) => {
           headerClassName: cn("text-right"),
           cellClassName: cn("text-right"),
           flex: 0.25,
+        },
+      },
+      {
+        accessorKey: "notes",
+        header: "Notes",
+        cell: (info) => info.getValue() || "-",
+        minSize: 128,
+        meta: {
+          flex: 0.5,
         },
       },
       {
