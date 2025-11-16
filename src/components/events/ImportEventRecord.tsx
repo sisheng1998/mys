@@ -293,28 +293,26 @@ const ImportEventRecord = ({
                     <Label>Print Sticker</Label>
 
                     <div className="flex flex-wrap gap-2">
-                      {categories.map((category) => (
+                      {Object.keys(groupedEventRecords).map((category) => (
                         <Label
-                          key={category._id}
-                          htmlFor={`checkbox-${category.name}`}
+                          key={category}
+                          htmlFor={`checkbox-${category}`}
                           className="bg-background dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer rounded-md border border-dashed px-3 py-2 shadow-xs"
                         >
                           <Checkbox
-                            id={`checkbox-${category.name}`}
-                            checked={printCategory.includes(category.name)}
+                            id={`checkbox-${category}`}
+                            checked={printCategory.includes(category)}
                             onCheckedChange={(value) =>
                               setPrintCategory(
                                 value
-                                  ? [...printCategory, category.name]
-                                  : printCategory.filter(
-                                      (c) => c !== category.name
-                                    )
+                                  ? [...printCategory, category]
+                                  : printCategory.filter((c) => c !== category)
                               )
                             }
                           />
 
                           <Label className="pointer-events-none h-4.5 font-normal">
-                            {category.name}
+                            {category}
                           </Label>
                         </Label>
                       ))}
