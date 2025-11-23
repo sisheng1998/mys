@@ -184,4 +184,23 @@
     position: relative;
     z-index: 999999;
   }
+
+  .ht-grid {
+    --ht-foreground-color: var(--color-foreground);
+    --ht-background-color: var(--color-background);
+    --ht-header-active-background-color: var(--color-primary);
+    --ht-header-active-border-color: var(--color-primary);
+    --ht-header-active-foreground-color: var(--color-primary-foreground);
+    --ht-cell-selection-border-color: var(--color-primary);
+    --ht-cell-autofill-background-color: var(--color-primary);
+    --ht-cell-selection-background-color: var(--color-primary);
+    --ht-cell-editor-border-color: var(--color-primary);
+    --ht-header-row-active-background-color: var(--color-primary);
+    --ht-header-row-active-border-color: var(--color-primary);
+    --ht-header-row-active-foreground-color: var(--color-primary-foreground);
+  }
+
+  .handsontable {
+    @apply font-sans!;
+  }
 }

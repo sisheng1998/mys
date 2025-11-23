@@ -18,3 +18,6 @@ export const formatNumber = (value: number) =>
     ...CURRENCY_FORMAT_OPTIONS,
     style: "decimal",
   })
+
+export const isValidNumber = (value: string): boolean =>
+  Number.isFinite(Number(value))

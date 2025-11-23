@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useMemo, useRef, useState } from "react"
+import { HotTableRef } from "@handsontable/react-wrapper"
 import {
   ColumnDef,
   getCoreRowModel,
@@ -17,7 +18,7 @@ import { Category } from "@/types/category"
 import { getRowNumber } from "@/lib/data-table"
 import { handleMutationError } from "@/lib/error"
 import { getLabelText } from "@/lib/name"
-import { formatCurrency, formatNumber } from "@/lib/number"
+import { formatCurrency, formatNumber, isValidNumber } from "@/lib/number"
 import { convertSCToTC, getExcelSheetName } from "@/lib/string"
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -25,6 +26,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -41,6 +43,9 @@ import {
 import { VirtualizedDataTable } from "@/components/data-table/DataTable"
 import { DEFAULT_TAB } from "@/components/events/CategoryTab"
 import ExcelDropzone from "@/components/events/ExcelDropzone"
+import SpreadsheetEditor, {
+  SpreadsheetRecord,
+} from "@/components/events/SpreadsheetEditor"
 import { IconWithText } from "@/components/templates/TemplateList"
 import { usePrinter } from "@/contexts/printer"
 
@@ -63,6 +68,7 @@ const ImportEventRecord = ({
   categories: Category[]
 }) => {
   const { device, print } = usePrinter()
+  const editorRef = useRef<HotTableRef>(null)
 
   const convex = useConvex()
 
@@ -71,7 +77,13 @@ const ImportEventRecord = ({
   )
 
   const [eventRecords, setEventRecords] = useState<EventRecord[]>([])
+  const [spreadsheetRecords, setSpreadsheetRecords] = useState<
+    SpreadsheetRecord[]
+  >([])
+
+  const [isFileUpload, setIsFileUpload] = useState<boolean>(false)
   const [selectedTab, setSelectedTab] = useState<string>(DEFAULT_TAB)
+
   const [isPaid, setIsPaid] = useState<boolean>(false)
   const [printCategory, setPrintCategory] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -105,6 +117,57 @@ const ImportEventRecord = ({
     }
   }, [eventRecords])
 
+  const handleSpreadSheetSubmit = async () => {
+    if (!editorRef.current || !editorRef.current.hotInstance) return
+
+    try {
+      setIsLoading(true)
+
+      const rawData = (
+        editorRef.current.hotInstance.getData() as SpreadsheetRecord[]
+      ).filter((row) => !row.every((cell) => cell == null || cell === ""))
+
+      setSpreadsheetRecords(rawData)
+
+      const records: z.infer<typeof importEventRecordSchema>["records"] = []
+
+      rawData.forEach((row) => {
+        const [rawCategory, title, name, amount, notes] = row
+
+        const category = categories.find(
+          (c) => c.name === getExcelSheetName(convertSCToTC(rawCategory || ""))
+        )
+
+        if (!category || !name) return
+
+        records.push({
+          category: category.name,
+          title: title ? convertSCToTC(title.trim()) : undefined,
+          name: convertSCToTC((name || "").trim()),
+          amount: isValidNumber(amount || "") ? Number(amount) : undefined,
+          notes: notes ? convertSCToTC(notes.trim()) : undefined,
+        })
+      })
+
+      if (records.length === 0) {
+        toast.error("No record found")
+        return
+      }
+
+      const data = await convex.query(api.events.queries.getRecordsForImport, {
+        _id,
+        records,
+      })
+
+      setEventRecords(data)
+    } catch (error) {
+      console.error(error)
+      toast.error("An error occurred while submitting the spreadsheet")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleUpload = async (file: File) => {
     try {
       setIsLoading(true)
@@ -137,15 +200,19 @@ const ImportEventRecord = ({
           defval: "",
         }) as Partial<EventRecord>[]
 
-        data.forEach((row) =>
+        data.forEach((row) => {
+          if (!row.name) return
+
           records.push({
             category: category.name,
             title: row.title ? convertSCToTC(row.title.trim()) : undefined,
             name: convertSCToTC((row.name || "").trim()),
-            amount: row.amount,
+            amount: isValidNumber(String(row.amount))
+              ? Number(row.amount)
+              : undefined,
             notes: row.notes ? convertSCToTC(row.notes.trim()) : undefined,
           })
-        )
+        })
       })
 
       if (records.length === 0) {
@@ -205,6 +272,7 @@ const ImportEventRecord = ({
 
   const handleReset = () => {
     setEventRecords([])
+    setIsFileUpload(false)
     setSelectedTab(DEFAULT_TAB)
     setIsPaid(false)
     setPrintCategory([])
@@ -218,18 +286,52 @@ const ImportEventRecord = ({
         onCloseAutoFocus={(e) => {
           e.preventDefault()
           handleReset()
+          setSpreadsheetRecords([])
         }}
       >
         <DialogHeader>
           <DialogTitle>Import Event Record(s)</DialogTitle>
 
           <DialogDescription>
-            Import the event record(s) from Excel file.
+            Import the event record(s) from spreadsheet / file upload.
           </DialogDescription>
         </DialogHeader>
 
         {eventRecords.length === 0 ? (
-          <ExcelDropzone handleUpload={handleUpload} isLoading={isLoading} />
+          <div className="flex min-w-0 flex-col gap-4">
+            <MethodTab
+              isFileUpload={isFileUpload}
+              setIsFileUpload={setIsFileUpload}
+            />
+
+            {isFileUpload ? (
+              <ExcelDropzone
+                handleUpload={handleUpload}
+                isLoading={isLoading}
+              />
+            ) : (
+              <>
+                <SpreadsheetEditor
+                  ref={editorRef}
+                  spreadsheetRecords={spreadsheetRecords}
+                  categories={categories}
+                />
+
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+
+                  <LoaderButton
+                    onClick={handleSpreadSheetSubmit}
+                    isLoading={isLoading}
+                  >
+                    Next
+                  </LoaderButton>
+                </DialogFooter>
+              </>
+            )}
+          </div>
         ) : (
           <>
             {invalidEventRecords.length !== 0 ? (
@@ -344,6 +446,55 @@ const ImportEventRecord = ({
 
 export default ImportEventRecord
 
+const METHODS = ["Spreadsheet", "File Upload"]
+
+const MethodTab = ({
+  isFileUpload,
+  setIsFileUpload,
+}: {
+  isFileUpload: boolean
+  setIsFileUpload: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
+  const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
+
+  const scrollToTab = (tab: string) => {
+    const element = tabRefs.current[tab]
+    if (!element) return
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    })
+  }
+
+  const handleSelectTab = (value: string) => {
+    setIsFileUpload(value === METHODS[1])
+    scrollToTab(value)
+  }
+
+  return (
+    <UnderlineTabs
+      value={isFileUpload ? METHODS[1] : METHODS[0]}
+      onValueChange={handleSelectTab}
+    >
+      <UnderlineTabsList>
+        {METHODS.map((method) => (
+          <UnderlineTabsTrigger
+            key={method}
+            ref={(element) => {
+              tabRefs.current[method] = element
+            }}
+            value={method}
+          >
+            {method}
+          </UnderlineTabsTrigger>
+        ))}
+      </UnderlineTabsList>
+    </UnderlineTabs>
+  )
+}
+
 const CategoryTab = ({
   categories,
   selectedTab,
@@ -351,7 +502,7 @@ const CategoryTab = ({
 }: {
   categories: string[]
   selectedTab: string
-  setSelectedTab: (tab: string) => void
+  setSelectedTab: React.Dispatch<React.SetStateAction<string>>
 }) => {
   const tabs = useMemo(
     () => [DEFAULT_TAB, ...categories, WITH_REMARKS],
