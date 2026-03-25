@@ -19,5 +19,7 @@ export const formatNumber = (value: number) =>
     style: "decimal",
   })
 
-export const isValidNumber = (value: string): boolean =>
+export const isValidNumber = (value: unknown): boolean =>
+  typeof value === "string" &&
+  value.trim() !== "" &&
   Number.isFinite(Number(value))

@@ -144,7 +144,7 @@ const ImportEventRecord = ({
           category: category.name,
           title: title ? convertSCToTC(title.trim()) : undefined,
           name: convertSCToTC((name || "").trim()),
-          amount: isValidNumber(amount || "") ? Number(amount) : undefined,
+          amount: isValidNumber(amount) ? Number(amount) : category.amount,
           notes: notes ? convertSCToTC(notes.trim()) : undefined,
         })
       })
@@ -209,7 +209,7 @@ const ImportEventRecord = ({
             name: convertSCToTC((row.name || "").trim()),
             amount: isValidNumber(String(row.amount))
               ? Number(row.amount)
-              : undefined,
+              : category.amount,
             notes: row.notes ? convertSCToTC(row.notes.trim()) : undefined,
           })
         })
@@ -272,7 +272,11 @@ const ImportEventRecord = ({
 
   const handleReset = () => {
     setEventRecords([])
-    setIsFileUpload(false)
+
+    if (isFileUpload) {
+      setSpreadsheetRecords([])
+    }
+
     setSelectedTab(DEFAULT_TAB)
     setIsPaid(false)
     setPrintCategory([])
