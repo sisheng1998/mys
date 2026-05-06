@@ -2,6 +2,8 @@ export const PRINTER_NAME = "CT221B"
 export const PRINTER_SERVICE = "49535343-fe7d-4ae5-8fa9-9fafd205e455"
 export const PRINTER_CHARACTERISTIC = "49535343-8841-43f4-a8d4-ecbe34729bb3"
 
+export const DELAY_MS = 144
+
 const DOTS_PER_MM = 8
 const GAP_HEIGHT_MM = 2
 const LABEL_WIDTH_MM = 35
@@ -243,10 +245,30 @@ export const getBitmapBytesFromCanvas = async (
 export const writeInChunks = async (
   characteristic: BluetoothRemoteGATTCharacteristic,
   data: Uint8Array,
-  chunkSize: number = 240
+  chunkSize: number = 240,
+  maxRetries: number = 3
 ): Promise<void> => {
   for (let i = 0; i < data.length; i += chunkSize) {
     const chunk = data.slice(i, i + chunkSize)
-    await characteristic.writeValueWithResponse(chunk)
+    let retries = 0
+    let success = false
+
+    while (retries < maxRetries && !success) {
+      try {
+        await characteristic.writeValueWithResponse(chunk)
+        success = true
+      } catch (error) {
+        retries++
+        if (retries < maxRetries) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, DELAY_MS * retries)
+          )
+        } else {
+          throw error
+        }
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, DELAY_MS))
   }
 }

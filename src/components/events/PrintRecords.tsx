@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { LoaderButton } from "@/components/ui/loader-button"
+import { Progress } from "@/components/ui/progress"
 import { usePrinter } from "@/contexts/printer"
 
 import { api } from "@cvx/_generated/api"
@@ -33,9 +34,14 @@ const PrintRecords = ({
   const { device, print } = usePrinter()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [progress, setProgress] = useState<{
+    current: number
+    total: number
+  } | null>(null)
 
   const handlePrint = async () => {
     setIsLoading(true)
+    setProgress(null)
 
     try {
       const data = await convex.query(api.events.queries.getRecordsForPrint, {
@@ -46,7 +52,7 @@ const PrintRecords = ({
         getLabelText(record.name, record.title)
       )
 
-      await print(records)
+      await print(records, (current, total) => setProgress({ current, total }))
 
       toast.success(`${data.length} sticker(s) printed`)
       props.onOpenChange?.(false)
@@ -55,6 +61,7 @@ const PrintRecords = ({
     }
 
     setIsLoading(false)
+    setProgress(null)
   }
 
   return (
@@ -79,6 +86,18 @@ const PrintRecords = ({
               Please connect to the printer before printing.
             </AlertDescription>
           </Alert>
+        ) : progress ? (
+          <div className="flex flex-col gap-2 rounded-lg border px-4 py-3.75">
+            <p className="flex items-baseline justify-between gap-2 text-sm">
+              <span>Printing in progress...</span>
+
+              <span className="font-medium">
+                {progress.current} / {progress.total}
+              </span>
+            </p>
+
+            <Progress value={(progress.current / progress.total) * 100} />
+          </div>
         ) : (
           <Alert className="bg-primary/10 border-primary text-primary">
             <Info />

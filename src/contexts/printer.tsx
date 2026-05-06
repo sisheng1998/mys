@@ -10,6 +10,7 @@ import React, {
 import pako from "pako"
 
 import {
+  DELAY_MS,
   getBitmapBytesFromCanvas,
   getCanvas,
   getTSPLCommands,
@@ -21,12 +22,17 @@ import {
 } from "@/lib/printer"
 import { normalizeSymbol } from "@/lib/string"
 
+const BATCH_SIZE = 10
+
 type PrinterContextType = {
   device: BluetoothDevice | null
   isSupported: boolean
   connect: () => Promise<void>
   disconnect: () => void
-  print: (records: [string, number][][]) => Promise<void>
+  print: (
+    records: [string, number][][],
+    onProgress?: (current: number, total: number) => void
+  ) => Promise<void>
 }
 
 const Printer = createContext<PrinterContextType | undefined>(undefined)
@@ -69,7 +75,10 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
 
   const handleDisconnect = () => setDevice(null)
 
-  const print = async (records: [string, number][][]) => {
+  const print = async (
+    records: [string, number][][],
+    onProgress?: (current: number, total: number) => void
+  ) => {
     if (!device || records.length === 0) return
 
     const server = await device.gatt?.connect()
@@ -79,55 +88,74 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
     )
     if (!characteristic) return
 
+    onProgress?.(0, records.length)
+
     const encoder = new TextEncoder()
     const tsplHeader = getTSPLCommands().join("\r\n")
 
-    const fullBufParts: Uint8Array[] = [encoder.encode(tsplHeader + "\r\n")]
+    const totalBatches = Math.ceil(records.length / BATCH_SIZE)
 
-    for (const record of records) {
-      const normalizedRecord: [string, number][] = record.map(
-        ([text, value]) => [normalizeSymbol(text), value]
+    for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+      const startIdx = batchIndex * BATCH_SIZE
+      const endIdx = Math.min(startIdx + BATCH_SIZE, records.length)
+      const batchRecords = records.slice(startIdx, endIdx)
+
+      const fullBufParts: Uint8Array[] = [encoder.encode(tsplHeader + "\r\n")]
+
+      for (const record of batchRecords) {
+        const normalizedRecord: [string, number][] = record.map(
+          ([text, value]) => [normalizeSymbol(text), value]
+        )
+
+        const canvas = getCanvas(normalizedRecord)
+        const { trimmedCanvas, offsetX, offsetY } = trimCanvas(canvas)
+
+        const bitmapBytes = await getBitmapBytesFromCanvas(trimmedCanvas)
+        const widthInBytes = Math.ceil(trimmedCanvas.width / 8)
+        const height = trimmedCanvas.height
+
+        const compressedBytes = pako.deflate(bitmapBytes, {
+          level: -1,
+          windowBits: -15,
+          memLevel: 9,
+          strategy: 0,
+        })
+
+        const bitmapCmdPrefix = `BITMAP ${offsetX},${offsetY},${widthInBytes},${height},3,${compressedBytes.length},`
+        const bitmapHeader = encoder.encode(bitmapCmdPrefix)
+        const bitmapFooter = encoder.encode("\r\n")
+        const clearCmd = encoder.encode("CLS\r\n")
+        const printCmd = encoder.encode("PRINT 1\r\n")
+
+        fullBufParts.push(clearCmd)
+        fullBufParts.push(bitmapHeader)
+        fullBufParts.push(compressedBytes)
+        fullBufParts.push(bitmapFooter)
+        fullBufParts.push(printCmd)
+      }
+
+      fullBufParts.push(encoder.encode("END\r\n"))
+
+      const totalLength = fullBufParts.reduce(
+        (sum, part) => sum + part.length,
+        0
       )
+      const fullBuf = new Uint8Array(totalLength)
 
-      const canvas = getCanvas(normalizedRecord)
-      const { trimmedCanvas, offsetX, offsetY } = trimCanvas(canvas)
+      let offset = 0
+      for (const part of fullBufParts) {
+        fullBuf.set(part, offset)
+        offset += part.length
+      }
 
-      const bitmapBytes = await getBitmapBytesFromCanvas(trimmedCanvas)
-      const widthInBytes = Math.ceil(trimmedCanvas.width / 8)
-      const height = trimmedCanvas.height
+      await writeInChunks(characteristic, fullBuf)
 
-      const compressedBytes = pako.deflate(bitmapBytes, {
-        level: -1,
-        windowBits: -15,
-        memLevel: 9,
-        strategy: 0,
-      })
+      onProgress?.(endIdx, records.length)
 
-      const bitmapCmdPrefix = `BITMAP ${offsetX},${offsetY},${widthInBytes},${height},3,${compressedBytes.length},`
-      const bitmapHeader = encoder.encode(bitmapCmdPrefix)
-      const bitmapFooter = encoder.encode("\r\n")
-      const clearCmd = encoder.encode("CLS\r\n")
-      const printCmd = encoder.encode("PRINT 1\r\n")
-
-      fullBufParts.push(clearCmd)
-      fullBufParts.push(bitmapHeader)
-      fullBufParts.push(compressedBytes)
-      fullBufParts.push(bitmapFooter)
-      fullBufParts.push(printCmd)
+      if (batchIndex < totalBatches - 1) {
+        await new Promise((resolve) => setTimeout(resolve, DELAY_MS))
+      }
     }
-
-    fullBufParts.push(encoder.encode("END\r\n"))
-
-    const totalLength = fullBufParts.reduce((sum, part) => sum + part.length, 0)
-    const fullBuf = new Uint8Array(totalLength)
-
-    let offset = 0
-    for (const part of fullBufParts) {
-      fullBuf.set(part, offset)
-      offset += part.length
-    }
-
-    await writeInChunks(characteristic, fullBuf)
   }
 
   return (
