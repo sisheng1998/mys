@@ -68,7 +68,7 @@ export const normalizeSymbol = (input: string): string => {
 
 const converter = OpenCC.Converter({ from: "cn", to: "tw" })
 
-const excludedWords = ["莹", "合"]
+const excludedWords = ["莹", "合", "余"]
 
 export const convertSCToTC = (text: string): string => {
   let tempText = text
