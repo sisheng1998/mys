@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/table"
 import ColumnToggle from "@/components/data-table/ColumnToggle"
 import Pagination from "@/components/data-table/Pagination"
-import Search from "@/components/data-table/Search"
+import Search, { searchFilterFn } from "@/components/data-table/Search"
 import { useDataTable } from "@/contexts/data-table"
 
 type WithId = { _id: string }
@@ -84,6 +84,7 @@ const DataTable = <TData extends WithId, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: searchFilterFn,
     onPaginationChange: setPagination,
     onGlobalFilterChange: (value) => {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }))

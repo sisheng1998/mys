@@ -88,7 +88,7 @@ export function Autocomplete<T>({
             align="start"
           >
             <CommandList className="max-h-full">
-              <div className="max-h-80 overflow-x-hidden overflow-y-auto">
+              <div className="max-h-42 overflow-x-hidden overflow-y-auto">
                 <CommandGroup>
                   {options.map((option) => (
                     <CommandItem
