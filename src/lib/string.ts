@@ -1,5 +1,3 @@
-import * as OpenCC from "opencc-js"
-
 export const getValidFilename = (
   input: string,
   replacementChar = "_"
@@ -65,32 +63,6 @@ export const normalizeSymbol = (input: string): string => {
 
   return text.replace(/\s{2,}/g, " ").trim()
 }
-
-const s2t = OpenCC.Converter({ from: "cn", to: "tw" })
-const t2s = OpenCC.Converter({ from: "tw", to: "cn" })
-
-const excludedWords = ["莹", "合", "余"]
-
-export const convertSCToTC = (text: string): string => {
-  let tempText = text
-
-  excludedWords.forEach((word, index) => {
-    const placeholder = `__EXCL_${index}__`
-    const regex = new RegExp(word, "g")
-    tempText = tempText.replace(regex, placeholder)
-  })
-
-  let converted = s2t(tempText)
-
-  excludedWords.forEach((word, index) => {
-    const placeholder = `__EXCL_${index}__`
-    converted = converted.replaceAll(placeholder, word)
-  })
-
-  return converted
-}
-
-export const convertTCToSC = (text: string): string => t2s(text)
 
 export const isAllEnglishCharacters = (text: string): boolean =>
   /^[A-Za-z\s'\/\-\(\)]+$/.test(text)

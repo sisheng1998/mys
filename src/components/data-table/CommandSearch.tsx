@@ -2,10 +2,12 @@
 
 import React, { useLayoutEffect, useRef, useState } from "react"
 
-import { convertSCToTC } from "@/lib/string"
+import { useConverter } from "@/hooks/use-converter"
 import { CommandInput } from "@/components/ui/command"
 
 const CommandSearch = () => {
+  const { convertSCToTC } = useConverter()
+
   const [search, setSearch] = useState<string>("")
   const [isComposing, setIsComposing] = useState<boolean>(false)
 

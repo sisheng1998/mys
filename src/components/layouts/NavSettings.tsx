@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { FileText, ListTodo } from "lucide-react"
+import { FileText, Languages, ListTodo } from "lucide-react"
 
 import {
   SidebarGroup,
@@ -25,6 +25,11 @@ const PAGES = [
     title: "Categories",
     url: "/categories",
     icon: ListTodo,
+  },
+  {
+    title: "Excluded Words",
+    url: "/excluded-words",
+    icon: Languages,
   },
 ]
 

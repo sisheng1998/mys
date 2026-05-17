@@ -6,7 +6,7 @@ import { useDebounceValue } from "usehooks-ts"
 
 import { NameListRecord } from "@/types/nameList"
 import { getNameWithTitle } from "@/lib/name"
-import { convertSCToTC } from "@/lib/string"
+import { useConverter } from "@/hooks/use-converter"
 import { useQuery } from "@/hooks/use-query"
 import { Autocomplete } from "@/components/ui/autocomplete"
 
@@ -22,6 +22,7 @@ const NameAutocomplete = ({
   isInvalid?: boolean
 }) => {
   const { field } = useController({ name })
+  const { convertSCToTC } = useConverter()
 
   const inputRef = useRef<HTMLInputElement | null>(null)
   const selectionRef = useRef<{ start: number; end: number } | null>(null)

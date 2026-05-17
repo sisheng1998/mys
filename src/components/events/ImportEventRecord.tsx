@@ -19,8 +19,9 @@ import { getRowNumber } from "@/lib/data-table"
 import { handleMutationError } from "@/lib/error"
 import { getLabelText } from "@/lib/name"
 import { formatCurrency, formatNumber, isValidNumber } from "@/lib/number"
-import { convertSCToTC, getExcelSheetName } from "@/lib/string"
+import { getExcelSheetName } from "@/lib/string"
 import { cn } from "@/lib/utils"
+import { useConverter } from "@/hooks/use-converter"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -71,6 +72,7 @@ const ImportEventRecord = ({
   const editorRef = useRef<HotTableRef>(null)
 
   const convex = useConvex()
+  const { convertSCToTC } = useConverter()
 
   const importEventRecords = useMutation(
     api.events.mutations.importEventRecords

@@ -19,6 +19,7 @@ import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso"
 
 import { calculateColumnSizing, getColumnSignature } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
+import { useConverter } from "@/hooks/use-converter"
 import {
   useFilterParams,
   usePaginationParams,
@@ -36,7 +37,7 @@ import {
 } from "@/components/ui/table"
 import ColumnToggle from "@/components/data-table/ColumnToggle"
 import Pagination from "@/components/data-table/Pagination"
-import Search, { searchFilterFn } from "@/components/data-table/Search"
+import Search, { createSearchFilterFn } from "@/components/data-table/Search"
 import { useDataTable } from "@/contexts/data-table"
 
 type WithId = { _id: string }
@@ -69,6 +70,12 @@ const DataTable = <TData extends WithId, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const { setTable } = useDataTable<TData>()
+  const { convertSCToTC, convertTCToSC } = useConverter()
+
+  const searchFilterFn = useMemo(
+    () => createSearchFilterFn(convertSCToTC, convertTCToSC),
+    [convertSCToTC, convertTCToSC]
+  )
 
   const table = useReactTable({
     data,

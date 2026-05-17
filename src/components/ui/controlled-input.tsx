@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react"
 
-import { convertSCToTC } from "@/lib/string"
+import { useConverter } from "@/hooks/use-converter"
 import { Input } from "@/components/ui/input"
 
 interface ControlledInputProps
@@ -19,6 +19,8 @@ interface ControlledInputProps
 
 const ControlledInput = forwardRef<HTMLInputElement, ControlledInputProps>(
   ({ value, onChange, ...props }, ref) => {
+    const { convertSCToTC } = useConverter()
+
     const inputRef = useRef<HTMLInputElement | null>(null)
     const selectionRef = useRef<{ start: number; end: number } | null>(null)
 
