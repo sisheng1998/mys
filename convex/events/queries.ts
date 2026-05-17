@@ -241,6 +241,14 @@ export const getRecordsForImport = authQuery({
           return { ...record, remarks: "Missing donor name", invalid: true }
         }
 
+        if (!record.amount) {
+          return {
+            ...record,
+            remarks: "Missing amount",
+            invalid: true,
+          }
+        }
+
         const key = `${record.name}_${record.category}`
         if (seen.has(key)) {
           return {
