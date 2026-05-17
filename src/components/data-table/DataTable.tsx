@@ -41,6 +41,8 @@ import { useDataTable } from "@/contexts/data-table"
 
 type WithId = { _id: string }
 
+const ROW_HEIGHT = 53
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -211,7 +213,7 @@ export const VirtualizedDataTable = <TData,>({
       const hasScrollbar = scroller.scrollHeight > scroller.clientHeight
       setHasScrollbar(hasScrollbar)
 
-      const width = scroller.clientWidth - (hasScrollbar ? 0 : 12)
+      const width = scroller.clientWidth - (hasScrollbar ? 0 : 16)
       if (width === lastWidthRef.current) return
       lastWidthRef.current = width
 
@@ -240,8 +242,8 @@ export const VirtualizedDataTable = <TData,>({
         hasFooter && "rounded-b-none"
       )}
       totalCount={rows.length}
-      defaultItemHeight={53}
-      increaseViewportBy={150}
+      defaultItemHeight={ROW_HEIGHT}
+      increaseViewportBy={ROW_HEIGHT * 10}
       components={{
         Table: ({ style, ...props }) => (
           <Table
