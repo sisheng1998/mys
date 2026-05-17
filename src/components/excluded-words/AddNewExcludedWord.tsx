@@ -54,7 +54,7 @@ const AddNewExcludedWord = () => {
   const onSubmit = async (values: formSchema) => {
     try {
       await addExcludedWord(values)
-      toast.success("New excluded word added")
+      toast.success("New word added")
       setOpen(false)
     } catch (error) {
       handleFormError(error, form.setError)
@@ -86,7 +86,7 @@ const AddNewExcludedWord = () => {
               <DialogTitle>New Excluded Word</DialogTitle>
 
               <DialogDescription>
-                New excluded word will be added to the list.
+                New word will be added to the list.
               </DialogDescription>
             </DialogHeader>
 
