@@ -42,45 +42,34 @@ export const search = authQuery({
   },
 })
 
-export const findSimilar = internalQuery({
+export const findName = internalQuery({
   args: {
     name: v.string(),
-    count: v.number(),
   },
-  handler: async (ctx, { name, count }) => {
-    const variants = Array.from(
-      new Set([name, convertSCToTC(name), convertTCToSC(name)].filter(Boolean))
-    )
+  handler: async (ctx, { name }) => {
+    const tcName = convertSCToTC(name)
 
-    const exact = (
-      await Promise.all(
-        variants.map((v) =>
-          ctx.db
-            .query("nameLists")
-            .withIndex("by_name", (q) => q.eq("name", v))
-            .collect()
-        )
-      )
-    )
-      .flat()
-      .filter((doc, i, arr) => arr.findIndex((d) => d._id === doc._id) === i)
+    const variants = [
+      ...new Set([name, tcName, convertTCToSC(name)].filter(Boolean)),
+    ]
 
-    if (exact.length > 0)
-      return exact.map(({ title = null, name }) => ({ title, name }))
+    const match = await (async () => {
+      for (const variant of variants) {
+        const doc = await ctx.db
+          .query("nameLists")
+          .withIndex("by_name", (q) => q.eq("name", variant))
+          .first()
 
-    const searchTerms = variants.map(convertChineseToUnicode).join(" ").trim()
+        if (doc && convertSCToTC(doc.name) === tcName) return doc
+      }
+    })()
 
-    const matches = await ctx.db
-      .query("nameLists")
-      .withSearchIndex("search_text", (q) =>
-        q.search("searchText", searchTerms)
-      )
-      .take(count)
-
-    return matches.map(({ title = null, name }) => ({
-      title,
-      name,
-    }))
+    return match
+      ? {
+          title: match.title ?? null,
+          name: match.name,
+        }
+      : null
   },
 })
 
@@ -109,14 +98,13 @@ export const getNameLists = httpAction(async (ctx, request) => {
 
   const results = await Promise.all(
     names.map(async (name) => {
-      const matches = await ctx.runQuery(
-        internal.nameLists.queries.findSimilar,
-        { name, count: 3 }
-      )
+      const match = await ctx.runQuery(internal.nameLists.queries.findName, {
+        name,
+      })
 
       return {
         input: name,
-        matches,
+        match,
       }
     })
   )
