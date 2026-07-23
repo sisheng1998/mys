@@ -42,30 +42,45 @@ export const search = authQuery({
   },
 })
 
-export const findMostSimilar = internalQuery({
+export const findSimilar = internalQuery({
   args: {
     name: v.string(),
+    count: v.number(),
   },
-  handler: async (ctx, { name }) => {
+  handler: async (ctx, { name, count }) => {
     const variants = Array.from(
       new Set([name, convertSCToTC(name), convertTCToSC(name)].filter(Boolean))
     )
 
+    const exact = (
+      await Promise.all(
+        variants.map((v) =>
+          ctx.db
+            .query("nameLists")
+            .withIndex("by_name", (q) => q.eq("name", v))
+            .collect()
+        )
+      )
+    )
+      .flat()
+      .filter((doc, i, arr) => arr.findIndex((d) => d._id === doc._id) === i)
+
+    if (exact.length > 0)
+      return exact.map(({ title = null, name }) => ({ title, name }))
+
     const searchTerms = variants.map(convertChineseToUnicode).join(" ").trim()
 
-    const match = await ctx.db
+    const matches = await ctx.db
       .query("nameLists")
       .withSearchIndex("search_text", (q) =>
         q.search("searchText", searchTerms)
       )
-      .take(1)
+      .take(count)
 
-    const nameList = match[0]
-
-    return {
-      name: nameList?.name ?? null,
-      title: nameList?.title ?? null,
-    }
+    return matches.map(({ title = null, name }) => ({
+      title,
+      name,
+    }))
   },
 })
 
@@ -94,14 +109,14 @@ export const getNameLists = httpAction(async (ctx, request) => {
 
   const results = await Promise.all(
     names.map(async (name) => {
-      const result = await ctx.runQuery(
-        internal.nameLists.queries.findMostSimilar,
-        { name }
+      const matches = await ctx.runQuery(
+        internal.nameLists.queries.findSimilar,
+        { name, count: 3 }
       )
 
       return {
         input: name,
-        match: result,
+        matches,
       }
     })
   )
