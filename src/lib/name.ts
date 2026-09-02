@@ -3,7 +3,7 @@ import { Title } from "@/types/nameList"
 import { isAllEnglishCharacters } from "@/lib/string"
 
 export const getNameWithTitle = (name: string, title?: Title) => {
-  if (!title || ["公司", "學生"].includes(title)) return name
+  if (!title || ["公司", "學生", "寵物"].includes(title)) return name
   return title === "合家" ? `${name}${title}` : `${title}${name}`
 }
 
@@ -59,6 +59,11 @@ export const getLabelText = (
     label = [
       [name, fontSize],
       ["金榜題名", TITLE_FONT_SIZE],
+    ]
+  } else if (title === "寵物") {
+    label = [
+      [name, fontSize],
+      ["平安喜樂", TITLE_FONT_SIZE],
     ]
   } else {
     label = [

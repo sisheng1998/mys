@@ -15,6 +15,7 @@ export const TITLES = [
   "已故",
   "公司",
   "學生",
+  "寵物",
 ] as const
 
 export const nameListFields = {
