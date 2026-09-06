@@ -50,15 +50,48 @@ export const getLunarDateFromSolarDate = (date: DateType): string => {
   return `${year}${SEPARATOR}${month}${SEPARATOR}${day}`
 }
 
+const MAX_MONTH_FALLBACK = 12
+
+const getPreviousLunarMonth = (year: number, month: number) => {
+  if (month < 0) return { year, month: -month }
+  if (month > 1) return { year, month: month - 1 }
+  return { year: year - 1, month: 12 }
+}
+
+const toLunarDayjs = (year: number, month: number, day: number) => {
+  let currentYear = year
+  let currentMonth = month
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= MAX_MONTH_FALLBACK; attempt++) {
+    for (let currentDay = day; currentDay >= 1; currentDay--) {
+      try {
+        return dayjs.lunar(currentYear, currentMonth, currentDay)
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    const previous = getPreviousLunarMonth(currentYear, currentMonth)
+    currentYear = previous.year
+    currentMonth = previous.month
+  }
+
+  throw new Error(
+    `Invalid lunar date: ${year}${SEPARATOR}${month}${SEPARATOR}${day}`,
+    { cause: lastError }
+  )
+}
+
 export const getLunarDateInChinese = (date: string): string => {
   const [year, month, day] = date.split(SEPARATOR)
-  const dayjsDate = dayjs.lunar(Number(year), Number(month), Number(day))
+  const dayjsDate = toLunarDayjs(Number(year), Number(month), Number(day))
   return dayjsDate.format("LMLD")
 }
 
 export const getSolarDateFromLunarDate = (date: string): Date => {
   const [year, month, day] = date.split(SEPARATOR)
-  const dayjsDate = dayjs.lunar(Number(year), Number(month), Number(day))
+  const dayjsDate = toLunarDayjs(Number(year), Number(month), Number(day))
   return dayjsDate.toDate()
 }
 
