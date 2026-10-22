@@ -276,7 +276,9 @@ export const getRecordsForImport = authQuery({
           const existingTitle = existingNameListRecord.title
           const currentTitle = record.title
 
-          if (!currentTitle && existingTitle) {
+          if (!currentTitle && existingTitle === "合家") {
+            remarks = `Title "${existingTitle}" found in name list`
+          } else if (!currentTitle && existingTitle) {
             title = existingTitle
             remarks = `Added title "${existingTitle}" from name list`
           } else if (existingTitle && existingTitle !== currentTitle) {
