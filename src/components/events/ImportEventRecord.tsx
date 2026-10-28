@@ -46,6 +46,7 @@ import { DEFAULT_TAB } from "@/components/events/CategoryTab"
 import ExcelDropzone from "@/components/events/ExcelDropzone"
 import SpreadsheetEditor, {
   SpreadsheetRecord,
+  toValidTitle,
 } from "@/components/events/SpreadsheetEditor"
 import { IconWithText } from "@/components/templates/TemplateList"
 import { usePrinter } from "@/contexts/printer"
@@ -144,7 +145,7 @@ const ImportEventRecord = ({
 
         records.push({
           category: category.name,
-          title: title ? convertSCToTC(title.trim()) : undefined,
+          title: toValidTitle(title, convertSCToTC) ?? undefined,
           name: convertSCToTC((name || "").trim()),
           amount: isValidNumber(amount) ? Number(amount) : category.amount,
           notes: notes ? convertSCToTC(notes.trim()) : undefined,

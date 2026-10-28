@@ -7,8 +7,10 @@ import { registerAllModules } from "handsontable/registry"
 import { useTheme } from "next-themes"
 
 import { Category } from "@/types/category"
+import { Title } from "@/types/nameList"
 import { getNameWithTitle } from "@/lib/name"
 import { getExcelSheetName } from "@/lib/string"
+import { useConverter } from "@/hooks/use-converter"
 
 import { api } from "@cvx/_generated/api"
 import { TITLES } from "@cvx/nameLists/schemas"
@@ -30,11 +32,22 @@ type SearchResult = {
 
 export type SpreadsheetRecord = (string | null)[]
 
+export const toValidTitle = (
+  value: unknown,
+  convert: (text: string) => string = (text) => text
+): Title | null => {
+  if (typeof value !== "string") return null
+
+  const title = convert(value.trim())
+  return TITLES.includes(title as Title) ? (title as Title) : null
+}
+
 const SpreadsheetEditor = forwardRef<
   HotTableRef,
   { spreadsheetRecords: SpreadsheetRecord[]; categories: Category[] }
 >(({ spreadsheetRecords, categories }, ref) => {
   const convex = useConvex()
+  const { convertSCToTC } = useConverter()
 
   const { resolvedTheme } = useTheme()
   const isDarkMode = resolvedTheme === "dark"
@@ -113,6 +126,12 @@ const SpreadsheetEditor = forwardRef<
       colHeaders={true}
       autoWrapRow={true}
       autoWrapCol={true}
+      beforeChange={(changes) => {
+        changes.forEach((change) => {
+          if (!change || Number(change[1]) !== 1) return
+          change[3] = toValidTitle(change[3], convertSCToTC)
+        })
+      }}
       afterChange={(changes, source) => {
         const hot = ref && "current" in ref ? ref.current?.hotInstance : null
 
